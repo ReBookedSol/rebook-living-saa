@@ -91,27 +91,24 @@ const ListingDetail = () => {
           </Button>
         </Link>
 
-        {/* Image Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="relative h-96 rounded-lg overflow-hidden">
-            <img
-              src={listing.image_urls?.[0] || "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800"}
-              alt={listing.property_name}
-              className="w-full h-full object-cover"
-            />
+        {/* Header band (images removed) */}
+        <div className="mb-6">
+          <div className="h-20 bg-gradient-to-r from-primary/80 to-primary-hover/80 rounded-lg flex items-center px-4">
+            <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-3">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
+              </svg>
+            </div>
+            <div className="text-white">
+              <h2 className="font-semibold text-xl">{listing.property_name}</h2>
+              <p className="text-sm text-white/90">{listing.type} • {listing.city}</p>
+            </div>
             {listing.nsfas_accredited && (
-              <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground">
+              <Badge className="ml-auto bg-accent text-accent-foreground">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 NSFAS Accredited
               </Badge>
             )}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {listing.image_urls?.slice(1, 5).map((url: string, idx: number) => (
-              <div key={idx} className="h-44 rounded-lg overflow-hidden">
-                <img src={url} alt={`${listing.property_name} ${idx + 2}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
           </div>
         </div>
 
