@@ -17,17 +17,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col">
       <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <Home className="text-primary-foreground w-5 h-5" />
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center">
+                <Home className="text-primary-foreground w-4 h-4" />
               </div>
-              <span className="text-xl font-bold">Rebook Living</span>
+              <span className="text-lg font-semibold">Rebook Living</span>
             </Link>
 
             {!isAdmin && (
-              <div className="hidden md:flex items-center gap-6">
+              <div className="hidden md:flex items-center gap-5">
                 <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
                   Home
                 </Link>
@@ -58,8 +58,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </div>
             )}
           </div>
-
-          <div className="text-center mt-2 text-xs text-muted-foreground">Powered by Rebooked Solutions</div>
         </div>
       </nav>
 
