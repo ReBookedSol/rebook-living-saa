@@ -14,7 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accommodations: {
+        Row: {
+          accreditation_number: string | null
+          address: string
+          amenities: string[] | null
+          certified_universities: string[] | null
+          city: string | null
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          created_at: string | null
+          gender_policy: string | null
+          id: string
+          image_urls: string[] | null
+          monthly_cost: number | null
+          nsfas_accredited: boolean | null
+          property_name: string
+          province: string | null
+          rating: number | null
+          rooms_available: number | null
+          status: string | null
+          type: string
+          university: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          accreditation_number?: string | null
+          address: string
+          amenities?: string[] | null
+          certified_universities?: string[] | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          gender_policy?: string | null
+          id?: string
+          image_urls?: string[] | null
+          monthly_cost?: number | null
+          nsfas_accredited?: boolean | null
+          property_name: string
+          province?: string | null
+          rating?: number | null
+          rooms_available?: number | null
+          status?: string | null
+          type: string
+          university?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          accreditation_number?: string | null
+          address?: string
+          amenities?: string[] | null
+          certified_universities?: string[] | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          gender_policy?: string | null
+          id?: string
+          image_urls?: string[] | null
+          monthly_cost?: number | null
+          nsfas_accredited?: boolean | null
+          property_name?: string
+          province?: string | null
+          rating?: number | null
+          rooms_available?: number | null
+          status?: string | null
+          type?: string
+          university?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          message: string | null
+          name: string | null
+          read: boolean | null
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          read?: boolean | null
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          read?: boolean | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          diversity: string | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          notes: string | null
+          phone: string | null
+          university: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          diversity?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          university?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          diversity?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          university?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
