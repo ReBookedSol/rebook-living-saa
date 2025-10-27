@@ -1,10 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { Home, Search, Info, Mail, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    // Smooth scroll to top on navigation
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col">
