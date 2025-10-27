@@ -63,9 +63,9 @@ All colors MUST be HSL.
     --primary-hover: 160 84% 40%;
     --primary-light: 160 50% 20%;
 
-    --accent: 43 96% 56%;
+    --accent: 43 90% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-hover: 43 96% 62%;
+    --accent-hover: 43 90% 58%;
 
     --secondary: 222.2 47% 20%;
     --secondary-foreground: 0 0% 98%;
