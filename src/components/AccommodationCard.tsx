@@ -32,7 +32,7 @@ const AccommodationCard = ({
   genderPolicy,
 }: AccommodationCardProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow transition-shadow">
       <div className="relative">
         <div className="h-16 bg-gradient-to-r from-primary/80 to-primary-hover/80 flex items-center px-4">
           <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-3">
