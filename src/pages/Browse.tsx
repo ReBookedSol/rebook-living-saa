@@ -65,18 +65,27 @@ const Browse = () => {
     },
   });
 
+  const [showFilters, setShowFilters] = useState(true);
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">Browse Accommodation</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold mb-4">Browse Accommodation</h1>
+            <div className="lg:hidden">
+              <button onClick={() => setShowFilters((v) => !v)} className="text-sm text-primary underline">
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </button>
+            </div>
+          </div>
           <SearchBar compact />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <aside className="lg:col-span-1">
-            <div className="bg-card p-6 rounded-lg border sticky top-24">
+            <div className={`bg-card p-6 rounded-lg border sticky top-24 transition-all duration-300 ${showFilters ? 'opacity-100 max-h-[1200px]' : 'opacity-0 max-h-0 overflow-hidden lg:overflow-visible lg:opacity-100 lg:max-h-[1200px]'}`}>
               <h2 className="text-xl font-semibold mb-4">Filters</h2>
 
               {/* Sort */}

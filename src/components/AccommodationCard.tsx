@@ -32,21 +32,27 @@ const AccommodationCard = ({
   genderPolicy,
 }: AccommodationCardProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={propertyName}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-        />
+    <Card className="overflow-hidden hover:shadow transition-shadow">
+      <div className="relative">
+        <div className="h-16 bg-gradient-to-r from-primary/80 to-primary-hover/80 flex items-center px-4">
+          <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-3">
+            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
+            </svg>
+          </div>
+          <div className="text-white">
+            <h3 className="font-semibold text-lg leading-tight">{propertyName}</h3>
+            <p className="text-sm text-white/90">{type} • {city}</p>
+          </div>
+        </div>
         {nsfasAccredited && (
-          <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">
+          <Badge className="absolute top-3 right-3 bg-accent text-accent-foreground">
             <CheckCircle className="w-3 h-3 mr-1" />
             NSFAS
           </Badge>
         )}
       </div>
-      
+
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div>

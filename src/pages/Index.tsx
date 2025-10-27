@@ -26,19 +26,26 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary-hover to-primary py-20 md:py-32">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+      <section className="relative h-[70vh] md:h-[75vh]">
+        <img
+          src="https://images.pexels.com/photos/32982365/pexels-photo-32982365.jpeg"
+          alt="South African student accommodation exterior on a university campus"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
+
+        <div className="container mx-auto px-4 relative z-10 flex h-full flex-col items-center justify-center text-center">
+          <div className="max-w-3xl mx-auto mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
               Find Your Perfect Student Home in South Africa
             </h1>
-            <p className="text-xl text-white/90 mb-8">
+            <p className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl mx-auto">
               Discover quality, affordable, and NSFAS-accredited accommodation near your university
             </p>
           </div>
-          
-          <div className="max-w-5xl mx-auto">
+
+          <div className="w-full max-w-5xl">
             <SearchBar />
           </div>
         </div>
@@ -137,14 +144,16 @@ const Index = () => {
       <section className="py-20 bg-gradient-to-r from-accent via-accent-hover to-accent">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Have a Property to List?
+            Want to collaborate or advertise with us?
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Reach thousands of students looking for accommodation. List your property today!
+            We're open to partnerships and thoughtful collaborations. Get in touch and let's discuss how we can work together.
           </p>
-          <Button size="lg" variant="secondary" className="text-lg px-8">
-            List Your Property
-          </Button>
+          <Link to="/contact">
+            <Button size="lg" variant="secondary" className="text-lg px-8">
+              Contact Us
+            </Button>
+          </Link>
         </div>
       </section>
     </Layout>

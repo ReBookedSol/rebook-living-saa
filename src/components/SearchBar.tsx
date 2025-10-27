@@ -26,6 +26,7 @@ const SearchBar = ({ compact = false }) => {
   const [university, setUniversity] = useState("All Universities");
   const [maxCost, setMaxCost] = useState("");
   const [nsfasOnly, setNsfasOnly] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -33,7 +34,7 @@ const SearchBar = ({ compact = false }) => {
     if (university !== "All Universities") params.set("university", university);
     if (maxCost) params.set("maxCost", maxCost);
     if (nsfasOnly) params.set("nsfas", "true");
-    
+
     navigate(`/browse?${params.toString()}`);
   };
 
@@ -60,7 +61,7 @@ const SearchBar = ({ compact = false }) => {
   return (
     <div className="bg-card p-6 rounded-xl shadow-lg border">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <div className="space-y-2">
+        <div className="space-y-2 col-span-1 md:col-span-2">
           <label className="text-sm font-medium flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary" />
             Location
@@ -72,60 +73,72 @@ const SearchBar = ({ compact = false }) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium flex items-center gap-2">
-            <GraduationCap className="h-4 w-4 text-primary" />
-            University
-          </label>
-          <Select value={university} onValueChange={setUniversity}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SA_UNIVERSITIES.map((uni) => (
-                <SelectItem key={uni} value={uni}>
-                  {uni}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="flex items-end md:items-center gap-2 md:gap-4 md:col-span-2">
+          <Button onClick={() => setShowAdvanced((v) => !v)} variant="outline" className="inline-flex">
+            {showAdvanced ? 'Hide Filters' : 'Show Filters'}
+          </Button>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-primary" />
-            Max Monthly Cost (ZAR)
-          </label>
-          <Input
-            type="number"
-            placeholder="e.g., 4000"
-            value={maxCost}
-            onChange={(e) => setMaxCost(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2 flex flex-col justify-end">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="nsfas"
-              checked={nsfasOnly}
-              onCheckedChange={(checked) => setNsfasOnly(checked as boolean)}
-            />
-            <label
-              htmlFor="nsfas"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-            >
-              <CheckCircle className="h-4 w-4 text-primary" />
-              NSFAS Accredited Only
-            </label>
+          <div className="flex-1">
+            <Button onClick={handleSearch} className="w-full bg-primary hover:bg-primary-hover">
+              <Search className="mr-2 h-4 w-4" />
+              Search Accommodation
+            </Button>
           </div>
         </div>
       </div>
 
-      <Button onClick={handleSearch} className="w-full bg-primary hover:bg-primary-hover">
-        <Search className="mr-2 h-4 w-4" />
-        Search Accommodation
-      </Button>
+      <div className={`overflow-hidden transform origin-top transition-all duration-300 ${showAdvanced ? 'max-h-[400px] scale-y-100 opacity-100' : 'max-h-0 scale-y-0 opacity-0'} md:max-h-full md:scale-y-100 md:opacity-100`}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <GraduationCap className="h-4 w-4 text-primary" />
+              University
+            </label>
+            <Select value={university} onValueChange={setUniversity}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SA_UNIVERSITIES.map((uni) => (
+                  <SelectItem key={uni} value={uni}>
+                    {uni}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              Max Monthly Cost (ZAR)
+            </label>
+            <Input
+              type="number"
+              placeholder="e.g., 4000"
+              value={maxCost}
+              onChange={(e) => setMaxCost(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2 col-span-1 md:col-span-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="nsfas"
+                checked={nsfasOnly}
+                onCheckedChange={(checked) => setNsfasOnly(checked as boolean)}
+              />
+              <label
+                htmlFor="nsfas"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+              >
+                <CheckCircle className="h-4 w-4 text-primary" />
+                NSFAS Accredited Only
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -126,8 +126,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <a href="mailto:info@rebookliving.co.za" className="text-sm text-muted-foreground hover:text-primary">
-                        info@rebookliving.co.za
+                      <a href="mailto:info@rebookedsolutions.co.za" className="text-sm text-muted-foreground hover:text-primary">
+                        info@rebookedsolutions.co.za
                       </a>
                     </div>
                   </div>

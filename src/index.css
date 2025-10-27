@@ -18,15 +18,15 @@ All colors MUST be HSL.
     --popover-foreground: 222.2 47% 11%;
 
     /* ReBooked teal/emerald primary */
-    --primary: 160 84% 39%;
+    --primary: 160 84% 34%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 160 84% 32%;
-    --primary-light: 160 50% 95%;
+    --primary-hover: 160 84% 28%;
+    --primary-light: 160 50% 90%;
 
-    /* Warm orange accent from ReBooked */
-    --accent: 43 96% 56%;
+    /* Warm orange accent from ReBooked (toned down) */
+    --accent: 43 90% 53%;
     --accent-foreground: 0 0% 100%;
-    --accent-hover: 43 96% 48%;
+    --accent-hover: 43 90% 48%;
 
     --secondary: 160 20% 96%;
     --secondary-foreground: 160 84% 20%;
@@ -58,14 +58,14 @@ All colors MUST be HSL.
     --popover: 222.2 47% 14%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 160 84% 39%;
+    --primary: 160 84% 34%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 160 84% 45%;
+    --primary-hover: 160 84% 40%;
     --primary-light: 160 50% 20%;
 
-    --accent: 43 96% 56%;
+    --accent: 43 90% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-hover: 43 96% 62%;
+    --accent-hover: 43 90% 58%;
 
     --secondary: 222.2 47% 20%;
     --secondary-foreground: 0 0% 98%;
