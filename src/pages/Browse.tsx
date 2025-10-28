@@ -110,7 +110,7 @@ const Browse = () => {
                 </Label>
                 <Slider
                   min={0}
-                  max={10000}
+                  max={20000}
                   step={500}
                   value={priceRange}
                   onValueChange={setPriceRange}
