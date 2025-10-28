@@ -163,8 +163,8 @@ const Index = () => {
       </section>
 
       {/* CTA band using accent gradient */}
-      <section className="py-16 bg-gradient-to-r from-accent via-accent-hover to-accent">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-16">
+        <div className="container mx-auto px-4 text-center" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--muted)))', padding: '3rem', borderRadius: '0.75rem' }}>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Want to collaborate or advertise with us?
           </h2>
