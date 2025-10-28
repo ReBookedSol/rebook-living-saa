@@ -33,13 +33,7 @@ const AccommodationCard = ({
 }: AccommodationCardProps) => {
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
-      <div className="relative h-56 bg-muted">
-        <img
-          src={imageUrl}
-          alt={propertyName}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-
+      <div className="relative h-20 flex items-center px-4" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--muted)))' }}>
         {nsfasAccredited && (
           <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">
             <CheckCircle className="w-3 h-3 mr-1" />
@@ -47,14 +41,14 @@ const AccommodationCard = ({
           </Badge>
         )}
 
+        <div className="flex-1 text-white">
+          <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
+          <p className="text-xs text-white/90">{type} • {city}</p>
+        </div>
+
         <button aria-label="Save listing" className="absolute top-3 right-3 bg-white/90 rounded-full p-2 shadow">
           <Heart className="w-4 h-4 text-primary" />
         </button>
-
-        <div className="absolute left-0 right-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <h3 className="text-white font-semibold text-lg leading-tight">{propertyName}</h3>
-          <p className="text-xs text-white/90">{type} • {city}</p>
-        </div>
       </div>
 
       <CardContent className="p-4">
