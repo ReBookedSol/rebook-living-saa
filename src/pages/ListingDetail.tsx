@@ -91,9 +91,9 @@ const ListingDetail = () => {
           </Button>
         </Link>
 
-        {/* Header band (images removed) */}
-        <div className="mb-6">
-          <div className="h-20 bg-gradient-to-r from-primary/80 to-primary-hover/80 rounded-lg flex items-center px-4">
+        {/* Header band (multicolor) */}
+        <div className="mb-6 relative">
+          <div className="h-20 rounded-lg flex items-center px-4" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--muted)))' }}>
             <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-3">
               <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
@@ -109,6 +109,14 @@ const ListingDetail = () => {
                 NSFAS Accredited
               </Badge>
             )}
+
+            {/* Prev / Next arrows */}
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              {/* placeholder for prev link; replaced below by conditional rendering */}
+            </div>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              {/* placeholder for next link */}
+            </div>
           </div>
         </div>
 
