@@ -16,28 +16,28 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-md">
-        <div className="container mx-auto px-4 py-2">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center">
                 <Home className="text-primary-foreground w-4 h-4" />
               </div>
-              <span className="text-lg font-semibold">Rebook Living</span>
+              <span className="text-lg font-semibold tracking-tight">Rebook Living</span>
             </Link>
 
             {!isAdmin && (
-              <div className="hidden md:flex items-center gap-5">
-                <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
+              <div className="hidden md:flex items-center gap-8">
+                <Link to="/" className="text-base font-medium hover:underline underline-offset-4">
                   Home
                 </Link>
-                <Link to="/browse" className="text-sm font-medium hover:text-primary transition-colors">
+                <Link to="/browse" className="text-base font-medium hover:underline underline-offset-4">
                   Browse
                 </Link>
-                <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
+                <Link to="/about" className="text-base font-medium hover:underline underline-offset-4">
                   About
                 </Link>
-                <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+                <Link to="/contact" className="text-base font-medium hover:underline underline-offset-4">
                   Contact
                 </Link>
               </div>
