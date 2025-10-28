@@ -142,9 +142,10 @@ const Index = () => {
                   city={listing.city || ""}
                   monthlyCost={listing.monthly_cost || 0}
                   rating={listing.rating || 0}
-                  imageUrl={listing.image_urls?.[0] || "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800"}
                   nsfasAccredited={listing.nsfas_accredited || false}
                   genderPolicy={listing.gender_policy || ""}
+                  website={listing.website || null}
+                  amenities={listing.amenities || []}
                 />
               ))}
             </div>
