@@ -36,10 +36,10 @@ const AccommodationCard = ({
 }: AccommodationCardProps) => {
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
-      <div className="relative min-h-[88px] py-4 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
+      <div className="relative min-h-[88px] py-6 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
         {nsfasAccredited && (
-          <Badge className="absolute top-3 right-3 bg-white text-primary shadow-sm">
-            <CheckCircle className="w-3 h-3 mr-1 text-primary" />
+          <Badge className="absolute" style={{ top: 8, right: 12, background: 'white', color: 'hsl(var(--primary))' }}>
+            <CheckCircle className="w-3 h-3 mr-1" />
             NSFAS
           </Badge>
         )}
