@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Eye } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
@@ -36,14 +36,7 @@ const AccommodationCard = ({
 }: AccommodationCardProps) => {
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
-      <div className="relative h-20 flex items-center px-4" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%)' }}>
-        {nsfasAccredited && (
-          <Badge className="absolute left-3" style={{ top: -8 }}>
-            <CheckCircle className="w-3 h-3 mr-1" />
-            NSFAS
-          </Badge>
-        )}
-
+      <div className="relative min-h-[88px] py-4 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
         <div className="flex-1 text-white">
           <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
           <p className="text-xs text-white/90">{type} • {city}</p>
@@ -52,12 +45,12 @@ const AccommodationCard = ({
 
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
-          <div>
+          <div className="pr-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="w-4 h-4 text-primary" />
               <span>{address || city}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+            <p className="text-xs text-muted-foreground mt-2">
               {university}
               {nsfasAccredited && (
                 <span title={`NSFAS accredited for ${university}`} className="inline-flex items-center ml-2 text-accent">
@@ -68,7 +61,7 @@ const AccommodationCard = ({
 
             <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" />{genderPolicy || 'Mixed'}</div>
-              <div className="flex items-center gap-1"><Star className="w-4 h-4 text-accent" />{rating?.toFixed(1)}</div>
+              <div className="flex items-center gap-1"><Star className="w-4 h-4 text-accent" />{(rating || 0).toFixed(1)}</div>
             </div>
 
             {amenities.length > 0 && (
@@ -78,7 +71,7 @@ const AccommodationCard = ({
             )}
           </div>
 
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             <p className="text-2xl font-bold text-primary">R{monthlyCost.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground">per month</p>
           </div>
@@ -95,13 +88,13 @@ const AccommodationCard = ({
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="rounded-full">
-                <Eye className="w-4 h-4" />
+              <Button variant="ghost" size="sm" className="rounded-full border border-white/20 w-8 h-8 flex items-center justify-center">
+                <Info className="w-4 h-4 text-white" />
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-sm w-full">
               <DialogHeader>
-                <DialogTitle>{propertyName} — Info</DialogTitle>
+                <DialogTitle className="text-base">{propertyName} — Info</DialogTitle>
                 <DialogDescription>
                   <p className="mt-2">Gender policy: {genderPolicy || 'Mixed'}</p>
                   <p className="mt-2">NSFAS accredited: {nsfasAccredited ? 'Yes' : 'No'}</p>
