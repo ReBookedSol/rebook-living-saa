@@ -1,8 +1,9 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, Wifi, CheckCircle } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Info } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 interface AccommodationCardProps {
   id: string;
@@ -13,9 +14,10 @@ interface AccommodationCardProps {
   city: string;
   monthlyCost: number;
   rating: number;
-  imageUrl: string;
   nsfasAccredited: boolean;
   genderPolicy: string;
+  website?: string | null;
+  amenities?: string[];
 }
 
 const AccommodationCard = ({
@@ -27,68 +29,97 @@ const AccommodationCard = ({
   city,
   monthlyCost,
   rating,
-  imageUrl,
   nsfasAccredited,
   genderPolicy,
+  website,
+  amenities = [],
 }: AccommodationCardProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow transition-shadow">
-      <div className="relative">
-        <div className="h-16 bg-gradient-to-r from-primary/80 to-primary-hover/80 flex items-center px-4">
-          <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-3">
-            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
-            </svg>
-          </div>
-          <div className="text-white">
-            <h3 className="font-semibold text-lg leading-tight">{propertyName}</h3>
-            <p className="text-sm text-white/90">{type} • {city}</p>
-          </div>
-        </div>
+    <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
+      <div className="relative min-h-[88px] py-6 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
         {nsfasAccredited && (
-          <Badge className="absolute top-3 right-3 bg-accent text-accent-foreground">
+          <Badge className="absolute" style={{ top: 8, right: 12, background: 'white', color: 'hsl(var(--primary))' }}>
             <CheckCircle className="w-3 h-3 mr-1" />
             NSFAS
           </Badge>
         )}
+        <div className="flex-1 text-white">
+          <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
+          <p className="text-xs text-white/90">{type} • {city}</p>
+        </div>
       </div>
 
       <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div>
-            <h3 className="font-semibold text-lg">{propertyName}</h3>
-            <p className="text-sm text-muted-foreground">{type}</p>
+        <div className="flex items-start justify-between">
+          <div className="pr-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span>{address || city}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {university}
+              {nsfasAccredited && (
+                <span title={`NSFAS accredited for ${university}`} className="inline-flex items-center ml-2 text-accent">
+                  <CheckCircle className="w-4 h-4" />
+                </span>
+              )}
+            </p>
+
+            <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" />{genderPolicy || 'Mixed'}</div>
+              <div className="flex items-center gap-1"><Star className="w-4 h-4 text-accent" />{(rating || 0).toFixed(1)}</div>
+            </div>
+
+            {amenities.length > 0 && (
+              <div className="mt-3 text-sm text-muted-foreground">
+                <strong className="text-sm">Amenities:</strong> {amenities.slice(0,3).join(", ")}{amenities.length > 3 ? '...' : ''}
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-1 text-sm">
-            <Star className="w-4 h-4 fill-accent text-accent" />
-            <span className="font-medium">{rating.toFixed(1)}</span>
+
+          <div className="text-right flex-shrink-0">
+            <p className="text-2xl font-bold text-primary">R{monthlyCost.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">per month</p>
           </div>
         </div>
-
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-4 h-4 text-primary" />
-            <span>{city}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="w-4 h-4 text-primary" />
-            <span>{genderPolicy}</span>
-          </div>
-        </div>
-
-        <p className="text-xs text-muted-foreground mt-2 line-clamp-1">{university}</p>
       </CardContent>
 
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
-        <div>
-          <p className="text-2xl font-bold text-primary">R{monthlyCost.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">per month</p>
+        <div className="flex items-center gap-2">
+          <Link to={`/listing/${id}`}>
+            <Button variant="default" size="sm" className="bg-primary hover:bg-primary-hover rounded-full">
+              View Details
+            </Button>
+          </Link>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="rounded-full border border-primary/20 w-8 h-8 flex items-center justify-center text-primary hover:bg-primary/10">
+                <Info className="w-4 h-4 text-primary" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm w-full rounded-xl p-4">
+              <DialogHeader>
+                <DialogTitle className="text-base">{propertyName} — Info</DialogTitle>
+                <DialogDescription>
+                  <p className="mt-2 text-sm">Gender policy: <span className="font-medium">{genderPolicy || 'Mixed'}</span></p>
+                  <p className="mt-2 text-sm">NSFAS accredited: <span className="font-medium">{nsfasAccredited ? 'Yes' : 'No'}</span></p>
+                  <p className="mt-2 text-sm">University: <span className="font-medium">{university}</span></p>
+                  {amenities.length > 0 && <p className="mt-2 text-sm">Amenities: <span className="font-medium">{amenities.join(', ')}</span></p>}
+                  {website && (
+                    <p className="mt-2 text-sm">Website: <a href={website} target="_blank" rel="noreferrer" className="text-primary underline">Visit</a></p>
+                  )}
+                  <p className="mt-4 text-xs text-muted-foreground">For bursaries and university info see: <a href="https://www.rebookedsolutions.co.za/university-info" target="_blank" rel="noreferrer" className="text-primary underline">University Info</a></p>
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 flex justify-end">
+                <DialogClose asChild>
+                  <Button className="bg-primary text-white">Close</Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-        <Link to={`/listing/${id}`}>
-          <Button variant="default" size="sm" className="bg-primary hover:bg-primary-hover">
-            View Details
-          </Button>
-        </Link>
       </CardFooter>
     </Card>
   );

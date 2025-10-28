@@ -73,13 +73,13 @@ const Browse = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold mb-4">Browse Accommodation</h1>
-            <div className="lg:hidden">
-              <button onClick={() => setShowFilters((v) => !v)} className="text-sm text-primary underline">
-                {showFilters ? 'Hide Filters' : 'Show Filters'}
-              </button>
-            </div>
           </div>
           <SearchBar compact />
+          <div className="lg:hidden flex justify-center mt-4">
+            <button onClick={() => setShowFilters((v) => !v)} className="text-sm text-primary underline px-3 py-2 bg-white rounded-md shadow-sm">
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -110,7 +110,7 @@ const Browse = () => {
                 </Label>
                 <Slider
                   min={0}
-                  max={10000}
+                  max={20000}
                   step={500}
                   value={priceRange}
                   onValueChange={setPriceRange}
@@ -162,9 +162,9 @@ const Browse = () => {
           {/* Results */}
           <div className="lg:col-span-3">
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-96 bg-muted rounded-lg animate-pulse"></div>
+                  <div key={i} className="h-96 bg-muted rounded-2xl animate-pulse"></div>
                 ))}
               </div>
             ) : accommodations && accommodations.length > 0 ? (
@@ -172,7 +172,7 @@ const Browse = () => {
                 <p className="text-muted-foreground mb-4">
                   Found {accommodations.length} properties
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {accommodations.map((listing) => (
                     <AccommodationCard
                       key={listing.id}
@@ -184,9 +184,10 @@ const Browse = () => {
                       city={listing.city || ""}
                       monthlyCost={listing.monthly_cost || 0}
                       rating={listing.rating || 0}
-                      imageUrl={listing.image_urls?.[0] || "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800"}
                       nsfasAccredited={listing.nsfas_accredited || false}
                       genderPolicy={listing.gender_policy || ""}
+                      website={listing.website || null}
+                      amenities={listing.amenities || []}
                     />
                   ))}
                 </div>

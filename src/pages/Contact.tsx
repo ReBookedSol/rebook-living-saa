@@ -160,8 +160,8 @@ const Contact = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-primary to-primary-hover text-white">
-                <CardContent className="pt-6">
+              <Card>
+                <CardContent className="pt-6" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))', color: 'white', borderRadius: '0.5rem' }}>
                   <h3 className="font-bold text-lg mb-2">Need immediate assistance?</h3>
                   <p className="text-sm text-white/90 mb-4">
                     Our support team is available Monday to Friday, 9 AM - 5 PM SAST.

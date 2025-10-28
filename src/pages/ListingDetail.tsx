@@ -54,6 +54,7 @@ const ListingDetail = () => {
     }
   };
 
+
   if (isLoading) {
     return (
       <Layout>
@@ -91,24 +92,26 @@ const ListingDetail = () => {
           </Button>
         </Link>
 
-        {/* Header band (images removed) */}
-        <div className="mb-6">
-          <div className="h-20 bg-gradient-to-r from-primary/80 to-primary-hover/80 rounded-lg flex items-center px-4">
-            <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-3">
+        {/* Header band (multicolor) */}
+        <div className="mb-6 relative">
+          <div className="rounded-lg flex flex-col md:flex-row items-start md:items-center gap-3 p-4" style={{ background: 'hsl(var(--primary))' }}>
+            <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-0 md:mr-3 flex-shrink-0">
               <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
               </svg>
             </div>
-            <div className="text-white">
-              <h2 className="font-semibold text-xl">{listing.property_name}</h2>
-              <p className="text-sm text-white/90">{listing.type} • {listing.city}</p>
+            <div className="text-white flex-1 min-w-0">
+              <h2 className="font-semibold text-lg md:text-xl truncate">{listing.property_name}</h2>
+              <p className="text-sm text-white/90 truncate">{listing.type} • {listing.city}</p>
             </div>
             {listing.nsfas_accredited && (
-              <Badge className="ml-auto bg-accent text-accent-foreground">
+              <Badge className="ml-0 md:ml-auto bg-accent text-accent-foreground mt-2 md:mt-0">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 NSFAS Accredited
               </Badge>
             )}
+
+            {/* navigation arrows removed per request */}
           </div>
         </div>
 
@@ -127,8 +130,8 @@ const ListingDetail = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 bg-accent/10 px-3 py-2 rounded-lg">
-                  <Star className="w-5 h-5 fill-accent text-accent" />
-                  <span className="font-bold text-lg">{listing.rating?.toFixed(1)}</span>
+                  <Star className="w-4 h-4 text-accent" />
+                  <span className="font-bold text-sm">{(listing.rating || 0).toFixed(1)}</span>
                 </div>
               </div>
 
@@ -219,46 +222,34 @@ const ListingDetail = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Send Inquiry</CardTitle>
+                <CardTitle>Google Maps</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      value={contactForm.name}
-                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={contactForm.email}
-                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      rows={4}
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      placeholder="I'm interested in this property..."
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary-hover" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending..." : "Send Message"}
-                  </Button>
-                </form>
+                <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">Map placeholder</div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Google Reviews</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">Reviews placeholder</div>
+                <p className="mt-3 text-xs text-muted-foreground">Reviews are aggregated from Google Reviews. When connected, ratings and excerpts will appear here.</p>
+              </CardContent>
+            </Card>
+
+            {listing.website && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Website</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary underline">{listing.website}</a>
+                </CardContent>
+              </Card>
+            )}
+
           </div>
         </div>
       </div>
