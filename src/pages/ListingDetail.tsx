@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -16,6 +18,13 @@ const ListingDetail = () => {
   const { id } = useParams();
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reportForm, setReportForm] = useState({ 
+    reporter_name: "", 
+    reporter_email: "", 
+    reason: "", 
+    details: "" 
+  });
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["accommodation", id],
@@ -52,6 +61,33 @@ const ListingDetail = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const reportMutation = useMutation({
+    mutationFn: async (reportData: any) => {
+      const { error } = await supabase.from("reports").insert({
+        accommodation_id: id,
+        ...reportData,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Report submitted successfully. Thank you for helping us maintain quality.");
+      setReportForm({ reporter_name: "", reporter_email: "", reason: "", details: "" });
+      setReportDialogOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to submit report. Please try again.");
+    },
+  });
+
+  const handleReportSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportForm.reason) {
+      toast.error("Please select a reason for reporting");
+      return;
+    }
+    reportMutation.mutate(reportForm);
   };
 
 
@@ -104,14 +140,80 @@ const ListingDetail = () => {
               <h2 className="font-semibold text-lg md:text-xl truncate">{listing.property_name}</h2>
               <p className="text-sm text-white/90 truncate">{listing.type} • {listing.city}</p>
             </div>
-            {listing.nsfas_accredited && (
-              <Badge className="ml-0 md:ml-auto bg-accent text-accent-foreground mt-2 md:mt-0">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                NSFAS Accredited
-              </Badge>
-            )}
-
-            {/* navigation arrows removed per request */}
+            <div className="flex items-center gap-2">
+              {listing.nsfas_accredited && (
+                <Badge className="bg-accent text-accent-foreground">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  NSFAS Accredited
+                </Badge>
+              )}
+              <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+                    <Flag className="w-4 h-4 mr-2" />
+                    Report
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Report Listing</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleReportSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="reason">Reason for reporting *</Label>
+                      <Select
+                        value={reportForm.reason}
+                        onValueChange={(value) => setReportForm({ ...reportForm, reason: value })}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a reason" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Inaccurate Information">Inaccurate Information</SelectItem>
+                          <SelectItem value="Scam or Fraud">Scam or Fraud</SelectItem>
+                          <SelectItem value="Property No Longer Available">Property No Longer Available</SelectItem>
+                          <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="report-details">Details</Label>
+                      <Textarea
+                        id="report-details"
+                        value={reportForm.details}
+                        onChange={(e) => setReportForm({ ...reportForm, details: e.target.value })}
+                        placeholder="Please provide more information about this report..."
+                        rows={4}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="reporter-name">Your Name (optional)</Label>
+                      <Input
+                        id="reporter-name"
+                        value={reportForm.reporter_name}
+                        onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="reporter-email">Your Email (optional)</Label>
+                      <Input
+                        id="reporter-email"
+                        type="email"
+                        value={reportForm.reporter_email}
+                        onChange={(e) => setReportForm({ ...reportForm, reporter_email: e.target.value })}
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                    <Button type="submit" disabled={reportMutation.isPending}>
+                      {reportMutation.isPending ? "Submitting..." : "Submit Report"}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
@@ -149,10 +251,24 @@ const ListingDetail = () => {
                 <CardTitle>Property Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {listing.description && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Description</h3>
+                    <p className="text-sm text-muted-foreground">{listing.description}</p>
+                  </div>
+                )}
+                
                 <div>
                   <h3 className="font-semibold mb-2">University</h3>
                   <p>{listing.university}</p>
                 </div>
+
+                {listing.units && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Units</h3>
+                    <p>{listing.units} units available</p>
+                  </div>
+                )}
                 
                 {listing.amenities && listing.amenities.length > 0 && (
                   <div>

@@ -17,6 +17,7 @@ export type Database = {
       accommodations: {
         Row: {
           accreditation_number: string | null
+          added_by: string | null
           address: string
           amenities: string[] | null
           certified_universities: string[] | null
@@ -25,6 +26,7 @@ export type Database = {
           contact_person: string | null
           contact_phone: string | null
           created_at: string | null
+          description: string | null
           gender_policy: string | null
           id: string
           image_urls: string[] | null
@@ -36,11 +38,14 @@ export type Database = {
           rooms_available: number | null
           status: string | null
           type: string
+          units: number | null
           university: string | null
           updated_at: string | null
+          website: string | null
         }
         Insert: {
           accreditation_number?: string | null
+          added_by?: string | null
           address: string
           amenities?: string[] | null
           certified_universities?: string[] | null
@@ -49,6 +54,7 @@ export type Database = {
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          description?: string | null
           gender_policy?: string | null
           id?: string
           image_urls?: string[] | null
@@ -60,11 +66,14 @@ export type Database = {
           rooms_available?: number | null
           status?: string | null
           type: string
+          units?: number | null
           university?: string | null
           updated_at?: string | null
+          website?: string | null
         }
         Update: {
           accreditation_number?: string | null
+          added_by?: string | null
           address?: string
           amenities?: string[] | null
           certified_universities?: string[] | null
@@ -73,6 +82,7 @@ export type Database = {
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          description?: string | null
           gender_policy?: string | null
           id?: string
           image_urls?: string[] | null
@@ -84,8 +94,10 @@ export type Database = {
           rooms_available?: number | null
           status?: string | null
           type?: string
+          units?: number | null
           university?: string | null
           updated_at?: string | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -154,6 +166,47 @@ export type Database = {
           university?: string | null
         }
         Relationships: []
+      }
+      reports: {
+        Row: {
+          accommodation_id: string | null
+          created_at: string | null
+          details: string | null
+          id: string
+          reason: string
+          reporter_email: string | null
+          reporter_name: string | null
+          status: string | null
+        }
+        Insert: {
+          accommodation_id?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_email?: string | null
+          reporter_name?: string | null
+          status?: string | null
+        }
+        Update: {
+          accommodation_id?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_email?: string | null
+          reporter_name?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
