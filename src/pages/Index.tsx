@@ -95,7 +95,7 @@ const Index = () => {
         </div>
       </section>
 
-      <div className="h-20 md:h-28 bg-gradient-to-b from-transparent to-background pointer-events-none" />
+      <div className="h-20 md:h-28 pointer-events-none" style={{ background: 'linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--muted)))' }} />
 
       {/* Section header similar to "Workflow Templates" */}
       <section className="py-12 md:py-16">
