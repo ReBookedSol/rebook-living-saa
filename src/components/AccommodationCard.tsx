@@ -37,6 +37,12 @@ const AccommodationCard = ({
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
       <div className="relative min-h-[88px] py-4 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
+        {nsfasAccredited && (
+          <Badge className="absolute top-3 right-3 bg-white text-primary shadow-sm">
+            <CheckCircle className="w-3 h-3 mr-1 text-primary" />
+            NSFAS
+          </Badge>
+        )}
         <div className="flex-1 text-white">
           <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
           <p className="text-xs text-white/90">{type} • {city}</p>
