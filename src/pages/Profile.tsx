@@ -176,8 +176,25 @@ const Profile = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+        toast({ title: "Error", description: "Failed to sign out. Please try again.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      console.error("Sign out failed:", err);
+      toast({ title: "Error", description: err?.message || "Network error while signing out.", variant: "destructive" });
+    } finally {
+      // Ensure local redirect even if sign out request failed
+      try {
+        // Attempt to clear local session storage keys set by supabase
+        localStorage.removeItem("sb:$AUTH_TOKEN");
+      } catch (e) {
+        // ignore
+      }
+      navigate("/");
+    }
   };
 
   if (!user) return null;
