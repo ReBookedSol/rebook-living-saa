@@ -222,61 +222,68 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <User2 className="w-8 h-8" />
+        <Card className="w-full p-4 mb-4 rounded-2xl shadow-sm">
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <User2 className="w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">{firstName || lastName ? `${firstName} ${lastName}` : user.email}</h1>
+                <div className="text-sm text-muted-foreground mt-1">Member since {memberSince}</div>
+                {user.email_confirmed_at ? (
+                  <div className="mt-2 inline-flex items-center gap-2 text-sm text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4" /> Verified
+                  </div>
+                ) : null}
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">{firstName || lastName ? `${firstName} ${lastName}` : user.email}</h1>
-              <div className="text-sm text-muted-foreground mt-1">Member since {memberSince}</div>
+
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl border bg-gradient-to-br from-white to-gray-50 p-3 flex items-center gap-3">
+                <div className="text-sm text-muted-foreground">Saved</div>
+                <div className="text-xl font-semibold">{savedCount}</div>
+              </div>
+
+              <Button onClick={handleSignOut} variant="outline" className="inline-flex items-center gap-2 h-10 px-4">
+                <LogOut className="w-4 h-4" /> Sign Out
+              </Button>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl border bg-gradient-to-br from-white to-gray-50 p-3 flex items-center gap-3">
-              <div className="text-sm text-muted-foreground">Saved</div>
-              <div className="text-xl font-semibold">{savedCount}</div>
-            </div>
-
-            <Button onClick={handleSignOut} variant="outline" className="inline-flex items-center gap-2 h-10 px-4">
-              <LogOut className="w-4 h-4" /> Sign Out
-            </Button>
-          </div>
-        </div>
+        </Card>
 
         <Tabs defaultValue="saved" className="space-y-6">
-          <TabsList className="w-full bg-gray-50 border border-gray-200 rounded-xl p-1 flex flex-wrap gap-1">
+          <TabsList className="w-full bg-gray-50 border border-gray-200 rounded-xl p-1 flex justify-between sm:justify-start gap-2">
             <TabsTrigger
               value="saved"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Saved"
             >
-              <Heart className="w-4 h-4" /> <span className="hidden sm:inline">Saved</span>
+              <Heart className="w-5 h-5" /> <span className="hidden sm:inline">Saved</span>
             </TabsTrigger>
 
             <TabsTrigger
               value="recent"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Recently viewed"
             >
-              <Clock className="w-4 h-4" /> <span className="hidden sm:inline">Recent</span>
+              <Clock className="w-5 h-5" /> <span className="hidden sm:inline">Recent</span>
             </TabsTrigger>
 
             <TabsTrigger
               value="foryou"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Recommended for you"
             >
-              <Sparkles className="w-4 h-4" /> <span className="hidden sm:inline">For you</span>
+              <Sparkles className="w-5 h-5" /> <span className="hidden sm:inline">For you</span>
             </TabsTrigger>
 
             <TabsTrigger
               value="profile"
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Profile"
             >
-              <User2 className="w-4 h-4" /> <span className="hidden sm:inline">Profile</span>
+              <User2 className="w-5 h-5" /> <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
           </TabsList>
 
