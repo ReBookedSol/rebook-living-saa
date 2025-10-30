@@ -11,16 +11,26 @@ const Index = () => {
   const { data: featuredListings, isLoading } = useQuery({
     queryKey: ["featured-accommodations", Math.floor(Date.now() / (60 * 60 * 1000))],
     queryFn: async () => {
-      // Get current hour for rotation
-      const currentHour = new Date().getHours();
-      const offset = (currentHour * 6) % 100; // Rotate every hour
+      // Determine total active accommodations
+      const { data: countData, count, error: countError } = await supabase
+        .from("accommodations")
+        .select("id", { count: "exact" })
+        .eq("status", "active");
+
+      if (countError) throw countError;
+      const total = count || 0;
+      if (total === 0) return [];
+
+      const hourIndex = Math.floor(Date.now() / (60 * 60 * 1000));
+      const start = hourIndex % total;
+      const end = Math.min(start + 4, total - 1); // always show 5
 
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
         .eq("status", "active")
         .order("rating", { ascending: false })
-        .range(offset, offset + 5);
+        .range(start, end);
 
       if (error) throw error;
       return data;
