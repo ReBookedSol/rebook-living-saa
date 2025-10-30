@@ -43,9 +43,11 @@ const Index = () => {
       {/* Hero - background house image */}
       <section className="relative h-[65vh] md:h-[72vh]">
         <img
-          src="https://images.unsplash.com/photo-1505691723518-36a3f0a3c9f0?auto=format&fit=crop&w=1600&q=80"
+          src="https://picsum.photos/id/1018/1600/900"
           alt="Student accommodation interior"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }}
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-primary/30 to-transparent" />
 
