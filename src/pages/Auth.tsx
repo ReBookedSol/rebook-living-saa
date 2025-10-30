@@ -9,14 +9,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 
+import { useLocation } from "react-router-dom";
+
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
+
+  useEffect(() => {
+    if (location.hash === "#signup") setTab("signup");
+  }, [location.hash]);
 
   useEffect(() => {
     const checkUser = async () => {
