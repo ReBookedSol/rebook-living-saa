@@ -43,6 +43,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/auth" className="text-base font-medium hover:underline underline-offset-4">
                   Sign In
                 </Link>
+                <Link to="/auth#signup" className="text-base font-medium hover:underline underline-offset-4">
+                  Sign Up
+                </Link>
                 <Link to="/profile">
                   <Button variant="default" size="sm">Profile</Button>
                 </Link>
@@ -59,6 +62,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/browse">
                   <Button variant="ghost" size="icon">
                     <Search className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-5 w-5" />
                   </Button>
                 </Link>
               </div>
