@@ -15,6 +15,21 @@ import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import type { ComponentType } from "react";
+
+// Vercel Analytics is optional. We attempt to dynamically load it so the app won't crash if the
+// package is not installed. To enable analytics, add '@vercel/analytics' to dependencies and
+// install packages.
+let AnalyticsComponent: ComponentType | null = null;
+(async () => {
+  try {
+    const mod = await import('@vercel/analytics/react');
+    AnalyticsComponent = mod.Analytics ?? null;
+  } catch (e) {
+    // package not installed; ignore
+    AnalyticsComponent = null;
+  }
+})();
 
 const queryClient = new QueryClient();
 
