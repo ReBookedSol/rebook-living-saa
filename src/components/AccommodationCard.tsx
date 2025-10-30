@@ -1,9 +1,12 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Info } from "lucide-react";
-import { Link } from "react-router-dom";
+import { MapPin, Star, Users, CheckCircle, Info, Heart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface AccommodationCardProps {
   id: string;
