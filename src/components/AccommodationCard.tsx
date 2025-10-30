@@ -37,6 +37,53 @@ const AccommodationCard = ({
   website,
   amenities = [],
 }: AccommodationCardProps) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSaved, setIsSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) return;
+      const { data, error } = await supabase.from("favorites").select("*").eq("user_id", userId).eq("accommodation_id", id).single();
+      if (!mounted) return;
+      if (error) return;
+      setIsSaved(!!data);
+    })();
+    return () => { mounted = false; };
+  }, [id]);
+
+  const toggleSave = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    if (!userId) {
+      navigate('/auth');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (!isSaved) {
+        const { error } = await supabase.from('favorites').insert({ user_id: userId, accommodation_id: id });
+        if (error) throw error;
+        setIsSaved(true);
+        toast({ title: 'Saved', description: 'Added to your saved properties' });
+      } else {
+        const { error } = await supabase.from('favorites').delete().eq('user_id', userId).eq('accommodation_id', id);
+        if (error) throw error;
+        setIsSaved(false);
+        toast({ title: 'Removed', description: 'Removed from your saved properties' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Something went wrong', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
       <div className="relative min-h-[88px] py-6 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
@@ -122,6 +169,20 @@ const AccommodationCard = ({
               </div>
             </DialogContent>
           </Dialog>
+        </div>
+
+        <div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSave}
+            className={`w-10 h-10 flex items-center justify-center rounded-full border ${isSaved ? 'bg-green-50 border-green-200 text-green-600' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
+            aria-pressed={isSaved}
+            disabled={loading}
+            title={isSaved ? 'Remove saved' : 'Save'}
+          >
+            <Heart className={`w-5 h-5 ${isSaved ? 'text-green-600' : 'text-primary'}`} />
+          </Button>
         </div>
       </CardFooter>
     </Card>
