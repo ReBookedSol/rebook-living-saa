@@ -332,7 +332,7 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="recommended">
+          <TabsContent value="foryou">
             <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
               Recommended for You{university && ` (${university})`}
             </h2>
