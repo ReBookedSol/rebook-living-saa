@@ -21,7 +21,7 @@ const Browse = () => {
   
   const [sortBy, setSortBy] = useState("rating");
   const [priceRange, setPriceRange] = useState([10000]);
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<string>("all");
   const [nsfasOnly, setNsfasOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 21;
@@ -54,7 +54,7 @@ const Browse = () => {
         query = query.eq("nsfas_accredited", true);
       }
 
-      if (selectedGender) {
+      if (selectedGender && selectedGender !== "all") {
         query = query.eq("gender_policy", selectedGender);
       }
 
@@ -179,12 +179,12 @@ const Browse = () => {
 
               <div className="mb-6">
                 <Label className="mb-2 block">Gender Policy</Label>
-                <Select value={selectedGender || ""} onValueChange={(val) => setSelectedGender(val || null)}>
+                <Select value={selectedGender} onValueChange={setSelectedGender}>
                   <SelectTrigger>
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="all">Any</SelectItem>
                     <SelectItem value="Mixed">Mixed</SelectItem>
                     <SelectItem value="Male Only">Male Only</SelectItem>
                     <SelectItem value="Female Only">Female Only</SelectItem>
