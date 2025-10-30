@@ -9,18 +9,23 @@ import { Link } from "react-router-dom";
 
 const Index = () => {
   const { data: featuredListings, isLoading } = useQuery({
-    queryKey: ["featured-accommodations"],
+    queryKey: ["featured-accommodations", Math.floor(Date.now() / (60 * 60 * 1000))],
     queryFn: async () => {
+      // Get current hour for rotation
+      const currentHour = new Date().getHours();
+      const offset = (currentHour * 6) % 100; // Rotate every hour
+
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
         .eq("status", "active")
         .order("rating", { ascending: false })
-        .limit(6);
+        .range(offset, offset + 5);
 
       if (error) throw error;
       return data;
     },
+    refetchInterval: 60 * 60 * 1000, // Refetch every hour
   });
 
   return (

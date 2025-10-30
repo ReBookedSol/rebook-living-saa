@@ -40,6 +40,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/contact" className="text-base font-medium hover:underline underline-offset-4">
                   Contact
                 </Link>
+                <Link to="/auth" className="text-base font-medium hover:underline underline-offset-4">
+                  Sign In
+                </Link>
+                <Link to="/profile">
+                  <Button variant="default" size="sm">Profile</Button>
+                </Link>
               </div>
             )}
 

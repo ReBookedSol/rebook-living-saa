@@ -101,6 +101,35 @@ export type Database = {
         }
         Relationships: []
       }
+      favorites: {
+        Row: {
+          accommodation_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          accommodation_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          accommodation_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           created_at: string | null
@@ -201,6 +230,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reports_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viewed_accommodations: {
+        Row: {
+          accommodation_id: string
+          id: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          accommodation_id: string
+          id?: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          accommodation_id?: string
+          id?: string
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viewed_accommodations_accommodation_id_fkey"
             columns: ["accommodation_id"]
             isOneToOne: false
             referencedRelation: "accommodations"
