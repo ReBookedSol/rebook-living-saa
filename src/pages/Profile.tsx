@@ -184,34 +184,64 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">My Profile</h1>
-          <Button onClick={handleSignOut} variant="outline">
-            Sign Out
+      <div className="container mx-auto px-4 py-4 md:py-8">
+        <div className="flex items-center justify-between mb-6 md:mb-8">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-bold">My Profile</h1>
+            {user.email_confirmed_at ? (
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-600 text-white">
+                <CheckCircle className="w-3.5 h-3.5 mr-1" /> Verified
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border-amber-200">
+                <AlertCircle className="w-3.5 h-3.5 mr-1" /> Not verified
+              </span>
+            )}
+          </div>
+          <Button onClick={handleSignOut} variant="outline" className="inline-flex items-center gap-2 h-10 px-4">
+            <LogOut className="w-4 h-4" /> Sign Out
           </Button>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="profile">Profile Details</TabsTrigger>
-            <TabsTrigger value="saved">Saved Properties</TabsTrigger>
-            <TabsTrigger value="recent">Recently Viewed</TabsTrigger>
-            <TabsTrigger value="recommended">Recommended</TabsTrigger>
+          <TabsList className="w-full bg-gray-50 border border-gray-200 rounded-xl p-1 flex flex-wrap gap-1">
+            <TabsTrigger
+              value="profile"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+            >
+              <User2 className="w-4 h-4" /> <span className="hidden sm:inline">Profile Details</span><span className="sm:hidden">Profile</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="saved"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+            >
+              <Heart className="w-4 h-4" /> <span>Saved</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="recent"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+            >
+              <Clock className="w-4 h-4" /> <span className="hidden sm:inline">Recently Viewed</span><span className="sm:hidden">Recent</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="recommended"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+            >
+              <Sparkles className="w-4 h-4" /> <span className="hidden sm:inline">Recommended</span><span className="sm:hidden">For you</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
+            <Card className="border border-gray-200 rounded-xl bg-gradient-to-br from-white to-gray-50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl md:text-2xl">Profile Information</CardTitle>
                 <CardDescription>
                   Update your profile details. Email: {user.email}
-                  {user.email_confirmed_at ? " (Verified)" : " (Not verified)"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateProfile} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="first-name">First Name</Label>
                       <Input
@@ -253,7 +283,7 @@ const Profile = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 px-4 h-10">
                     {loading ? "Saving..." : "Save Changes"}
                   </Button>
                 </form>
@@ -262,9 +292,9 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="saved">
-            <h2 className="text-2xl font-bold mb-4">Saved Properties</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Saved Properties</h2>
             {favorites && favorites.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {favorites.map((accommodation: any) => (
                   <AccommodationCard key={accommodation.id} {...accommodation} />
                 ))}
@@ -275,9 +305,9 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="recent">
-            <h2 className="text-2xl font-bold mb-4">Recently Viewed</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Recently Viewed</h2>
             {recentlyViewed && recentlyViewed.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {recentlyViewed.map((accommodation: any) => (
                   <AccommodationCard key={accommodation.id} {...accommodation} />
                 ))}
@@ -288,16 +318,15 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="recommended">
-            <h2 className="text-2xl font-bold mb-4">
-              Recommended for You
-              {university && ` (${university})`}
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
+              Recommended for You{university && ` (${university})`}
             </h2>
             {!university ? (
               <p className="text-muted-foreground">
                 Please add your university to see personalized recommendations
               </p>
             ) : recommended && recommended.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {recommended.map((accommodation: any) => (
                   <AccommodationCard key={accommodation.id} {...accommodation} />
                 ))}
