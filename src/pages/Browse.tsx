@@ -132,67 +132,6 @@ const Browse = () => {
         </Alert>
         
         <div className="mt-8">
-          <aside className="lg:col-span-1">
-            <div className="bg-card p-6 rounded-lg border sticky top-24">
-              <h2 className="text-xl font-semibold mb-4">Filters</h2>
-
-              <div className="mb-6">
-                <Label className="mb-2 block">Sort By</Label>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="mb-6">
-                <Label className="mb-2 block">
-                  Max Price: R{priceRange[0]}
-                </Label>
-                <Slider
-                  min={0}
-                  max={10000}
-                  step={100}
-                  value={priceRange}
-                  onValueChange={setPriceRange}
-                  className="mt-2"
-                />
-              </div>
-
-              <div className="mb-6">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="nsfas-filter"
-                    checked={nsfasOnly}
-                    onCheckedChange={(checked) => setNsfasOnly(checked as boolean)}
-                  />
-                  <Label htmlFor="nsfas-filter" className="cursor-pointer">
-                    NSFAS Accredited Only
-                  </Label>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <Label className="mb-2 block">Gender Policy</Label>
-                <Select value={selectedGender} onValueChange={setSelectedGender}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Any" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any</SelectItem>
-                    <SelectItem value="Mixed">Mixed</SelectItem>
-                    <SelectItem value="Male Only">Male Only</SelectItem>
-                    <SelectItem value="Female Only">Female Only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </aside>
 
           <div className="lg:col-span-3">
             {isLoading ? (
