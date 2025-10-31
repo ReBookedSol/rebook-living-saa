@@ -160,6 +160,7 @@ const Browse = () => {
                       genderPolicy={accommodation.gender_policy || ""}
                       website={accommodation.website || null}
                       amenities={accommodation.amenities || []}
+                      imageUrls={accommodation.image_urls || []}
                     />
                   ))}
                 </div>
