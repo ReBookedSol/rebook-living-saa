@@ -1,4 +1,3 @@
-import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import { Home, Heart, Shield, Users } from "lucide-react";
