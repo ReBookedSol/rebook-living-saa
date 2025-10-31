@@ -109,7 +109,7 @@ const AccommodationCard = ({
         </div>
       ) : (
         <div className="w-full h-48 overflow-hidden bg-muted">
-          <img src={thumb} alt={propertyName} className="object-cover w-full h-full" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
+          <img loading="lazy" src={thumb} alt={propertyName} className="object-cover w-full h-full" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
         </div>
       )}
 
