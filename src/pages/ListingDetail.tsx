@@ -429,6 +429,64 @@ const ListingDetail = () => {
 
               </CardContent>
             </Card>
+
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Photos</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {photos && photos.length > 0 ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {photos.map((src, i) => (
+                          <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full h-32 overflow-hidden rounded-md">
+                            <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-full" />
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="h-48 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No photos available</div>
+                    )}
+                    {photos && photos.length > 6 && <div className="text-sm text-muted-foreground mt-2">Showing {Math.min(6, photos.length)} of {photos.length} photos</div>}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Map</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>
+                          {mapType === 'roadmap' ? 'Satellite' : 'Map'}
+                        </Button>
+                      </div>
+                      <div>
+                        <Dialog open={expandOpen} onOpenChange={setExpandOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="ghost">Expand Map</Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl w-[95vw] p-0">
+                            <div className="p-4">
+                              <DialogHeader>
+                                <DialogTitle>Map - {listing.property_name}</DialogTitle>
+                              </DialogHeader>
+                              <div ref={largeMapRef} className="h-[60vh] w-full rounded-md overflow-hidden bg-muted mt-4" />
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
+
+                    <div ref={mapRef} id="gmaps" className="h-64 w-full rounded-md overflow-hidden bg-muted" />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
