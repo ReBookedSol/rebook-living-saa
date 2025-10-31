@@ -93,7 +93,7 @@ const SearchBar = ({ compact = false }) => {
         </div>
       </div>
 
-      <div className={`overflow-hidden transform origin-top transition-all duration-300 ${showAdvanced ? 'max-h-[400px] scale-y-100 opacity-100' : 'max-h-0 scale-y-0 opacity-0'} md:max-h-full md:scale-y-100 md:opacity-100`}>
+      <div className={`overflow-hidden transform origin-top transition-all duration-300 ${showAdvanced ? 'max-h-[400px] scale-y-100 opacity-100' : 'max-h-0 scale-y-0 opacity-0'}`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
           <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-2">
