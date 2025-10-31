@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag } from "lucide-react";
+import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -25,6 +25,53 @@ const ListingDetail = () => {
     details: "" 
   });
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+        if (!userId) return;
+        const { data, error } = await supabase.from("favorites").select("*").eq("user_id", userId).eq("accommodation_id", id).single();
+        if (!mounted) return;
+        if (!error && data) setIsSaved(true);
+      } catch (err) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, [id]);
+
+  const toggleFavorite = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    if (!userId) {
+      window.location.href = '/auth';
+      return;
+    }
+
+    setSavingFavorite(true);
+    try {
+      if (!isSaved) {
+        const { error } = await supabase.from('favorites').insert({ user_id: userId, accommodation_id: id });
+        if (error) throw error;
+        setIsSaved(true);
+        toast.success('Saved to your favorites');
+      } else {
+        const { error } = await supabase.from('favorites').delete().eq('user_id', userId).eq('accommodation_id', id);
+        if (error) throw error;
+        setIsSaved(false);
+        toast.success('Removed from favorites');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to update favorites');
+    } finally {
+      setSavingFavorite(false);
+    }
+  };
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["accommodation", id],
@@ -257,90 +304,103 @@ const ListingDetail = () => {
         {/* Header band (multicolor) */}
         <div className="mb-6 relative">
           <div className="rounded-lg flex flex-col md:flex-row items-start md:items-center gap-3 p-4" style={{ background: 'hsl(var(--primary))' }}>
-            <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-0 md:mr-3 flex-shrink-0">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
-              </svg>
-            </div>
-            <div className="text-white flex-1 min-w-0">
-              <h2 className="font-semibold text-lg md:text-xl truncate">{listing.property_name}</h2>
-              <p className="text-sm text-white/90 truncate">{listing.type} • {listing.city}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {listing.nsfas_accredited && (
-                <Badge className="bg-accent text-accent-foreground">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  NSFAS Accredited
-                </Badge>
-              )}
-              <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-                    <Flag className="w-4 h-4 mr-2" />
-                    Report
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Report Listing</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleReportSubmit} className="space-y-4">
-                    <div>
-                      <Label htmlFor="reason">Reason for reporting *</Label>
-                      <Select
-                        value={reportForm.reason}
-                        onValueChange={(value) => setReportForm({ ...reportForm, reason: value })}
-                        required
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a reason" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Inaccurate Information">Inaccurate Information</SelectItem>
-                          <SelectItem value="Scam or Fraud">Scam or Fraud</SelectItem>
-                          <SelectItem value="Property No Longer Available">Property No Longer Available</SelectItem>
-                          <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="report-details">Details</Label>
-                      <Textarea
-                        id="report-details"
-                        value={reportForm.details}
-                        onChange={(e) => setReportForm({ ...reportForm, details: e.target.value })}
-                        placeholder="Please provide more information about this report..."
-                        rows={4}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="reporter-name">Your Name (optional)</Label>
-                      <Input
-                        id="reporter-name"
-                        value={reportForm.reporter_name}
-                        onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="reporter-email">Your Email (optional)</Label>
-                      <Input
-                        id="reporter-email"
-                        type="email"
-                        value={reportForm.reporter_email}
-                        onChange={(e) => setReportForm({ ...reportForm, reporter_email: e.target.value })}
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                    <Button type="submit" disabled={reportMutation.isPending}>
-                      {reportMutation.isPending ? "Submitting..." : "Submit Report"}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+          <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-0 md:mr-3 flex-shrink-0">
+            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
+            </svg>
           </div>
+          <div className="text-white flex-1 min-w-0">
+            <h2 className="font-semibold text-lg md:text-xl truncate">{listing.property_name}</h2>
+            <p className="text-sm text-white/90 truncate">{listing.type} • {listing.city}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {listing.nsfas_accredited && (
+              <Badge className="bg-accent text-accent-foreground">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                NSFAS Accredited
+              </Badge>
+            )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleFavorite}
+              className={`w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 ${isSaved ? 'bg-white/10 text-red-500' : 'text-white/90'}`}
+              aria-pressed={isSaved}
+              title={isSaved ? 'Remove favorite' : 'Save favorite'}
+              disabled={savingFavorite}
+            >
+              <Heart className={`w-4 h-4 ${isSaved ? 'text-red-500' : 'text-white'}`} />
+            </Button>
+
+            <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+                  <Flag className="w-4 h-4 mr-2" />
+                  Report
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Report Listing</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleReportSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="reason">Reason for reporting *</Label>
+                    <Select
+                      value={reportForm.reason}
+                      onValueChange={(value) => setReportForm({ ...reportForm, reason: value })}
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a reason" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Inaccurate Information">Inaccurate Information</SelectItem>
+                        <SelectItem value="Scam or Fraud">Scam or Fraud</SelectItem>
+                        <SelectItem value="Property No Longer Available">Property No Longer Available</SelectItem>
+                        <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="report-details">Details</Label>
+                    <Textarea
+                      id="report-details"
+                      value={reportForm.details}
+                      onChange={(e) => setReportForm({ ...reportForm, details: e.target.value })}
+                      placeholder="Please provide more information about this report..."
+                      rows={4}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="reporter-name">Your Name (optional)</Label>
+                    <Input
+                      id="reporter-name"
+                      value={reportForm.reporter_name}
+                      onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="reporter-email">Your Email (optional)</Label>
+                    <Input
+                      id="reporter-email"
+                      type="email"
+                      value={reportForm.reporter_email}
+                      onChange={(e) => setReportForm({ ...reportForm, reporter_email: e.target.value })}
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                  <Button type="submit" disabled={reportMutation.isPending}>
+                    {reportMutation.isPending ? "Submitting..." : "Submit Report"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
