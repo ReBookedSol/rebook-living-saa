@@ -91,6 +91,7 @@ const ListingDetail = () => {
   const [photos, setPhotos] = useState<string[] | null>(null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
+  const [placeUrl, setPlaceUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
@@ -144,7 +145,7 @@ const ListingDetail = () => {
               markerRef.current = new google.maps.Marker({ map, position: place.geometry.location, title: place.name });
             }
 
-            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos'] }, (detail: any, dStatus: any) => {
+            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
               if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
                 if (detail && detail.reviews) {
                   setReviews(detail.reviews.slice(0, 5));
@@ -157,6 +158,10 @@ const ListingDetail = () => {
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }
+                }
+
+                if (detail && detail.url) {
+                  setPlaceUrl(detail.url);
                 }
               }
             });
@@ -516,12 +521,22 @@ const ListingDetail = () => {
                   <div className="space-y-3">
                     {reviews.map((r: any, idx: number) => (
                       <div key={idx} className="p-2 border rounded">
-                        <div className="flex items-center justify-between">
-                          <div className="font-semibold">{r.author_name}</div>
-                          <div className="text-sm text-muted-foreground">{r.rating} ★</div>
+                        <div className="flex items-start gap-3">
+                          {r.profile_photo_url ? (
+                            <img src={r.profile_photo_url} alt={r.author_name} className="w-10 h-10 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-muted" />
+                          )}
+
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div className="font-semibold">{r.author_name}</div>
+                              <div className="text-sm text-muted-foreground">{r.rating} ★</div>
+                            </div>
+                            <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description}</div>
+                            <p className="mt-2 text-sm">{r.text}</p>
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description}</div>
-                        <p className="mt-2 text-sm">{r.text}</p>
                       </div>
                     ))}
                   </div>
@@ -529,12 +544,22 @@ const ListingDetail = () => {
                   <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No reviews available</div>
                 )}
                 <p className="mt-3 text-xs text-muted-foreground">Reviews are aggregated from Google Reviews. When connected, ratings and excerpts will appear here.</p>
+                {placeUrl && (
+                  <div className="mt-2">
+                    <a href={placeUrl} target="_blank" rel="noreferrer" className="text-sm text-primary underline">View on Google Maps</a>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
               <DialogContent className="max-w-3xl w-[90vw]">
                 <div className="p-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <Button variant="ghost" onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))} disabled={selectedPhoto === 0}>Prev</Button>
+                    <div className="text-sm">{selectedPhoto + 1} / {photos?.length || 0}</div>
+                    <Button variant="ghost" onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))} disabled={photos && selectedPhoto >= photos.length - 1}>Next</Button>
+                  </div>
                   <img src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[60vh] object-contain" />
                 </div>
               </DialogContent>
