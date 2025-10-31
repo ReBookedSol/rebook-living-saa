@@ -473,7 +473,7 @@ const ListingDetail = () => {
                       <div className="grid grid-cols-2 gap-2">
                         {photos.slice(0, 6).map((src, i) => (
                           <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full h-28 overflow-hidden rounded-md">
-                            <img src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-full" />
+                            <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-full" />
                           </button>
                         ))}
                       </div>
