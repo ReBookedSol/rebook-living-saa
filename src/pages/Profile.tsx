@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User2, Heart, Clock, Sparkles, CheckCircle, AlertCircle, LogOut } from "lucide-react";
+import { User2, Heart, Clock, Sparkles, CheckCircle, AlertCircle, LogOut, ShieldCheck } from "lucide-react";
 
 const SA_UNIVERSITIES = [
   "University of Cape Town",
@@ -90,6 +90,22 @@ const Profile = () => {
       }
       
       return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: userRole } = useQuery({
+    queryKey: ["user-role", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+      
+      if (error) throw error;
+      return data?.role;
     },
     enabled: !!user?.id,
   });
@@ -244,6 +260,12 @@ const Profile = () => {
                 <div className="text-sm text-muted-foreground">Saved</div>
                 <div className="text-xl font-semibold">{savedCount}</div>
               </div>
+
+              {userRole === "admin" && (
+                <Button onClick={() => navigate("/panel")} variant="default" className="inline-flex items-center gap-2 h-10 px-4">
+                  <ShieldCheck className="w-4 h-4" /> Admin Dashboard
+                </Button>
+              )}
 
               <Button onClick={handleSignOut} variant="outline" className="inline-flex items-center gap-2 h-10 px-4">
                 <LogOut className="w-4 h-4" /> Sign Out
