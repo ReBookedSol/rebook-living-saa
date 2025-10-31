@@ -14,16 +14,18 @@ const Browse = () => {
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
   const maxCost = searchParams.get("maxCost") || "";
-  
+  const minRating = parseFloat(searchParams.get("minRating") || "") || 0;
+  const amenitiesParam = searchParams.get("amenities") || "";
+  const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
+  const nsfasParam = searchParams.get("nsfas") === "true";
+
   const [sortBy, setSortBy] = useState("rating");
-  const [priceRange, setPriceRange] = useState([10000]);
   const [selectedGender, setSelectedGender] = useState<string>("all");
-  const [nsfasOnly, setNsfasOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 21;
 
   const { data: accommodations, isLoading } = useQuery({
-    queryKey: ["accommodations", location, university, maxCost, nsfasOnly, sortBy, priceRange, selectedGender],
+    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender],
     queryFn: async () => {
       let query = supabase
         .from("accommodations")
@@ -31,7 +33,7 @@ const Browse = () => {
         .eq("status", "active");
 
       if (location) {
-        query = query.or(`city.ilike.%${location}%,province.ilike.%${location}%,address.ilike.%${location}%`);
+        query = query.or(`property_name.ilike.%${location}%,city.ilike.%${location}%,province.ilike.%${location}%,address.ilike.%${location}%`);
       }
 
       if (university) {
@@ -42,12 +44,16 @@ const Browse = () => {
         query = query.lte("monthly_cost", parseInt(maxCost));
       }
 
-      if (priceRange[0] < 10000) {
-        query = query.lte("monthly_cost", priceRange[0]);
+      if (nsfasParam) {
+        query = query.eq("nsfas_accredited", true);
       }
 
-      if (nsfasOnly) {
-        query = query.eq("nsfas_accredited", true);
+      if (minRating > 0) {
+        query = query.gte("rating", minRating);
+      }
+
+      if (amenities.length > 0) {
+        query = query.contains("amenities", amenities);
       }
 
       if (selectedGender && selectedGender !== "all") {

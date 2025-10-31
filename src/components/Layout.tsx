@@ -1,11 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { useEffect } from "react";
-import { Home, Search, Info, Mail, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Home, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     // Smooth scroll to top on navigation
@@ -13,6 +15,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setIsLoggedIn(!!session));
+    unsub = data.subscription.unsubscribe;
+    return () => { if (unsub) unsub(); };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -28,9 +38,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {!isAdmin && (
               <div className="hidden md:flex items-center gap-8">
-                <Link to="/" className="text-base font-medium hover:underline underline-offset-4">
-                  Home
-                </Link>
                 <Link to="/browse" className="text-base font-medium hover:underline underline-offset-4">
                   Browse
                 </Link>
@@ -40,31 +47,20 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/contact" className="text-base font-medium hover:underline underline-offset-4">
                   Contact
                 </Link>
-                <Link to="/auth" className="text-base font-medium hover:underline underline-offset-4">
-                  Sign In
-                </Link>
-                <Link to="/auth#signup" className="text-base font-medium hover:underline underline-offset-4">
-                  Sign Up
-                </Link>
-                <Link to="/profile">
-                  <Button variant="default" size="sm">Profile</Button>
+                <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
+                  {isLoggedIn ? "Profile" : "Sign In"}
                 </Link>
               </div>
             )}
 
             {!isAdmin && (
               <div className="md:hidden flex items-center gap-2">
-                <Link to="/">
-                  <Button variant="ghost" size="icon">
-                    <Home className="h-5 w-5" />
-                  </Button>
-                </Link>
                 <Link to="/browse">
                   <Button variant="ghost" size="icon">
                     <Search className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Link to="/auth">
+                <Link to={isLoggedIn ? "/profile" : "/auth"}>
                   <Button variant="ghost" size="icon">
                     <Settings className="h-5 w-5" />
                   </Button>

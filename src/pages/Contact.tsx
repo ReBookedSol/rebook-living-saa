@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -57,7 +57,7 @@ const Contact = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Send us a message</CardTitle>
-                  <CardDescription>Fill out the form below and we'll get back to you within 24 hours.</CardDescription>
+                  <CardDescription>Fill out the form below and we'll get back to you within 48 hours.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
@@ -132,44 +132,17 @@ const Contact = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Phone</h3>
-                      <a href="tel:+27123456789" className="text-sm text-muted-foreground hover:text-primary">
-                        +27 12 345 6789
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Address</h3>
-                      <p className="text-sm text-muted-foreground">
-                        123 Main Street<br />
-                        Johannesburg, Gauteng<br />
-                        South Africa
-                      </p>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="pt-6" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))', color: 'white', borderRadius: '0.5rem' }}>
-                  <h3 className="font-bold text-lg mb-2">Need immediate assistance?</h3>
-                  <p className="text-sm text-white/90 mb-4">
-                    Our support team is available Monday to Friday, 9 AM - 5 PM SAST.
-                  </p>
-                  <Button variant="secondary" className="w-full">
-                    <Phone className="mr-2 h-4 w-4" />
-                    Call Us Now
-                  </Button>
+                <CardHeader>
+                  <CardTitle>Follow us</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <a href="https://www.instagram.com/rebookedliving" target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-primary">Instagram</a>
+                  <a href="https://www.facebook.com/rebookedliving" target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-primary">Facebook</a>
+                  <a href="https://www.twitter.com/rebookedliving" target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-primary">Twitter</a>
                 </CardContent>
               </Card>
             </div>

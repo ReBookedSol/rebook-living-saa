@@ -23,17 +23,31 @@ const Index = () => {
 
       const hourIndex = Math.floor(Date.now() / (60 * 60 * 1000));
       const start = hourIndex % total;
-      const end = Math.min(start + 4, total - 1); // always show 5
+      const countNeeded = 6;
+      const end = Math.min(start + countNeeded - 1, total - 1);
 
-      const { data, error } = await supabase
+      const { data: firstBatch, error: firstError } = await supabase
         .from("accommodations")
         .select("*")
         .eq("status", "active")
         .order("rating", { ascending: false })
         .range(start, end);
 
-      if (error) throw error;
-      return data;
+      if (firstError) throw firstError;
+
+      if ((firstBatch?.length || 0) < countNeeded) {
+        const remaining = countNeeded - (firstBatch?.length || 0);
+        const { data: secondBatch, error: secondError } = await supabase
+          .from("accommodations")
+          .select("*")
+          .eq("status", "active")
+          .order("rating", { ascending: false })
+          .range(0, remaining - 1);
+        if (secondError) throw secondError;
+        return [...(firstBatch || []), ...(secondBatch || [])];
+      }
+
+      return firstBatch;
     },
     refetchInterval: 60 * 60 * 1000, // Refetch every hour
   });
@@ -97,7 +111,7 @@ const Index = () => {
             </div>
             <div className="rounded-2xl p-6 bg-muted">
               <div className="text-2xl font-semibold">Partners</div>
-              <p className="text-sm mt-2 text-muted-foreground">Work with Rebooked</p>
+              <p className="text-sm mt-2 text-muted-foreground">Work with Rebooked Living</p>
             </div>
           </div>
         </div>

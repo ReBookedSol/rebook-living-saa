@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, MapPin, GraduationCap, DollarSign, CheckCircle } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -25,6 +26,9 @@ const SearchBar = ({ compact = false }) => {
   const [location, setLocation] = useState("");
   const [university, setUniversity] = useState("All Universities");
   const [maxCost, setMaxCost] = useState("");
+  const [minRating, setMinRating] = useState<number>(0);
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const AMENITIES = ["WiFi", "Laundry", "Study Room", "Parking", "Security"];
   const [nsfasOnly, setNsfasOnly] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -34,6 +38,8 @@ const SearchBar = ({ compact = false }) => {
     if (university !== "All Universities") params.set("university", university);
     if (maxCost) params.set("maxCost", maxCost);
     if (nsfasOnly) params.set("nsfas", "true");
+    if (minRating > 0) params.set("minRating", String(minRating));
+    if (amenities.length > 0) params.set("amenities", amenities.join(","));
 
     navigate(`/browse?${params.toString()}`);
   };
@@ -44,7 +50,7 @@ const SearchBar = ({ compact = false }) => {
         <div className="flex gap-2">
           <div className="flex-1">
             <Input
-              placeholder="Search location..."
+              placeholder="Search by name, city, or area..."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="w-full"
@@ -64,10 +70,10 @@ const SearchBar = ({ compact = false }) => {
         <div className="space-y-2 col-span-1 md:col-span-2">
           <label className="text-sm font-medium flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary" />
-            Location
+            Search
           </label>
           <Input
-            placeholder="City or area"
+            placeholder="Name, city, or area"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
@@ -113,12 +119,49 @@ const SearchBar = ({ compact = false }) => {
               <DollarSign className="h-4 w-4 text-primary" />
               Max Monthly Cost (ZAR)
             </label>
-            <Input
-              type="number"
-              placeholder="e.g., 4000"
-              value={maxCost}
-              onChange={(e) => setMaxCost(e.target.value)}
-            />
+            <div className="px-2">
+              <Slider
+                value={[parseInt(maxCost || "0") || 0]}
+                onValueChange={(v) => setMaxCost(String(v[0]))}
+                max={10000}
+                step={100}
+              />
+              <div className="text-xs text-muted-foreground mt-2">Up to R {maxCost || 0}</div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Min Rating</label>
+            <Select value={String(minRating)} onValueChange={(v) => setMinRating(parseFloat(v))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Any</SelectItem>
+                <SelectItem value="3">3.0+</SelectItem>
+                <SelectItem value="4">4.0+</SelectItem>
+                <SelectItem value="4.5">4.5+</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Amenities</label>
+            <div className="grid grid-cols-2 gap-2">
+              {AMENITIES.map((a) => (
+                <div key={a} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`amenity-${a}`}
+                    checked={amenities.includes(a)}
+                    onCheckedChange={(checked) => {
+                      if (checked) setAmenities([...amenities, a]);
+                      else setAmenities(amenities.filter((x) => x !== a));
+                    }}
+                  />
+                  <label htmlFor={`amenity-${a}`} className="text-sm">{a}</label>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2 col-span-1 md:col-span-2">
