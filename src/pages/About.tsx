@@ -99,7 +99,7 @@ const About = () => {
               </div>
               <div className="flex gap-3">
                 <Link to="/browse"><Button className="bg-white text-primary">Browse Listings</Button></Link>
-                <Link to="/auth"><Button variant="outline" className="text-white border-white">Sign in / Sign up</Button></Link>
+                <Link to="/auth"><Button variant="outline" className="text-white border-white bg-transparent hover:bg-white/10">Sign in / Sign up</Button></Link>
               </div>
             </div>
           </div>
