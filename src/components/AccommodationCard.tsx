@@ -21,6 +21,7 @@ interface AccommodationCardProps {
   genderPolicy: string;
   website?: string | null;
   amenities?: string[];
+  imageUrls?: string[] | null;
 }
 
 const AccommodationCard = ({
@@ -36,6 +37,7 @@ const AccommodationCard = ({
   genderPolicy,
   website,
   amenities = [],
+  imageUrls = null,
 }: AccommodationCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -84,9 +86,15 @@ const AccommodationCard = ({
     }
   };
 
+  const thumb = imageUrls && imageUrls.length > 0 ? imageUrls[0] : '/placeholder.svg';
+
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
-      <div className="relative min-h-[88px] py-6 flex items-start px-4" style={{ background: 'hsl(var(--primary))' }}>
+      <div className="w-full h-48 overflow-hidden bg-muted">
+        <img src={thumb} alt={propertyName} className="object-cover w-full h-full" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
+      </div>
+
+      <div className="relative py-4 px-4" style={{ background: 'hsl(var(--primary))' }}>
         {nsfasAccredited && (
           <Badge className="absolute" style={{ top: 8, right: 12, background: 'white', color: 'hsl(var(--primary))' }}>
             <CheckCircle className="w-3 h-3 mr-1" />
