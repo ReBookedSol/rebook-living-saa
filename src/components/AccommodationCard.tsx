@@ -16,7 +16,7 @@ interface AccommodationCardProps {
   university: string;
   address: string;
   city: string;
-  monthlyCost: number;
+  monthlyCost?: number | null;
   rating: number;
   nsfasAccredited: boolean;
   genderPolicy: string;
