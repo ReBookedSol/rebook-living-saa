@@ -234,7 +234,7 @@ const ListingDetail = () => {
   if (!listing) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="max-w-7xl mx-auto px-6 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Listing not found</h1>
           <Link to="/browse">
             <Button>Back to Browse</Button>
