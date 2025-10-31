@@ -419,6 +419,14 @@ const ListingDetail = () => {
                     </ul>
                   </div>
                 )}
+
+                {listing.website && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Website</h3>
+                    <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary underline">{listing.website}</a>
+                  </div>
+                )}
+
               </CardContent>
             </Card>
           </div>
