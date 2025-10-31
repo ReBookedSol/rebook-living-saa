@@ -424,7 +424,7 @@ const ListingDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-24">
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
