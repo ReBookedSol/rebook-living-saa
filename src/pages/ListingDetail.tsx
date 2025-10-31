@@ -448,6 +448,29 @@ const ListingDetail = () => {
                 <CardTitle>Google Maps</CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>
+                      {mapType === 'roadmap' ? 'Satellite' : 'Map'}
+                    </Button>
+                  </div>
+                  <div>
+                    <Dialog open={expandOpen} onOpenChange={setExpandOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="ghost">Expand Map</Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl w-[95vw] p-0">
+                        <div className="p-4">
+                          <DialogHeader>
+                            <DialogTitle>Map - {listing.property_name}</DialogTitle>
+                          </DialogHeader>
+                          <div ref={largeMapRef} className="h-[60vh] w-full rounded-md overflow-hidden bg-muted mt-4" />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+
                 <div ref={mapRef} id="gmaps" className="h-40 w-full rounded-md overflow-hidden bg-muted" />
               </CardContent>
             </Card>
