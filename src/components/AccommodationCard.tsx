@@ -278,12 +278,12 @@ const AccommodationCard = ({
             variant="ghost"
             size="icon"
             onClick={toggleSave}
-            className={`w-10 h-10 flex items-center justify-center rounded-full border ${isSaved ? 'bg-green-50 border-green-200 text-green-600' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
+            className={`w-10 h-10 flex items-center justify-center rounded-full border transform transition-all duration-200 ${isSaved ? 'bg-green-50 border-green-200 text-green-600' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
             aria-pressed={isSaved}
             disabled={loading}
             title={isSaved ? 'Remove saved' : 'Save'}
           >
-            <Heart className={`w-5 h-5 ${isSaved ? 'text-green-600' : 'text-primary'}`} />
+            <Heart className={`w-5 h-5 transition-transform duration-200 ${isSaved ? 'text-green-600' : 'text-primary'} ${animating ? 'scale-125' : ''}`} />
           </Button>
         </div>
       </CardFooter>
