@@ -579,7 +579,7 @@ const ListingDetail = () => {
                     <div className="text-sm">{selectedPhoto + 1} / {photos?.length || 0}</div>
                     <Button variant="ghost" onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))} disabled={photos && selectedPhoto >= photos.length - 1}>Next</Button>
                   </div>
-                  <img src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[60vh] object-contain" />
+                  <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[60vh] object-contain" />
                 </div>
               </DialogContent>
             </Dialog>
