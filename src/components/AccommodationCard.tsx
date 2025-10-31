@@ -87,7 +87,54 @@ const AccommodationCard = ({
     }
   };
 
-  const thumb = imageUrls && imageUrls.length > 0 ? imageUrls[0] : '/placeholder.svg';
+  const [localImages, setLocalImages] = useState<string[] | null>(imageUrls && imageUrls.length > 0 ? imageUrls : null);
+  const thumb = localImages && localImages.length > 0 ? localImages[0] : '/placeholder.svg';
+
+  useEffect(() => {
+    if (localImages && localImages.length > 0) return;
+    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
+    if (!apiKey) return;
+
+    const init = () => {
+      try {
+        const google = (window as any).google;
+        if (!google) return;
+        const tempDiv = document.createElement('div');
+        const service = new google.maps.places.PlacesService(tempDiv);
+        const query = [propertyName, address, city].filter(Boolean).join(', ');
+        service.findPlaceFromQuery({ query, fields: ['place_id'] }, (results: any, status: any) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+            const place = results[0];
+            service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (detail: any, dStatus: any) => {
+              if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
+                try {
+                  const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                  setLocalImages(urls);
+                } catch (err) {
+                  console.warn('Failed to extract place photos', err);
+                }
+              }
+            });
+          }
+        });
+      } catch (err) {
+        console.warn('Places photo fetch error', err);
+      }
+    };
+
+    const existing = document.getElementById('google-maps-script');
+    if (existing) init();
+    else {
+      const script = document.createElement('script');
+      script.id = 'google-maps-script';
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = init;
+      script.onerror = () => console.warn('Failed to load Google Maps script');
+      document.head.appendChild(script);
+    }
+  }, [imageUrls, localImages, propertyName, address, city]);
 
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
