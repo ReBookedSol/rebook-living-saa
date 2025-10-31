@@ -68,23 +68,29 @@ const AccommodationCard = ({
       return;
     }
 
+    // optimistic UI + animation
+    setAnimating(true);
+    const prev = isSaved;
+    setIsSaved(!prev);
     setLoading(true);
     try {
-      if (!isSaved) {
+      if (!prev) {
         const { error } = await supabase.from('favorites').insert({ user_id: userId, accommodation_id: id });
         if (error) throw error;
-        setIsSaved(true);
         toast({ title: 'Saved', description: 'Added to your saved properties' });
       } else {
         const { error } = await supabase.from('favorites').delete().eq('user_id', userId).eq('accommodation_id', id);
         if (error) throw error;
-        setIsSaved(false);
         toast({ title: 'Removed', description: 'Removed from your saved properties' });
       }
     } catch (err: any) {
+      // revert optimistic change
+      setIsSaved(prev);
       toast({ title: 'Error', description: err.message || 'Something went wrong', variant: 'destructive' });
     } finally {
       setLoading(false);
+      // small pop animation
+      setTimeout(() => setAnimating(false), 350);
     }
   };
 
