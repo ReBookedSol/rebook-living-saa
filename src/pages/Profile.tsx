@@ -388,26 +388,6 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="foryou">
-            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
-              Recommended for You{university && ` (${university})`}
-            </h2>
-            {!university ? (
-              <p className="text-muted-foreground">
-                Please add your university to see personalized recommendations
-              </p>
-            ) : recommended && recommended.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {recommended.map((accommodation: any) => (
-                  <AccommodationCard key={accommodation.id} {...accommodation} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">
-                No recommendations available for your university yet
-              </p>
-            )}
-          </TabsContent>
         </Tabs>
       </div>
     </Layout>
