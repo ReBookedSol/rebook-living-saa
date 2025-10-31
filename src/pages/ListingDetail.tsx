@@ -88,6 +88,9 @@ const ListingDetail = () => {
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const [expandOpen, setExpandOpen] = useState(false);
   const [reviews, setReviews] = useState<any[] | null>(null);
+  const [photos, setPhotos] = useState<string[] | null>(null);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
 
   useEffect(() => {
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
@@ -141,9 +144,20 @@ const ListingDetail = () => {
               markerRef.current = new google.maps.Marker({ map, position: place.geometry.location, title: place.name });
             }
 
-            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name'] }, (detail: any, dStatus: any) => {
-              if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.reviews) {
-                setReviews(detail.reviews.slice(0, 5));
+            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos'] }, (detail: any, dStatus: any) => {
+              if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
+                if (detail && detail.reviews) {
+                  setReviews(detail.reviews.slice(0, 5));
+                }
+
+                if (detail && detail.photos && detail.photos.length > 0) {
+                  try {
+                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                    setPhotos(urls);
+                  } catch (err) {
+                    console.warn('Failed to extract photo urls', err);
+                  }
+                }
               }
             });
           }
