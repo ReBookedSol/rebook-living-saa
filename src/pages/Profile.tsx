@@ -50,6 +50,8 @@ const Profile = () => {
   const [phone, setPhone] = useState("");
   const [university, setUniversity] = useState("");
   const [loading, setLoading] = useState(false);
+  const [savedPage, setSavedPage] = useState(1);
+  const SAVED_PER_PAGE = 5;
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -134,7 +136,7 @@ const Profile = () => {
         .select("accommodation_id, accommodations(*), viewed_at")
         .eq("user_id", user.id)
         .order("viewed_at", { ascending: false })
-        .limit(10);
+        .limit(5);
       
       if (error) throw error;
       return data.map(v => v.accommodations);
@@ -367,26 +369,51 @@ const Profile = () => {
           <TabsContent value="saved">
             <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Saved Properties</h2>
             {favorites && favorites.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {favorites.map((accommodation: any) => (
-                  <AccommodationCard
-                    key={accommodation.id}
-                    id={accommodation.id}
-                    propertyName={accommodation.property_name}
-                    type={accommodation.type}
-                    university={accommodation.university || ""}
-                    address={accommodation.address}
-                    city={accommodation.city || ""}
-                    monthlyCost={accommodation.monthly_cost || 0}
-                    rating={accommodation.rating || 0}
-                    nsfasAccredited={accommodation.nsfas_accredited || false}
-                    genderPolicy={accommodation.gender_policy || ""}
-                    website={accommodation.website || null}
-                    amenities={accommodation.amenities || []}
-                    imageUrls={accommodation.image_urls || []}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  {favorites.slice((savedPage - 1) * SAVED_PER_PAGE, savedPage * SAVED_PER_PAGE).map((accommodation: any) => (
+                    <AccommodationCard
+                      key={accommodation.id}
+                      id={accommodation.id}
+                      propertyName={accommodation.property_name}
+                      type={accommodation.type}
+                      university={accommodation.university || ""}
+                      address={accommodation.address}
+                      city={accommodation.city || ""}
+                      monthlyCost={accommodation.monthly_cost || 0}
+                      rating={accommodation.rating || 0}
+                      nsfasAccredited={accommodation.nsfas_accredited || false}
+                      genderPolicy={accommodation.gender_policy || ""}
+                      website={accommodation.website || null}
+                      amenities={accommodation.amenities || []}
+                      imageUrls={accommodation.image_urls || []}
+                    />
+                  ))}
+                </div>
+                {Math.ceil(favorites.length / SAVED_PER_PAGE) > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-6">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSavedPage(p => Math.max(1, p - 1))}
+                      disabled={savedPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      Page {savedPage} of {Math.ceil(favorites.length / SAVED_PER_PAGE)}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSavedPage(p => Math.min(Math.ceil(favorites.length / SAVED_PER_PAGE), p + 1))}
+                      disabled={savedPage >= Math.ceil(favorites.length / SAVED_PER_PAGE)}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-muted-foreground">No saved properties yet</p>
             )}
