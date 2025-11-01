@@ -25,6 +25,32 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return () => { if (unsub) unsub(); };
   }, []);
 
+  const { toast } = useToast();
+  const [subscriber, setSubscriber] = useState({ firstname: '', lastname: '', email: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subscriber.email) { toast({ title: 'Error', description: 'Email is required', variant: 'destructive' }); return; }
+    setIsSubmitting(true);
+    try {
+      const supabaseUrl = (import.meta.env as any).VITE_SUPABASE_URL || (import.meta.env as any).SUPABASE_URL;
+      if (!supabaseUrl) throw new Error('Missing SUPABASE_URL');
+      const functionsOrigin = supabaseUrl.replace('.supabase.co', '.functions.supabase.co');
+      const res = await fetch(`${functionsOrigin}/add-subscriber`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: subscriber.email, firstname: subscriber.firstname, lastname: subscriber.lastname }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'Subscription failed');
+      toast({ title: 'Subscribed', description: 'Thanks for subscribing!' });
+      setSubscriber({ firstname: '', lastname: '', email: '' });
+    } catch (err: any) {
+      toast({ title: 'Subscription failed', description: err.message || 'Could not subscribe', variant: 'destructive' });
+    } finally { setIsSubmitting(false); }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
@@ -112,9 +138,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h4 className="font-semibold mb-4">Stay in the loop</h4>
               <p className="text-sm text-muted-foreground mb-3">Subscribe for new listings and updates.</p>
-              <form onSubmit={(e) => e.preventDefault()} className="flex items-center gap-2">
-                <input type="email" placeholder="Your email" className="w-full px-3 py-2 rounded-md border bg-transparent text-sm" />
-                <button className="px-4 py-2 bg-primary text-white rounded-md">Subscribe</button>
+              <form onSubmit={handleSubscribe} className="flex items-center gap-2">
+                <input type="text" placeholder="First name" value={subscriber.firstname} onChange={(e) => setSubscriber({ ...subscriber, firstname: e.target.value })} className="px-3 py-2 rounded-md border bg-transparent text-sm" />
+                <input type="text" placeholder="Last name" value={subscriber.lastname} onChange={(e) => setSubscriber({ ...subscriber, lastname: e.target.value })} className="px-3 py-2 rounded-md border bg-transparent text-sm" />
+                <input type="email" placeholder="Your email" value={subscriber.email} onChange={(e) => setSubscriber({ ...subscriber, email: e.target.value })} className="w-full px-3 py-2 rounded-md border bg-transparent text-sm" />
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md" disabled={isSubmitting}>{isSubmitting ? 'Subscribing...' : 'Subscribe'}</button>
               </form>
               <div className="flex items-center gap-3 mt-4">
                 <a href="#" className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">FB</a>
