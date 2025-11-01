@@ -119,8 +119,27 @@ const AccommodationCard = ({
                 const detailsKey = cacheKeyForPlaceDetails(place.place_id);
                 const cachedDetails = await getCacheItem(detailsKey);
                 if (cachedDetails && Array.isArray(cachedDetails.photos) && cachedDetails.photos.length > 0) {
-                  setLocalImages(cachedDetails.photos);
-                  return;
+                  // Ensure cached photos are data URLs. If they are external URLs, fetch & convert to thumbnails.
+                  const results: string[] = [];
+                  for (let i = 0; i < cachedDetails.photos.length && results.length < 8; i++) {
+                    const p = cachedDetails.photos[i];
+                    if (!p) continue;
+                    if (typeof p === 'string' && p.startsWith('data:')) {
+                      results.push(p);
+                    } else if (typeof p === 'string') {
+                      try {
+                        const photoKey = cacheKeyForPhoto(place.place_id, String(i));
+                        const data = await fetchAndCacheImage(photoKey, p, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
+                        if (data) results.push(data);
+                      } catch (e) {
+                        // ignore this entry
+                      }
+                    }
+                  }
+                  if (results.length > 0) {
+                    setLocalImages(results);
+                    return;
+                  }
                 }
 
                 service.getDetails({ placeId: place.place_id, fields: ['photos'] }, async (detail: any, dStatus: any) => {
