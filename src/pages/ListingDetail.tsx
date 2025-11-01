@@ -703,9 +703,6 @@ const ListingDetail = () => {
                               <Button size="sm" onClick={openMiniStreetView}>Street View</Button>
                             </div>
 
-                            <div className="mt-4 text-right">
-                              <Button className="bg-primary">Unlock full insights</Button>
-                            </div>
                           </div>
                         </div>
 
