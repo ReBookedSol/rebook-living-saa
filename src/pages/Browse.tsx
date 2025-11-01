@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { Info } from "lucide-react";
 
 const Browse = () => {
@@ -23,29 +23,6 @@ const Browse = () => {
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 21;
-
-  const UNIVERSITY_CYCLE = [
-    "University of Cape Town",
-    "University of Johannesburg",
-    "University of Pretoria",
-    "Stellenbosch University",
-    "University of KwaZulu-Natal",
-    "University of the Witwatersrand",
-    "Rhodes University",
-    "North-West University",
-    "Tshwane University of Technology",
-    "Cape Peninsula University of Technology",
-  ];
-
-  const [cycleIndex, setCycleIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentPage !== 1) return;
-    const interval = setInterval(() => {
-      setCycleIndex(i => (i + 1) % UNIVERSITY_CYCLE.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [currentPage]);
 
   const { data: accommodations, isLoading } = useQuery({
     queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender],
@@ -102,15 +79,6 @@ const Browse = () => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
-  const displayedAccommodations = useMemo(() => {
-    if (!paginatedAccommodations) return [];
-    const copy = [...paginatedAccommodations];
-    if (currentPage === 1 && copy.length > 0) {
-      copy[0] = { ...copy[0], university: UNIVERSITY_CYCLE[cycleIndex] };
-    }
-    return copy;
-  }, [paginatedAccommodations, currentPage, cycleIndex]);
 
   const renderPaginationItems = () => {
     const items = [];
@@ -176,7 +144,7 @@ const Browse = () => {
             ) : paginatedAccommodations && paginatedAccommodations.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayedAccommodations.map((accommodation) => (
+                  {paginatedAccommodations.map((accommodation) => (
                     <AccommodationCard
                       key={accommodation.id}
                       id={accommodation.id}
