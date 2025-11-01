@@ -165,7 +165,6 @@ const Profile = () => {
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
-        .eq("status", "active")
         .eq("university", university)
         .range(start, end);
 
