@@ -655,6 +655,67 @@ const ListingDetail = () => {
               </div>
             </div>
 
+            {/* Demo: AI Photos & Map Insights CTA */}
+            <div className="my-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI-powered Photos & Map Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm mb-2">Instant AI summaries of all reviews, extra photos pulled from the area, proximity to shops & services, and local air quality — all in one place.</p>
+                  <ul className="list-disc ml-5 text-sm text-muted-foreground mb-4">
+                    <li>AI summarises sentiment from every review</li>
+                    <li>See more photos and visual highlights</li>
+                    <li>Know how close supermarkets, transport and cafes are</li>
+                    <li>Local air quality score and quick health tips</li>
+                  </ul>
+                  <div className="text-center">
+                    <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full bg-primary hover:bg-primary-hover">See AI Insights — Preview</Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl w-[90vw]">
+                        <div className="p-4">
+                          <DialogHeader>
+                            <DialogTitle>AI Insights (Demo)</DialogTitle>
+                          </DialogHeader>
+
+                          <p className="mt-2">AI Summary: Overall positive sentiment. Guests praise friendly staff and location, but some mention occasional noise in the evenings. Top features: fast Wi‑Fi, secure building, close to campus.</p>
+
+                          <h4 className="mt-4 font-semibold">More photos</h4>
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            {(photos && photos.length > 0 ? photos.slice(0,6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg']).map((src, i) => (
+                              <div key={i} className="w-full h-24 overflow-hidden rounded-md bg-muted">
+                                <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-full" />
+                              </div>
+                            ))}
+                          </div>
+
+                          <h4 className="mt-4 font-semibold">Nearby places</h4>
+                          <ul className="mt-2 list-disc ml-5 text-sm">
+                            <li>Convenience Store — 120 m</li>
+                            <li>Campus Shuttle Stop — 230 m</li>
+                            <li>Cafe & Bakery — 300 m</li>
+                            <li>Laundromat — 400 m</li>
+                          </ul>
+
+                          <h4 className="mt-4 font-semibold">Air Quality</h4>
+                          <div className="mt-2">
+                            <div className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">AQI 42 — Good</div>
+                            <p className="text-xs text-muted-foreground mt-2">Lower AQI means cleaner air — a healthy place to study and sleep.</p>
+                          </div>
+
+                          <div className="mt-6 text-right">
+                            <Button className="bg-primary">Unlock full insights</Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Ad after photos and map */}
             <div className="my-6">
               <Ad />
