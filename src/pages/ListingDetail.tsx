@@ -693,8 +693,12 @@ const ListingDetail = () => {
                 <CardContent>
                   <p className="text-sm mb-2">Want the full picture? 📸 AI summaries, extra photos, nearby hotspots & local air quality — unlock now!</p>
                   <div className="text-center">
-                    <Button onClick={() => setAiDialogOpen((v) => !v)} className="w-full bg-primary hover:bg-primary-hover">
-                      {aiDialogOpen ? 'Hide AI Insights' : 'See AI Insights — Preview'}
+                    <Button onClick={() => {
+                      // Navigate to ad page which will grant access then return
+                      const returnPath = `/listing/${id}`;
+                      navigate(`/ad?l=${encodeURIComponent(id || '')}&return=${encodeURIComponent(returnPath)}`);
+                    }} className="w-full bg-primary hover:bg-primary-hover">
+                      See AI Insights — Preview
                     </Button>
 
                     <div className={`overflow-hidden transition-all duration-300 mt-4 ${aiDialogOpen ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}>
