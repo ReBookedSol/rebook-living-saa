@@ -395,6 +395,20 @@ const ListingDetail = () => {
       new google.maps.Marker({ map: largeMap, position: markerRef.current.getPosition(), title: markerRef.current.getTitle ? markerRef.current.getTitle() : undefined });
     }
 
+    // trigger resize to ensure map renders correctly when dialog opens
+    try {
+      setTimeout(() => {
+        try {
+          google.maps.event.trigger(largeMap, 'resize');
+          if (center && largeMap.setCenter) largeMap.setCenter(center);
+        } catch (e) {
+          // ignore
+        }
+      }, 200);
+    } catch (e) {
+      // ignore
+    }
+
     // No cleanup necessary — Google handles DOM, but remove listeners if added in future
   }, [expandOpen]);
 
@@ -661,7 +675,7 @@ const ListingDetail = () => {
                       {aiDialogOpen ? 'Hide AI Insights' : 'See AI Insights — Preview'}
                     </Button>
 
-                    <div className={`overflow-hidden transform origin-top transition-all duration-300 mt-4 ${aiDialogOpen ? 'max-h-[800px] scale-y-100 opacity-100' : 'max-h-0 scale-y-0 opacity-0'}`}>
+                    <div className={`overflow-hidden transition-all duration-300 mt-4 ${aiDialogOpen ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}>
                       <div className="p-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
@@ -669,11 +683,15 @@ const ListingDetail = () => {
 
                             <h4 className="mt-4 font-semibold">More photos</h4>
                             <div className="grid grid-cols-3 gap-2 mt-2">
-                              {(photos && photos.length > 0 ? photos.slice(0,6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg']).map((src, i) => (
-                                <div key={i} className="w-full h-24 overflow-hidden rounded-md bg-muted">
-                                  <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-full" />
-                                </div>
-                              ))}
+                              {(() => {
+                                const aiPhotos = Array.from(new Set([...(listing?.image_urls || []), ...(photos || [])]));
+                                const display = aiPhotos.length > 0 ? aiPhotos.slice(0, 6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg'];
+                                return display.map((src, i) => (
+                                  <div key={i} className="w-full h-24 overflow-hidden rounded-md bg-muted">
+                                    <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-full" />
+                                  </div>
+                                ));
+                              })()}
                             </div>
 
                             <h4 className="mt-4 font-semibold">Nearby places</h4>
@@ -718,12 +736,12 @@ const ListingDetail = () => {
                         </div>
 
                         <h4 className="mt-6 font-semibold">Reviews</h4>
-                        <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2 mt-2">
+                        <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2 mt-2" style={{ WebkitOverflowScrolling: 'touch' }}>
                           {(() => {
-                            const aiList = (reviews && reviews.length ? reviews.slice(3,9) : []);
-                            const needed = Math.max(0, 6 - aiList.length);
-                            const demoExtras = Array.from({ length: needed }).map((_, i) => ({ author_name: `AI Demo ${i+1}`, rating: 5, relative_time_description: '2 days ago', text: 'Helpful stay, would recommend.' }));
-                            const combined = aiList.concat(demoExtras).slice(0,6);
+                            const threeStar = (reviews || []).filter((r: any) => Number(r.rating) === 3).slice(0, 3);
+                            const needed = Math.max(0, 3 - threeStar.length);
+                            const demo = Array.from({ length: needed }).map((_, i) => ({ author_name: `Demo ${i+1}`, rating: 3, relative_time_description: 'Recently', text: 'Average stay — mixed experiences.' }));
+                            const combined = [...threeStar, ...demo].slice(0, 3);
                             return combined.map((r: any, idx: number) => (
                               <div key={idx} className="p-2 border rounded">
                                 <div className="flex items-start gap-3">
