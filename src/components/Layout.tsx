@@ -29,7 +29,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [subscriber, setSubscriber] = useState({ firstname: '', lastname: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = async (e: React.FormEvent) => {
+  const handleSubscribe = async (e: any) => {
     e.preventDefault();
     if (!subscriber.email) { toast({ title: 'Error', description: 'Email is required', variant: 'destructive' }); return; }
     setIsSubmitting(true);
@@ -37,12 +37,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       const supabaseUrl = (import.meta.env as any).VITE_SUPABASE_URL || (import.meta.env as any).SUPABASE_URL;
       if (!supabaseUrl) throw new Error('Missing SUPABASE_URL');
       const functionsOrigin = supabaseUrl.replace('.supabase.co', '.functions.supabase.co');
-      const res = await fetch(`${functionsOrigin}/add-subscriber`, {
+      // Ensure no trailing slash
+      const url = `${functionsOrigin.replace(/\/+$/, '')}/add-subscriber`;
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: subscriber.email, firstname: subscriber.firstname, lastname: subscriber.lastname }),
       });
-      const data = await res.json().catch(() => ({}));
+      const contentType = res.headers.get('content-type') || '';
+      const data = contentType.includes('application/json') ? await res.json().catch(() => ({})) : {};
       if (!res.ok) throw new Error(data?.error || 'Subscription failed');
       toast({ title: 'Subscribed', description: 'Thanks for subscribing!' });
       setSubscriber({ firstname: '', lastname: '', email: '' });
@@ -138,11 +141,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h4 className="font-semibold mb-4">Stay in the loop</h4>
               <p className="text-sm text-muted-foreground mb-3">Subscribe for new listings and updates.</p>
-              <form onSubmit={handleSubscribe} className="flex items-center gap-2">
-                <input type="text" placeholder="First name" value={subscriber.firstname} onChange={(e) => setSubscriber({ ...subscriber, firstname: e.target.value })} className="px-3 py-2 rounded-md border bg-transparent text-sm" />
-                <input type="text" placeholder="Last name" value={subscriber.lastname} onChange={(e) => setSubscriber({ ...subscriber, lastname: e.target.value })} className="px-3 py-2 rounded-md border bg-transparent text-sm" />
-                <input type="email" placeholder="Your email" value={subscriber.email} onChange={(e) => setSubscriber({ ...subscriber, email: e.target.value })} className="w-full px-3 py-2 rounded-md border bg-transparent text-sm" />
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md" disabled={isSubmitting}>{isSubmitting ? 'Subscribing...' : 'Subscribe'}</button>
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <input type="text" placeholder="First name" value={subscriber.firstname} onChange={(e) => setSubscriber({ ...subscriber, firstname: e.target.value })} className="w-full sm:w-40 px-3 py-2 rounded-md border bg-transparent text-sm" />
+                <input type="text" placeholder="Last name" value={subscriber.lastname} onChange={(e) => setSubscriber({ ...subscriber, lastname: e.target.value })} className="w-full sm:w-40 px-3 py-2 rounded-md border bg-transparent text-sm" />
+                <input type="email" placeholder="Your email" value={subscriber.email} onChange={(e) => setSubscriber({ ...subscriber, email: e.target.value })} className="w-full flex-1 px-3 py-2 rounded-md border bg-transparent text-sm" />
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md whitespace-nowrap" disabled={isSubmitting}>{isSubmitting ? 'Subscribing...' : 'Subscribe'}</button>
               </form>
               <div className="flex items-center gap-3 mt-4">
                 <a href="#" className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">FB</a>
