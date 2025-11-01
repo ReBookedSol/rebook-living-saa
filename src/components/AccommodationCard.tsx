@@ -309,7 +309,7 @@ const AccommodationCard = ({
 
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link to={`/listing/${id}`}>
+          <Link to={`/listing/${id}`} state={{ images: (localImages && localImages.length > 0) ? localImages : (imageUrls && imageUrls.length > 0) ? imageUrls : [thumb] }}>
             <Button variant="default" size="sm" className="bg-primary hover:bg-primary-hover rounded-full">
               View Details
             </Button>
