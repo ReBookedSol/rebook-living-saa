@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -214,8 +214,11 @@ const ListingDetail = () => {
   const markerRef = useRef<any>(null);
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const [expandOpen, setExpandOpen] = useState(false);
+  const location = useLocation();
+  const passedImages = (location.state as any)?.images as string[] | undefined;
+
   const [reviews, setReviews] = useState<any[] | null>(null);
-  const [photos, setPhotos] = useState<string[] | null>(null);
+  const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages.slice(0,3) : null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [placeUrl, setPlaceUrl] = useState<string | null>(null);
@@ -283,10 +286,11 @@ const ListingDetail = () => {
                 service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
                   if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
                     if (detail.reviews) setReviews(detail.reviews.slice(0, 5));
-                    if (detail.photos && detail.photos.length > 0) {
+                    // Only set photos from Google if no images were passed from the listing card
+                    if ((!photos || photos.length === 0) && detail.photos && detail.photos.length > 0) {
                       try {
                         const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                        setPhotos(urls);
+                        setPhotos(urls.slice(0,3));
                       } catch (err) {
                         console.warn('Failed to extract photo urls', err);
                       }
@@ -595,7 +599,7 @@ const ListingDetail = () => {
                   <CardContent>
                     {photos && photos.length > 0 ? (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {photos.map((src, i) => (
+                        {photos.slice(0,3).map((src, i) => (
                           <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full h-32 overflow-hidden rounded-md">
                             <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-full" />
                           </button>
@@ -604,7 +608,7 @@ const ListingDetail = () => {
                     ) : (
                       <div className="h-48 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No photos available</div>
                     )}
-                    {photos && photos.length > 6 && <div className="text-sm text-muted-foreground mt-2">Showing {Math.min(6, photos.length)} of {photos.length} photos</div>}
+                    {photos && photos.length > 3 && <div className="text-sm text-muted-foreground mt-2">Showing {Math.min(3, photos.length)} of {photos.length} photos</div>}
                   </CardContent>
                 </Card>
               </div>
