@@ -151,7 +151,7 @@ const AccommodationCard = ({
 
   useEffect(() => {
     if (localImages && localImages.length > 0) return;
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
+    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
     const photoApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
     if (!apiKey) return;
 

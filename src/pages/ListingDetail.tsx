@@ -223,9 +223,65 @@ const ListingDetail = () => {
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [placeUrl, setPlaceUrl] = useState<string | null>(null);
+  // Demo state for AI-powered insights CTA (preview only)
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const miniMapRef = useRef<HTMLDivElement | null>(null);
+  const miniMapInstanceRef = useRef<any | null>(null);
+  const streetViewRef = useRef<any | null>(null);
+  const [miniMapType, setMiniMapType] = useState<'roadmap'|'satellite'>('satellite');
 
   useEffect(() => {
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
+    if (!aiDialogOpen) {
+      if (miniMapInstanceRef.current) {
+        miniMapInstanceRef.current = null;
+      }
+      if (streetViewRef.current) {
+        streetViewRef.current = null;
+      }
+      return;
+    }
+
+    const google = (window as any).google;
+    if (!google || !miniMapRef.current) return;
+
+    const center = mapInstanceRef.current && typeof mapInstanceRef.current.getCenter === 'function'
+      ? mapInstanceRef.current.getCenter()
+      : { lat: -33.9249, lng: 18.4241 };
+
+    try {
+      const map = new google.maps.Map(miniMapRef.current, { center, zoom: 15, mapTypeId: miniMapType, mapTypeControl: true });
+      new google.maps.Marker({ map, position: center });
+      miniMapInstanceRef.current = map;
+    } catch (e) {
+      console.warn('Mini map init failed', e);
+    }
+
+    return () => { miniMapInstanceRef.current = null; streetViewRef.current = null; };
+  }, [aiDialogOpen, miniMapType]);
+
+  const toggleMiniMapType = () => {
+    const next = miniMapType === 'roadmap' ? 'satellite' : 'roadmap';
+    setMiniMapType(next);
+    if (miniMapInstanceRef.current && miniMapInstanceRef.current.setMapTypeId) {
+      miniMapInstanceRef.current.setMapTypeId(next);
+    }
+  };
+
+  const openMiniStreetView = () => {
+    const google = (window as any).google;
+    if (!google || !miniMapRef.current || !miniMapInstanceRef.current) return;
+    const center = miniMapInstanceRef.current.getCenter ? miniMapInstanceRef.current.getCenter() : { lat: -33.9249, lng: 18.4241 };
+    try {
+      const panorama = new google.maps.StreetViewPanorama(miniMapRef.current, { position: center, pov: { heading: 0, pitch: 0 }, visible: true });
+      miniMapInstanceRef.current.setStreetView(panorama);
+      streetViewRef.current = panorama;
+    } catch (e) {
+      console.warn('Street View init failed', e);
+    }
+  };
+
+  useEffect(() => {
+    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
     const photoApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
     if (!apiKey) return;
 
@@ -256,12 +312,9 @@ const ListingDetail = () => {
         const map = new google.maps.Map(mapRef.current, {
           center: { lat: -33.9249, lng: 18.4241 },
           zoom: 15,
-          mapTypeId: mapType,
-          mapTypeControl: true,
-          mapTypeControlOptions: {
-            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-            mapTypeIds: ['roadmap', 'satellite', 'hybrid'],
-          },
+          mapTypeId: 'roadmap',
+          mapTypeControl: false,
+          streetViewControl: false,
         });
 
         mapInstanceRef.current = map;
@@ -595,6 +648,109 @@ const ListingDetail = () => {
               <Ad />
             </div>
 
+            {/* Demo: AI Photos & Map Insights CTA (placed above Photos & Map) */}
+            <div className="my-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI-powered Photos & Map Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm mb-2">Want the full picture? 📸 AI summaries, extra photos, nearby hotspots & local air quality — unlock now!</p>
+                  <div className="text-center">
+                    <Button onClick={() => setAiDialogOpen((v) => !v)} className="w-full bg-primary hover:bg-primary-hover">
+                      {aiDialogOpen ? 'Hide AI Insights' : 'See AI Insights — Preview'}
+                    </Button>
+
+                    <div className={`overflow-hidden transform origin-top transition-all duration-300 mt-4 ${aiDialogOpen ? 'max-h-[800px] scale-y-100 opacity-100' : 'max-h-0 scale-y-0 opacity-0'}`}>
+                      <div className="p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="mt-2">AI Summary: Overall positive sentiment. Guests praise friendly staff and location, but some mention occasional noise in the evenings. Top features: fast Wi‑Fi, secure building, close to campus.</p>
+
+                            <h4 className="mt-4 font-semibold">More photos</h4>
+                            <div className="grid grid-cols-3 gap-2 mt-2">
+                              {(photos && photos.length > 0 ? photos.slice(0,6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg']).map((src, i) => (
+                                <div key={i} className="w-full h-24 overflow-hidden rounded-md bg-muted">
+                                  <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-full" />
+                                </div>
+                              ))}
+                            </div>
+
+                            <h4 className="mt-4 font-semibold">Nearby places</h4>
+                            <ul className="mt-2 list-disc ml-5 text-sm">
+                              <li>Convenience Store — 120 m</li>
+                              <li>Campus Shuttle Stop — 230 m</li>
+                              <li>Cafe & Bakery — 300 m</li>
+                              <li>Laundromat — 400 m</li>
+                            </ul>
+
+                            <h4 className="mt-4 font-semibold">Air Quality</h4>
+                            <div className="mt-2">
+                              <div className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">AQI 42 — Good</div>
+                              <p className="text-xs text-muted-foreground mt-2">Lower AQI means cleaner air — a healthy place to study and sleep.</p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold">Mini map</h4>
+                            <div ref={miniMapRef} className="w-full h-48 rounded-md overflow-hidden bg-muted mb-3" />
+
+                            <div className="flex items-center gap-2 mt-2">
+                              <Button size="sm" variant="outline" onClick={toggleMiniMapType}>{miniMapType === 'roadmap' ? 'Satellite' : 'Map'}</Button>
+                              <Button size="sm" onClick={openMiniStreetView}>Street View</Button>
+
+                              <Dialog open={expandOpen} onOpenChange={setExpandOpen}>
+                                <DialogTrigger asChild>
+                                  <Button size="sm" variant="ghost">Expand Map</Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl w-[95vw] p-0">
+                                  <div className="p-4">
+                                    <DialogHeader>
+                                      <DialogTitle>Map - {listing.property_name}</DialogTitle>
+                                    </DialogHeader>
+                                    <div ref={largeMapRef} className="h-[60vh] w-full rounded-md overflow-hidden bg-muted mt-4" />
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+
+                          </div>
+                        </div>
+
+                        <h4 className="mt-6 font-semibold">Reviews</h4>
+                        <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2 mt-2">
+                          {(() => {
+                            const aiList = (reviews && reviews.length ? reviews.slice(3,9) : []);
+                            const needed = Math.max(0, 6 - aiList.length);
+                            const demoExtras = Array.from({ length: needed }).map((_, i) => ({ author_name: `AI Demo ${i+1}`, rating: 5, relative_time_description: '2 days ago', text: 'Helpful stay, would recommend.' }));
+                            const combined = aiList.concat(demoExtras).slice(0,6);
+                            return combined.map((r: any, idx: number) => (
+                              <div key={idx} className="p-2 border rounded">
+                                <div className="flex items-start gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-muted" />
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                      <div className="font-semibold">{r.author_name || r.author}</div>
+                                      <div className="text-sm text-muted-foreground">{r.rating} ★</div>
+                                    </div>
+                                    <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description || 'some time ago'}</div>
+                                    <p className="mt-2 text-sm">{r.text}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ));
+                          })()}
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Note: AI insights offers a more detailed map (satellite + Street View) */}
+            <div className="text-center mb-4 text-sm text-muted-foreground">View AI insight for more detailed map</div>
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <Card>
@@ -626,24 +782,7 @@ const ListingDetail = () => {
                   <CardContent>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>
-                          {mapType === 'roadmap' ? 'Satellite' : 'Map'}
-                        </Button>
-                      </div>
-                      <div>
-                        <Dialog open={expandOpen} onOpenChange={setExpandOpen}>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="ghost">Expand Map</Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-4xl w-[95vw] p-0">
-                            <div className="p-4">
-                              <DialogHeader>
-                                <DialogTitle>Map - {listing.property_name}</DialogTitle>
-                              </DialogHeader>
-                              <div ref={largeMapRef} className="h-[60vh] w-full rounded-md overflow-hidden bg-muted mt-4" />
-                            </div>
-                          </DialogContent>
-                        </Dialog>
+                        <div className="text-xs text-muted-foreground">Satellite & Street View available in AI Insights</div>
                       </div>
                     </div>
 
@@ -652,6 +791,7 @@ const ListingDetail = () => {
                 </Card>
               </div>
             </div>
+
 
             {/* Ad after photos and map */}
             <div className="my-6">
@@ -706,7 +846,7 @@ const ListingDetail = () => {
               <CardContent>
                 {reviews && reviews.length > 0 ? (
                   <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                    {reviews.map((r: any, idx: number) => (
+                    {reviews.slice(0,3).map((r: any, idx: number) => (
                       <div key={idx} className="p-2 border rounded">
                         <div className="flex items-start gap-3">
                           {r.profile_photo_url ? (
@@ -731,11 +871,9 @@ const ListingDetail = () => {
                   <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No reviews available</div>
                 )}
                 <p className="mt-3 text-xs text-muted-foreground">Reviews are aggregated from Google Reviews. When connected, ratings and excerpts will appear here.</p>
-                {placeUrl && (
-                  <div className="mt-2">
-                    <a href={placeUrl} target="_blank" rel="noreferrer" className="text-sm text-primary underline">View on Google Maps</a>
-                  </div>
-                )}
+                <div className="mt-3 flex gap-2 items-center">
+                  <Button size="sm" onClick={() => setAiDialogOpen(true)} className="bg-primary">Get Full Insight with AI</Button>
+                </div>
               </CardContent>
             </Card>
 
