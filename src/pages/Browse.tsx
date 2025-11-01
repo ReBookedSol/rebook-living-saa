@@ -24,6 +24,11 @@ const Browse = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 21;
 
+  // Reset page when filters/search params change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [location, university, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy]);
+
   const { data: pageResult, isLoading } = useQuery({
     queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage],
     queryFn: async () => {
