@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import React, { useState } from "react";
 import { Info } from "lucide-react";
+import Ad from "@/components/Ad";
 
 const Browse = () => {
   const [searchParams] = useSearchParams();
