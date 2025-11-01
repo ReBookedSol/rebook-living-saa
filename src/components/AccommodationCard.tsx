@@ -140,17 +140,17 @@ const AccommodationCard = ({
                             urls.push(cached);
                           } else {
                             const built = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${photoApiKey || apiKey}`;
-                            const dataUrl = await fetchAndCacheImage(photoKey, built);
+                            const dataUrl = await fetchAndCacheImage(photoKey, built, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
                             if (dataUrl) urls.push(dataUrl);
                           }
                         }
                         if (urls.length > 0) {
                           setLocalImages(urls);
-                          await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000);
+                          try { await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000); } catch(e) { /* ignore */ }
                         } else {
                           const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
                           setLocalImages(urls);
-                          await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000);
+                          try { await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000); } catch(e) { /* ignore */ }
                         }
                       } else {
                         const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
