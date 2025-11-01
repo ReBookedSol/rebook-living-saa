@@ -24,12 +24,16 @@ const Browse = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 21;
 
-  const { data: accommodations, isLoading } = useQuery({
-    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender],
+  const { data: pageResult, isLoading } = useQuery({
+    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage],
     queryFn: async () => {
-      let query = supabase
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = currentPage * ITEMS_PER_PAGE - 1;
+
+      // Start with select and request exact count
+      let query: any = supabase
         .from("accommodations")
-        .select("*");
+        .select("*", { count: 'exact' });
 
       if (location) {
         query = query.or(`property_name.ilike.%${location}%,city.ilike.%${location}%,province.ilike.%${location}%,address.ilike.%${location}%`);
@@ -67,18 +71,16 @@ const Browse = () => {
         query = query.order("rating", { ascending: false });
       }
 
-      const { data, error } = await query;
-      
+      const { data, error, count } = await query.range(from, to);
+
       if (error) throw error;
-      return data;
+      return { data, count };
     },
   });
 
-  const totalPages = accommodations ? Math.ceil(accommodations.length / ITEMS_PER_PAGE) : 0;
-  const paginatedAccommodations = accommodations?.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const accommodations = pageResult?.data || [];
+  const totalPages = pageResult && pageResult.count ? Math.ceil((pageResult.count || 0) / ITEMS_PER_PAGE) : 0;
+  const paginatedAccommodations = accommodations;
 
   const renderPaginationItems = () => {
     const items = [];
