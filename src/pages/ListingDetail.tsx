@@ -183,7 +183,11 @@ const ListingDetail = () => {
 
     const existing = document.getElementById('google-maps-script');
     if (existing) {
-      initMap();
+      if ((window as any).google) {
+        initMap();
+      } else {
+        existing.addEventListener('load', initMap as any, { once: true } as any);
+      }
       return;
     }
 
@@ -238,7 +242,7 @@ const ListingDetail = () => {
                 if (detail && detail.photos && detail.photos.length > 0) {
                   try {
                     if (photoApiKey) {
-                      fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${apiKey}`)
+                      fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${photoApiKey || apiKey}`)
                         .then((r) => r.json())
                         .then((json) => {
                           const refs = json?.result?.photos || [];
