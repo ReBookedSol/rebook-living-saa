@@ -151,7 +151,6 @@ const Profile = () => {
       const { data: countData, count, error: countError } = await supabase
         .from("accommodations")
         .select("id", { count: "exact" })
-        .eq("status", "active")
         .eq("university", university);
 
       if (countError) throw countError;
