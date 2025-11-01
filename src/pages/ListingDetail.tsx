@@ -227,11 +227,16 @@ const ListingDetail = () => {
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const miniMapRef = useRef<HTMLDivElement | null>(null);
   const miniMapInstanceRef = useRef<any | null>(null);
+  const streetViewRef = useRef<any | null>(null);
+  const [miniMapType, setMiniMapType] = useState<'roadmap'|'satellite'>('satellite');
 
   useEffect(() => {
     if (!aiDialogOpen) {
       if (miniMapInstanceRef.current) {
         miniMapInstanceRef.current = null;
+      }
+      if (streetViewRef.current) {
+        streetViewRef.current = null;
       }
       return;
     }
@@ -244,15 +249,36 @@ const ListingDetail = () => {
       : { lat: -33.9249, lng: 18.4241 };
 
     try {
-      const map = new google.maps.Map(miniMapRef.current, { center, zoom: 14, disableDefaultUI: true });
+      const map = new google.maps.Map(miniMapRef.current, { center, zoom: 15, mapTypeId: miniMapType, mapTypeControl: true });
       new google.maps.Marker({ map, position: center });
       miniMapInstanceRef.current = map;
     } catch (e) {
       console.warn('Mini map init failed', e);
     }
 
-    return () => { miniMapInstanceRef.current = null; };
-  }, [aiDialogOpen]);
+    return () => { miniMapInstanceRef.current = null; streetViewRef.current = null; };
+  }, [aiDialogOpen, miniMapType]);
+
+  const toggleMiniMapType = () => {
+    const next = miniMapType === 'roadmap' ? 'satellite' : 'roadmap';
+    setMiniMapType(next);
+    if (miniMapInstanceRef.current && miniMapInstanceRef.current.setMapTypeId) {
+      miniMapInstanceRef.current.setMapTypeId(next);
+    }
+  };
+
+  const openMiniStreetView = () => {
+    const google = (window as any).google;
+    if (!google || !miniMapRef.current || !miniMapInstanceRef.current) return;
+    const center = miniMapInstanceRef.current.getCenter ? miniMapInstanceRef.current.getCenter() : { lat: -33.9249, lng: 18.4241 };
+    try {
+      const panorama = new google.maps.StreetViewPanorama(miniMapRef.current, { position: center, pov: { heading: 0, pitch: 0 }, visible: true });
+      miniMapInstanceRef.current.setStreetView(panorama);
+      streetViewRef.current = panorama;
+    } catch (e) {
+      console.warn('Street View init failed', e);
+    }
+  };
 
   useEffect(() => {
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
