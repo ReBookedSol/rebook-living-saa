@@ -822,7 +822,7 @@ const ListingDetail = () => {
               <CardContent>
                 {reviews && reviews.length > 0 ? (
                   <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                    {reviews.map((r: any, idx: number) => (
+                    {reviews.slice(0,3).map((r: any, idx: number) => (
                       <div key={idx} className="p-2 border rounded">
                         <div className="flex items-start gap-3">
                           {r.profile_photo_url ? (
