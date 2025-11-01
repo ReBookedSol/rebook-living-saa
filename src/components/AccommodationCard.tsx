@@ -118,7 +118,7 @@ const AccommodationCard = ({
                 try {
                   if (photoApiKey) {
                     // Prefer using the dedicated photos API key
-                    fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${apiKey}`)
+                    fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${photoApiKey || apiKey}`)
                       .then((r) => r.json())
                       .then((json) => {
                         const refs = json?.result?.photos || [];
@@ -151,8 +151,13 @@ const AccommodationCard = ({
     };
 
     const existing = document.getElementById('google-maps-script');
-    if (existing) init();
-    else {
+    if (existing) {
+      if ((window as any).google) {
+        init();
+      } else {
+        existing.addEventListener('load', init as any, { once: true } as any);
+      }
+    } else {
       const script = document.createElement('script');
       script.id = 'google-maps-script';
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
