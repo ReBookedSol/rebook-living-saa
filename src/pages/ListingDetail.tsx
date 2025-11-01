@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart } from "lucide-react";
+import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -71,6 +71,50 @@ const ListingDetail = () => {
     } finally {
       setSavingFavorite(false);
     }
+  };
+
+  const shareListing = async () => {
+    const url = `${window.location.origin}/listing/${id}`;
+    const title = listing?.property_name || 'Listing';
+    const text = listing?.description ? listing.description.slice(0, 140) : `${listing?.property_name || ''} - check this listing`;
+
+    if ((navigator as any).share) {
+      try {
+        await (navigator as any).share({ title, text, url });
+        toast.success('Share dialog opened');
+        return;
+      } catch (err: any) {
+        // try clipboard fallback
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(url);
+            toast.success('Listing link copied to clipboard');
+            return;
+          }
+        } catch (e) {
+          // ignore
+        }
+        // final fallback
+        // eslint-disable-next-line no-alert
+        prompt('Copy link', url);
+        return;
+      }
+    }
+
+    // no native share
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success('Listing link copied to clipboard');
+        return;
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // fallback
+    // eslint-disable-next-line no-alert
+    prompt('Copy link', url);
   };
 
   const { data: listing, isLoading } = useQuery({
@@ -183,7 +227,11 @@ const ListingDetail = () => {
 
     const existing = document.getElementById('google-maps-script');
     if (existing) {
-      initMap();
+      if ((window as any).google) {
+        initMap();
+      } else {
+        existing.addEventListener('load', initMap as any, { once: true } as any);
+      }
       return;
     }
 
@@ -229,45 +277,97 @@ const ListingDetail = () => {
               markerRef.current = new google.maps.Marker({ map, position: place.geometry.location, title: place.name });
             }
 
-            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
-              if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
-                if (detail && detail.reviews) {
-                  setReviews(detail.reviews.slice(0, 5));
+            (async () => {
+              try {
+                // Check cache first
+                const { getCacheItem, setCacheItem, cacheKeyForPlaceDetails, fetchAndCacheImage, cacheKeyForPhoto } = await import('@/lib/indexeddbCache');
+                const cacheKey = cacheKeyForPlaceDetails(place.place_id);
+                const cached = await getCacheItem(cacheKey);
+                if (cached) {
+                  if (cached.reviews) setReviews(cached.reviews.slice(0,5));
+                  if (cached.photos && Array.isArray(cached.photos)) {
+                    setPhotos(cached.photos);
+                  }
+                  if (cached.url) setPlaceUrl(cached.url);
+                  return;
                 }
 
-                if (detail && detail.photos && detail.photos.length > 0) {
-                  try {
-                    if (photoApiKey) {
-                      fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${apiKey}`)
-                        .then((r) => r.json())
-                        .then((json) => {
-                          const refs = json?.result?.photos || [];
-                          if (Array.isArray(refs) && refs.length > 0) {
-                            const urls = refs.map((ph: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ph.photo_reference)}&key=${photoApiKey}`);
-                            setPhotos(urls);
+                service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, async (detail: any, dStatus: any) => {
+                  if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
+                    if (detail && detail.reviews) {
+                      setReviews(detail.reviews.slice(0, 5));
+                    }
+
+                    if (detail && detail.photos && detail.photos.length > 0) {
+                      try {
+                        // Try to fetch photo references via REST, then cache data URLs for each photo
+                        const detailResp = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${photoApiKey || apiKey}`);
+                        const json = await detailResp.json().catch(() => ({}));
+                        const refs = json?.result?.photos || [];
+                        const urls: string[] = [];
+
+                        const phs = Array.isArray(refs) && refs.length > 0 ? refs : detail.photos.map((p: any, idx: number) => ({ photo_reference: p.getUrl ? `ref_${idx}` : undefined }));
+
+                        const localUrls: string[] = [];
+                        for (let i = 0; i < phs.length; i++) {
+                          const ref = phs[i]?.photo_reference || (detail.photos && detail.photos[i] && detail.photos[i].getUrl ? detail.photos[i].getUrl({ maxWidth: 800 }) : null);
+                          if (!ref) continue;
+                          const photoCacheKey = cacheKeyForPhoto(place.place_id, String(ref));
+                          // if cached data url exists, use it
+                          const cachedPhoto = await getCacheItem(photoCacheKey);
+                          if (cachedPhoto) {
+                            localUrls.push(cachedPhoto);
                           } else {
-                            const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                            setPhotos(urls);
+                            // build photo URL and fetch then cache
+                            const built = refs && refs[i] ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(refs[i].photo_reference)}&key=${photoApiKey || apiKey}` : String(ref);
+                            const dataUrl = await fetchAndCacheImage(photoCacheKey, built, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
+                            if (dataUrl) localUrls.push(dataUrl);
                           }
-                        })
-                        .catch(() => {
-                          const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                          setPhotos(urls);
-                        });
-                    } else {
+                          if (localUrls.length >= 12) break; // limit how many we load at once
+                        }
+
+                        if (localUrls.length > 0) setPhotos(localUrls);
+                      } catch (err) {
+                        console.warn('Failed to extract photo urls', err);
+                        const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                        setPhotos(urls);
+                      }
+                    }
+
+                    if (detail && detail.url) {
+                      setPlaceUrl(detail.url);
+                    }
+
+                    // Save to cache
+                    try {
+                      const toCache: any = { reviews: detail?.reviews || null, photos: undefined, url: detail?.url || null };
+                      // store photo data urls if available
+                      if (Array.isArray(detail?.photos) && localUrls && localUrls.length > 0) {
+                        toCache.photos = localUrls.slice(0, 12);
+                      } else if (Array.isArray(localUrls) && localUrls.length > 0) {
+                        toCache.photos = localUrls.slice(0, 12);
+                      }
+                      await setCacheItem(cacheKey, toCache, 7 * 24 * 60 * 60 * 1000);
+                    } catch (e) {
+                      // ignore cache failures
+                    }
+                  }
+                });
+              } catch (e) {
+                console.warn('place details caching error', e);
+                // fallback to original getDetails call
+                service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
+                  if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
+                    if (detail && detail.reviews) setReviews(detail.reviews.slice(0, 5));
+                    if (detail && detail.photos) {
                       const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
                       setPhotos(urls);
                     }
-                  } catch (err) {
-                    console.warn('Failed to extract photo urls', err);
+                    if (detail && detail.url) setPlaceUrl(detail.url);
                   }
-                }
-
-                if (detail && detail.url) {
-                  setPlaceUrl(detail.url);
-                }
+                });
               }
-            });
+            })();
           }
         });
       } catch (err) {
@@ -387,6 +487,16 @@ const ListingDetail = () => {
               disabled={savingFavorite}
             >
               <Heart className={`w-4 h-4 ${isSaved ? 'text-red-500' : 'text-white'}`} />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={shareListing}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 text-white/90"
+              title="Share listing"
+            >
+              <Share className="w-4 h-4 text-white" />
             </Button>
 
             <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Info, Heart } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Info, Heart, Share } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
@@ -45,6 +45,51 @@ const AccommodationCard = ({
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [animating, setAnimating] = useState(false);
+
+  const shareListing = async () => {
+    const url = `${window.location.origin}/listing/${id}`;
+    const title = propertyName;
+    const text = `${propertyName}${university ? ` — near ${university}` : ''}`;
+
+    // Preferred: try native share if available
+    if ((navigator as any).share) {
+      try {
+        await (navigator as any).share({ title, text, url });
+        toast({ title: 'Shared', description: 'Share dialog opened' });
+        return;
+      } catch (err: any) {
+        // Permission denied / NotAllowed - try clipboard fallback
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(url);
+            toast({ title: 'Link copied', description: 'Listing link copied to clipboard' });
+            return;
+          }
+        } catch (e) {
+          // ignore
+        }
+        // final fallback
+        // eslint-disable-next-line no-alert
+        prompt('Copy this link', url);
+        return;
+      }
+    }
+
+    // No native share - try clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({ title: 'Link copied', description: 'Listing link copied to clipboard' });
+        return;
+      } catch (err) {
+        // ignore and fallthrough to prompt
+      }
+    }
+
+    // Last resort
+    // eslint-disable-next-line no-alert
+    prompt('Copy this link', url);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -113,36 +158,78 @@ const AccommodationCard = ({
         service.findPlaceFromQuery({ query, fields: ['place_id'] }, (results: any, status: any) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
             const place = results[0];
-            service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (detail: any, dStatus: any) => {
-              if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
-                try {
-                  if (photoApiKey) {
-                    // Prefer using the dedicated photos API key
-                    fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${apiKey}`)
-                      .then((r) => r.json())
-                      .then((json) => {
+            (async () => {
+              try {
+                const { getCacheItem, setCacheItem, cacheKeyForPlaceDetails, cacheKeyForPhoto, fetchAndCacheImage } = await import('@/lib/indexeddbCache');
+                const detailsKey = cacheKeyForPlaceDetails(place.place_id);
+                const cachedDetails = await getCacheItem(detailsKey);
+                if (cachedDetails && Array.isArray(cachedDetails.photos) && cachedDetails.photos.length > 0) {
+                  // Ensure cached photos are data URLs. If they are external URLs, fetch & convert to thumbnails.
+                  const results: string[] = [];
+                  for (let i = 0; i < cachedDetails.photos.length && results.length < 8; i++) {
+                    const p = cachedDetails.photos[i];
+                    if (!p) continue;
+                    if (typeof p === 'string' && p.startsWith('data:')) {
+                      results.push(p);
+                    } else if (typeof p === 'string') {
+                      try {
+                        const photoKey = cacheKeyForPhoto(place.place_id, String(i));
+                        const data = await fetchAndCacheImage(photoKey, p, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
+                        if (data) results.push(data);
+                      } catch (e) {
+                        // ignore this entry
+                      }
+                    }
+                  }
+                  if (results.length > 0) {
+                    setLocalImages(results);
+                    return;
+                  }
+                }
+
+                service.getDetails({ placeId: place.place_id, fields: ['photos'] }, async (detail: any, dStatus: any) => {
+                  if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
+                    try {
+                      if (photoApiKey) {
+                        const resp = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${photoApiKey || apiKey}`);
+                        const json = await resp.json().catch(() => ({}));
                         const refs = json?.result?.photos || [];
-                        if (Array.isArray(refs) && refs.length > 0) {
-                          const urls = refs.map((ph: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ph.photo_reference)}&key=${photoApiKey}`);
+                        const urls: string[] = [];
+                        for (let i = 0; i < refs.length && i < 8; i++) {
+                          const ref = refs[i]?.photo_reference;
+                          if (!ref) continue;
+                          const photoKey = cacheKeyForPhoto(place.place_id, ref);
+                          const cached = await getCacheItem(photoKey);
+                          if (cached) {
+                            urls.push(cached);
+                          } else {
+                            const built = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${photoApiKey || apiKey}`;
+                            const dataUrl = await fetchAndCacheImage(photoKey, built, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
+                            if (dataUrl) urls.push(dataUrl);
+                          }
+                        }
+                        if (urls.length > 0) {
                           setLocalImages(urls);
+                          try { await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000); } catch(e) { /* ignore */ }
                         } else {
                           const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
                           setLocalImages(urls);
+                          try { await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000); } catch(e) { /* ignore */ }
                         }
-                      })
-                      .catch(() => {
+                      } else {
                         const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
                         setLocalImages(urls);
-                      });
-                  } else {
-                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                    setLocalImages(urls);
+                        await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000);
+                      }
+                    } catch (err) {
+                      console.warn('Failed to extract place photos', err);
+                    }
                   }
-                } catch (err) {
-                  console.warn('Failed to extract place photos', err);
-                }
+                });
+              } catch (e) {
+                console.warn('Places photo fetch error', e);
               }
-            });
+            })();
           }
         });
       } catch (err) {
@@ -151,8 +238,13 @@ const AccommodationCard = ({
     };
 
     const existing = document.getElementById('google-maps-script');
-    if (existing) init();
-    else {
+    if (existing) {
+      if ((window as any).google) {
+        init();
+      } else {
+        existing.addEventListener('load', init as any, { once: true } as any);
+      }
+    } else {
       const script = document.createElement('script');
       script.id = 'google-maps-script';
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
@@ -197,7 +289,7 @@ const AccommodationCard = ({
         )}
         <div className="flex-1 text-white">
           <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
-          <p className="text-xs text-white/90">{type} • {city}</p>
+          <p className="text-xs text-white/90">{type} �� {city}</p>
         </div>
       </div>
 
@@ -271,6 +363,10 @@ const AccommodationCard = ({
               </div>
             </DialogContent>
           </Dialog>
+
+          <Button variant="ghost" size="sm" onClick={shareListing} className="rounded-full border border-primary/20 w-8 h-8 flex items-center justify-center text-primary hover:bg-primary/10">
+            <Share className="w-4 h-4 text-primary" />
+          </Button>
         </div>
 
         <div>
