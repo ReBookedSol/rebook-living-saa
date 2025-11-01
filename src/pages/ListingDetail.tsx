@@ -472,6 +472,16 @@ const ListingDetail = () => {
               <Heart className={`w-4 h-4 ${isSaved ? 'text-red-500' : 'text-white'}`} />
             </Button>
 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={shareListing}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 text-white/90"
+              title="Share listing"
+            >
+              <Share className="w-4 h-4 text-white" />
+            </Button>
+
             <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
