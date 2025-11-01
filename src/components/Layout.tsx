@@ -141,7 +141,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h4 className="font-semibold mb-4">Stay in the loop</h4>
               <p className="text-sm text-muted-foreground mb-3">Subscribe for new listings and updates.</p>
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row sm:items-center sm:flex-nowrap gap-2">
                 <input type="text" placeholder="First name" value={subscriber.firstname} onChange={(e) => setSubscriber({ ...subscriber, firstname: e.target.value })} className="w-full sm:w-40 px-3 py-2 rounded-md border bg-transparent text-sm min-w-0" />
                 <input type="text" placeholder="Last name" value={subscriber.lastname} onChange={(e) => setSubscriber({ ...subscriber, lastname: e.target.value })} className="w-full sm:w-40 px-3 py-2 rounded-md border bg-transparent text-sm min-w-0" />
                 <input type="email" placeholder="Your email" value={subscriber.email} onChange={(e) => setSubscriber({ ...subscriber, email: e.target.value })} className="w-full flex-1 px-3 py-2 rounded-md border bg-transparent text-sm min-w-0" />
