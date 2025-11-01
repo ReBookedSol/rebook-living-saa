@@ -225,6 +225,34 @@ const ListingDetail = () => {
   const [placeUrl, setPlaceUrl] = useState<string | null>(null);
   // Demo state for AI-powered insights CTA (preview only)
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const miniMapRef = useRef<HTMLDivElement | null>(null);
+  const miniMapInstanceRef = useRef<any | null>(null);
+
+  useEffect(() => {
+    if (!aiDialogOpen) {
+      if (miniMapInstanceRef.current) {
+        miniMapInstanceRef.current = null;
+      }
+      return;
+    }
+
+    const google = (window as any).google;
+    if (!google || !miniMapRef.current) return;
+
+    const center = mapInstanceRef.current && typeof mapInstanceRef.current.getCenter === 'function'
+      ? mapInstanceRef.current.getCenter()
+      : { lat: -33.9249, lng: 18.4241 };
+
+    try {
+      const map = new google.maps.Map(miniMapRef.current, { center, zoom: 14, disableDefaultUI: true });
+      new google.maps.Marker({ map, position: center });
+      miniMapInstanceRef.current = map;
+    } catch (e) {
+      console.warn('Mini map init failed', e);
+    }
+
+    return () => { miniMapInstanceRef.current = null; };
+  }, [aiDialogOpen]);
 
   useEffect(() => {
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
@@ -597,6 +625,71 @@ const ListingDetail = () => {
               <Ad />
             </div>
 
+            {/* Demo: AI Photos & Map Insights CTA (placed above Photos & Map) */}
+            <div className="my-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI-powered Photos & Map Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm mb-2">Want the full picture? 📸 AI summaries, extra photos, nearby hotspots & local air quality — unlock now!</p>
+                  <div className="text-center">
+                    <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full bg-primary hover:bg-primary-hover">See AI Insights — Preview</Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl w-[90vw]">
+                        <div className="p-4">
+                          <DialogHeader>
+                            <DialogTitle>AI Insights (Demo)</DialogTitle>
+                          </DialogHeader>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="mt-2">AI Summary: Overall positive sentiment. Guests praise friendly staff and location, but some mention occasional noise in the evenings. Top features: fast Wi‑Fi, secure building, close to campus.</p>
+
+                              <h4 className="mt-4 font-semibold">More photos</h4>
+                              <div className="grid grid-cols-3 gap-2 mt-2">
+                                {(photos && photos.length > 0 ? photos.slice(0,6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg']).map((src, i) => (
+                                  <div key={i} className="w-full h-24 overflow-hidden rounded-md bg-muted">
+                                    <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-full" />
+                                  </div>
+                                ))}
+                              </div>
+
+                              <h4 className="mt-4 font-semibold">Nearby places</h4>
+                              <ul className="mt-2 list-disc ml-5 text-sm">
+                                <li>Convenience Store — 120 m</li>
+                                <li>Campus Shuttle Stop — 230 m</li>
+                                <li>Cafe & Bakery — 300 m</li>
+                                <li>Laundromat — 400 m</li>
+                              </ul>
+
+                              <h4 className="mt-4 font-semibold">Air Quality</h4>
+                              <div className="mt-2">
+                                <div className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">AQI 42 — Good</div>
+                                <p className="text-xs text-muted-foreground mt-2">Lower AQI means cleaner air — a healthy place to study and sleep.</p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <h4 className="font-semibold">Mini map</h4>
+                              <div ref={miniMapRef} className="w-full h-48 rounded-md overflow-hidden bg-muted mb-3" />
+
+                              <div className="mt-4 text-right">
+                                <Button className="bg-primary">Unlock full insights</Button>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <Card>
@@ -655,66 +748,6 @@ const ListingDetail = () => {
               </div>
             </div>
 
-            {/* Demo: AI Photos & Map Insights CTA */}
-            <div className="my-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI-powered Photos & Map Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm mb-2">Instant AI summaries of all reviews, extra photos pulled from the area, proximity to shops & services, and local air quality — all in one place.</p>
-                  <ul className="list-disc ml-5 text-sm text-muted-foreground mb-4">
-                    <li>AI summarises sentiment from every review</li>
-                    <li>See more photos and visual highlights</li>
-                    <li>Know how close supermarkets, transport and cafes are</li>
-                    <li>Local air quality score and quick health tips</li>
-                  </ul>
-                  <div className="text-center">
-                    <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button className="w-full bg-primary hover:bg-primary-hover">See AI Insights — Preview</Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl w-[90vw]">
-                        <div className="p-4">
-                          <DialogHeader>
-                            <DialogTitle>AI Insights (Demo)</DialogTitle>
-                          </DialogHeader>
-
-                          <p className="mt-2">AI Summary: Overall positive sentiment. Guests praise friendly staff and location, but some mention occasional noise in the evenings. Top features: fast Wi‑Fi, secure building, close to campus.</p>
-
-                          <h4 className="mt-4 font-semibold">More photos</h4>
-                          <div className="grid grid-cols-3 gap-2 mt-2">
-                            {(photos && photos.length > 0 ? photos.slice(0,6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg']).map((src, i) => (
-                              <div key={i} className="w-full h-24 overflow-hidden rounded-md bg-muted">
-                                <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-full" />
-                              </div>
-                            ))}
-                          </div>
-
-                          <h4 className="mt-4 font-semibold">Nearby places</h4>
-                          <ul className="mt-2 list-disc ml-5 text-sm">
-                            <li>Convenience Store — 120 m</li>
-                            <li>Campus Shuttle Stop — 230 m</li>
-                            <li>Cafe & Bakery — 300 m</li>
-                            <li>Laundromat — 400 m</li>
-                          </ul>
-
-                          <h4 className="mt-4 font-semibold">Air Quality</h4>
-                          <div className="mt-2">
-                            <div className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">AQI 42 — Good</div>
-                            <p className="text-xs text-muted-foreground mt-2">Lower AQI means cleaner air — a healthy place to study and sleep.</p>
-                          </div>
-
-                          <div className="mt-6 text-right">
-                            <Button className="bg-primary">Unlock full insights</Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Ad after photos and map */}
             <div className="my-6">
