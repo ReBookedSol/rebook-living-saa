@@ -279,93 +279,23 @@ const ListingDetail = () => {
 
             (async () => {
               try {
-                // Check cache first
-                const { getCacheItem, setCacheItem, cacheKeyForPlaceDetails, fetchAndCacheImage, cacheKeyForPhoto } = await import('@/lib/indexeddbCache');
-                const cacheKey = cacheKeyForPlaceDetails(place.place_id);
-                const cached = await getCacheItem(cacheKey);
-                if (cached) {
-                  if (cached.reviews) setReviews(cached.reviews.slice(0,5));
-                  if (cached.photos && Array.isArray(cached.photos)) {
-                    setPhotos(cached.photos);
-                  }
-                  if (cached.url) setPlaceUrl(cached.url);
-                  return;
-                }
-
-                service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, async (detail: any, dStatus: any) => {
-                  if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
-                    if (detail && detail.reviews) {
-                      setReviews(detail.reviews.slice(0, 5));
-                    }
-
-                    if (detail && detail.photos && detail.photos.length > 0) {
+                // Simply request place details and use the photos directly; do NOT persist photos or reviews.
+                service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
+                  if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
+                    if (detail.reviews) setReviews(detail.reviews.slice(0, 5));
+                    if (detail.photos && detail.photos.length > 0) {
                       try {
-                        // Try to fetch photo references via REST, then cache data URLs for each photo
-                        const detailResp = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${photoApiKey || apiKey}`);
-                        const json = await detailResp.json().catch(() => ({}));
-                        const refs = json?.result?.photos || [];
-                        const urls: string[] = [];
-
-                        const phs = Array.isArray(refs) && refs.length > 0 ? refs : detail.photos.map((p: any, idx: number) => ({ photo_reference: p.getUrl ? `ref_${idx}` : undefined }));
-
-                        const localUrls: string[] = [];
-                        for (let i = 0; i < phs.length; i++) {
-                          const ref = phs[i]?.photo_reference || (detail.photos && detail.photos[i] && detail.photos[i].getUrl ? detail.photos[i].getUrl({ maxWidth: 800 }) : null);
-                          if (!ref) continue;
-                          const photoCacheKey = cacheKeyForPhoto(place.place_id, String(ref));
-                          // if cached data url exists, use it
-                          const cachedPhoto = await getCacheItem(photoCacheKey);
-                          if (cachedPhoto) {
-                            localUrls.push(cachedPhoto);
-                          } else {
-                            // build photo URL and fetch then cache
-                            const built = refs && refs[i] ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(refs[i].photo_reference)}&key=${photoApiKey || apiKey}` : String(ref);
-                            const dataUrl = await fetchAndCacheImage(photoCacheKey, built, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
-                            if (dataUrl) localUrls.push(dataUrl);
-                          }
-                          if (localUrls.length >= 12) break; // limit how many we load at once
-                        }
-
-                        if (localUrls.length > 0) setPhotos(localUrls);
-                      } catch (err) {
-                        console.warn('Failed to extract photo urls', err);
                         const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
                         setPhotos(urls);
+                      } catch (err) {
+                        console.warn('Failed to extract photo urls', err);
                       }
                     }
-
-                    if (detail && detail.url) {
-                      setPlaceUrl(detail.url);
-                    }
-
-                    // Save to cache
-                    try {
-                      const toCache: any = { reviews: detail?.reviews || null, photos: undefined, url: detail?.url || null };
-                      // store photo data urls if available
-                      if (Array.isArray(detail?.photos) && localUrls && localUrls.length > 0) {
-                        toCache.photos = localUrls.slice(0, 12);
-                      } else if (Array.isArray(localUrls) && localUrls.length > 0) {
-                        toCache.photos = localUrls.slice(0, 12);
-                      }
-                      await setCacheItem(cacheKey, toCache, 7 * 24 * 60 * 60 * 1000);
-                    } catch (e) {
-                      // ignore cache failures
-                    }
+                    if (detail.url) setPlaceUrl(detail.url);
                   }
                 });
               } catch (e) {
-                console.warn('place details caching error', e);
-                // fallback to original getDetails call
-                service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
-                  if (dStatus === google.maps.places.PlacesServiceStatus.OK) {
-                    if (detail && detail.reviews) setReviews(detail.reviews.slice(0, 5));
-                    if (detail && detail.photos) {
-                      const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                      setPhotos(urls);
-                    }
-                    if (detail && detail.url) setPlaceUrl(detail.url);
-                  }
-                });
+                console.warn('place details error', e);
               }
             })();
           }

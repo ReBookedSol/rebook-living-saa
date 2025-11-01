@@ -167,67 +167,22 @@ const AccommodationCard = ({
             const place = results[0];
             (async () => {
               try {
-                const { getCacheItem, setCacheItem, cacheKeyForPlaceDetails, cacheKeyForPhoto, fetchAndCacheImage } = await import('@/lib/indexeddbCache');
-                const detailsKey = cacheKeyForPlaceDetails(place.place_id);
-                const cachedDetails = await getCacheItem(detailsKey);
-                if (cachedDetails && Array.isArray(cachedDetails.photos) && cachedDetails.photos.length > 0) {
-                  // Ensure cached photos are data URLs. If they are external URLs, fetch & convert to thumbnails.
-                  const results: string[] = [];
-                  for (let i = 0; i < cachedDetails.photos.length && results.length < 8; i++) {
-                    const p = cachedDetails.photos[i];
-                    if (!p) continue;
-                    if (typeof p === 'string' && p.startsWith('data:')) {
-                      results.push(p);
-                    } else if (typeof p === 'string') {
-                      try {
-                        const photoKey = cacheKeyForPhoto(place.place_id, String(i));
-                        const data = await fetchAndCacheImage(photoKey, p, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
-                        if (data) results.push(data);
-                      } catch (e) {
-                        // ignore this entry
-                      }
-                    }
-                  }
-                  if (results.length > 0) {
-                    setLocalImages(results);
-                    return;
-                  }
-                }
-
-                service.getDetails({ placeId: place.place_id, fields: ['photos'] }, async (detail: any, dStatus: any) => {
+                // Directly request place photos without persisting them to IndexedDB.
+                service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (detail: any, dStatus: any) => {
                   if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
                     try {
-                      if (photoApiKey) {
-                        const resp = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${photoApiKey || apiKey}`);
-                        const json = await resp.json().catch(() => ({}));
-                        const refs = json?.result?.photos || [];
-                        const urls: string[] = [];
-                        for (let i = 0; i < refs.length && i < 8; i++) {
-                          const ref = refs[i]?.photo_reference;
-                          if (!ref) continue;
-                          const photoKey = cacheKeyForPhoto(place.place_id, ref);
-                          const cached = await getCacheItem(photoKey);
-                          if (cached) {
-                            urls.push(cached);
-                          } else {
-                            const built = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ref)}&key=${photoApiKey || apiKey}`;
-                            const dataUrl = await fetchAndCacheImage(photoKey, built, 7 * 24 * 60 * 60 * 1000, 400, 400, 0.75);
-                            if (dataUrl) urls.push(dataUrl);
+                      const urls: string[] = [];
+                      for (let i = 0; i < detail.photos.length && i < 8; i++) {
+                        const p = detail.photos[i];
+                        try {
+                          if (p && typeof p.getUrl === 'function') {
+                            urls.push(p.getUrl({ maxWidth: 800 }));
                           }
+                        } catch (err) {
+                          // ignore malformed photo
                         }
-                        if (urls.length > 0) {
-                          setLocalImages(urls);
-                          try { await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000); } catch(e) { /* ignore */ }
-                        } else {
-                          const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                          setLocalImages(urls);
-                          try { await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000); } catch(e) { /* ignore */ }
-                        }
-                      } else {
-                        const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                        setLocalImages(urls);
-                        await setCacheItem(detailsKey, { photos: urls }, 7 * 24 * 60 * 60 * 1000);
                       }
+                      if (urls.length > 0) setLocalImages(urls);
                     } catch (err) {
                       console.warn('Failed to extract place photos', err);
                     }

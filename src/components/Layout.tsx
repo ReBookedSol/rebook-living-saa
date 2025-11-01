@@ -155,24 +155,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <a href="#" className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">FB</a>
                 <a href="#" className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">TW</a>
                 <a href="#" className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">IG</a>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      (window as any).__clearingCache = true;
-                      const { clearCache } = await import('@/lib/indexeddbCache');
-                      await clearCache();
-                      toast({ title: 'Cache cleared', description: 'Local image & review cache cleared' });
-                    } catch (err: any) {
-                      toast({ title: 'Clear failed', description: err?.message || 'Could not clear cache', variant: 'destructive' });
-                    } finally {
-                      (window as any).__clearingCache = false;
-                    }
-                  }}
-                  className="ml-3 px-3 py-2 rounded-md border text-sm"
-                >
-                  Clear Cache
-                </button>
               </div>
             </div>
           </div>
