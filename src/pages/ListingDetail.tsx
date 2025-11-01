@@ -142,6 +142,7 @@ const ListingDetail = () => {
 
   useEffect(() => {
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
+    const photoApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
     if (!apiKey) return;
 
     const existing = document.getElementById('google-maps-script');
@@ -200,8 +201,27 @@ const ListingDetail = () => {
 
                 if (detail && detail.photos && detail.photos.length > 0) {
                   try {
-                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                    setPhotos(urls);
+                    if (photoApiKey) {
+                      fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${apiKey}`)
+                        .then((r) => r.json())
+                        .then((json) => {
+                          const refs = json?.result?.photos || [];
+                          if (Array.isArray(refs) && refs.length > 0) {
+                            const urls = refs.map((ph: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ph.photo_reference)}&key=${photoApiKey}`);
+                            setPhotos(urls);
+                          } else {
+                            const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                            setPhotos(urls);
+                          }
+                        })
+                        .catch(() => {
+                          const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                          setPhotos(urls);
+                        });
+                    } else {
+                      const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                      setPhotos(urls);
+                    }
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }

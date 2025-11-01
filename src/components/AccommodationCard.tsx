@@ -16,7 +16,7 @@ interface AccommodationCardProps {
   university: string;
   address: string;
   city: string;
-  monthlyCost: number;
+  monthlyCost?: number | null;
   rating: number;
   nsfasAccredited: boolean;
   genderPolicy: string;
@@ -44,6 +44,7 @@ const AccommodationCard = ({
   const { toast } = useToast();
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -67,23 +68,29 @@ const AccommodationCard = ({
       return;
     }
 
+    // optimistic UI + animation
+    setAnimating(true);
+    const prev = isSaved;
+    setIsSaved(!prev);
     setLoading(true);
     try {
-      if (!isSaved) {
+      if (!prev) {
         const { error } = await supabase.from('favorites').insert({ user_id: userId, accommodation_id: id });
         if (error) throw error;
-        setIsSaved(true);
         toast({ title: 'Saved', description: 'Added to your saved properties' });
       } else {
         const { error } = await supabase.from('favorites').delete().eq('user_id', userId).eq('accommodation_id', id);
         if (error) throw error;
-        setIsSaved(false);
         toast({ title: 'Removed', description: 'Removed from your saved properties' });
       }
     } catch (err: any) {
+      // revert optimistic change
+      setIsSaved(prev);
       toast({ title: 'Error', description: err.message || 'Something went wrong', variant: 'destructive' });
     } finally {
       setLoading(false);
+      // small pop animation
+      setTimeout(() => setAnimating(false), 350);
     }
   };
 
@@ -93,6 +100,7 @@ const AccommodationCard = ({
   useEffect(() => {
     if (localImages && localImages.length > 0) return;
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
+    const photoApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
     if (!apiKey) return;
 
     const init = () => {
@@ -108,8 +116,28 @@ const AccommodationCard = ({
             service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (detail: any, dStatus: any) => {
               if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
                 try {
-                  const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                  setLocalImages(urls);
+                  if (photoApiKey) {
+                    // Prefer using the dedicated photos API key
+                    fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=photos&key=${apiKey}`)
+                      .then((r) => r.json())
+                      .then((json) => {
+                        const refs = json?.result?.photos || [];
+                        if (Array.isArray(refs) && refs.length > 0) {
+                          const urls = refs.map((ph: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${encodeURIComponent(ph.photo_reference)}&key=${photoApiKey}`);
+                          setLocalImages(urls);
+                        } else {
+                          const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                          setLocalImages(urls);
+                        }
+                      })
+                      .catch(() => {
+                        const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                        setLocalImages(urls);
+                      });
+                  } else {
+                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                    setLocalImages(urls);
+                  }
                 } catch (err) {
                   console.warn('Failed to extract place photos', err);
                 }
@@ -202,7 +230,7 @@ const AccommodationCard = ({
           </div>
 
           <div className="text-right flex-shrink-0">
-            <p className="text-2xl font-bold text-primary">R{monthlyCost.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-primary">{typeof monthlyCost === 'number' ? `R${monthlyCost.toLocaleString()}` : 'Contact for price'}</p>
             <p className="text-xs text-muted-foreground">per month</p>
           </div>
         </div>
@@ -250,12 +278,12 @@ const AccommodationCard = ({
             variant="ghost"
             size="icon"
             onClick={toggleSave}
-            className={`w-10 h-10 flex items-center justify-center rounded-full border ${isSaved ? 'bg-green-50 border-green-200 text-green-600' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
+            className={`w-10 h-10 flex items-center justify-center rounded-full border transform transition-all duration-200 ${isSaved ? 'bg-green-50 border-green-200 text-green-600' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
             aria-pressed={isSaved}
             disabled={loading}
             title={isSaved ? 'Remove saved' : 'Save'}
           >
-            <Heart className={`w-5 h-5 ${isSaved ? 'text-green-600' : 'text-primary'}`} />
+            <Heart className={`w-5 h-5 transition-transform duration-200 ${isSaved ? 'text-green-600' : 'text-primary'} ${animating ? 'scale-125' : ''}`} />
           </Button>
         </div>
       </CardFooter>

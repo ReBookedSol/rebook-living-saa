@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User2, Heart, Clock, Sparkles, CheckCircle, AlertCircle, LogOut, ShieldCheck } from "lucide-react";
+import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, ShieldCheck } from "lucide-react";
 
 const SA_UNIVERSITIES = [
   "University of Cape Town",
@@ -118,9 +118,9 @@ const Profile = () => {
         .from("favorites")
         .select("accommodation_id, accommodations(*)")
         .eq("user_id", user.id);
-      
+
       if (error) throw error;
-      return data.map(f => f.accommodations);
+      return (data || []).map(f => f.accommodations).filter(Boolean);
     },
     enabled: !!user?.id,
   });
@@ -151,7 +151,6 @@ const Profile = () => {
       const { data: countData, count, error: countError } = await supabase
         .from("accommodations")
         .select("id", { count: "exact" })
-        .eq("status", "active")
         .eq("university", university);
 
       if (countError) throw countError;
@@ -166,7 +165,6 @@ const Profile = () => {
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
-        .eq("status", "active")
         .eq("university", university)
         .range(start, end);
 
@@ -275,10 +273,10 @@ const Profile = () => {
         </Card>
 
         <Tabs defaultValue="saved" className="space-y-6">
-          <TabsList className="w-full bg-gray-50 border border-gray-200 rounded-xl p-1 flex justify-between sm:justify-start gap-2">
+          <TabsList className="w-full bg-gray-50 border border-gray-200 rounded-xl p-1 flex flex-wrap gap-2">
             <TabsTrigger
               value="saved"
-              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 md:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Saved"
             >
               <Heart className="w-5 h-5" /> <span className="hidden sm:inline">Saved</span>
@@ -286,23 +284,16 @@ const Profile = () => {
 
             <TabsTrigger
               value="recent"
-              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 md:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Recently viewed"
             >
               <Clock className="w-5 h-5" /> <span className="hidden sm:inline">Recent</span>
             </TabsTrigger>
 
-            <TabsTrigger
-              value="foryou"
-              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
-              aria-label="Recommended for you"
-            >
-              <Sparkles className="w-5 h-5" /> <span className="hidden sm:inline">For you</span>
-            </TabsTrigger>
 
             <TabsTrigger
               value="profile"
-              className="flex-1 sm:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 md:flex-none justify-center flex items-center gap-2 rounded-lg px-3 py-2 text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
               aria-label="Profile"
             >
               <User2 className="w-5 h-5" /> <span className="hidden sm:inline">Profile</span>
@@ -395,26 +386,6 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="foryou">
-            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
-              Recommended for You{university && ` (${university})`}
-            </h2>
-            {!university ? (
-              <p className="text-muted-foreground">
-                Please add your university to see personalized recommendations
-              </p>
-            ) : recommended && recommended.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {recommended.map((accommodation: any) => (
-                  <AccommodationCard key={accommodation.id} {...accommodation} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">
-                No recommendations available for your university yet
-              </p>
-            )}
-          </TabsContent>
         </Tabs>
       </div>
     </Layout>

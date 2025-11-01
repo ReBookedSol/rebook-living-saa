@@ -14,8 +14,7 @@ const Index = () => {
       // Determine total active accommodations
       const { data: countData, count, error: countError } = await supabase
         .from("accommodations")
-        .select("id", { count: "exact" })
-        .eq("status", "active");
+        .select("id", { count: "exact" });
 
       if (countError) throw countError;
       const total = count || 0;
@@ -29,7 +28,6 @@ const Index = () => {
       const { data: firstBatch, error: firstError } = await supabase
         .from("accommodations")
         .select("*")
-        .eq("status", "active")
         .order("rating", { ascending: false })
         .range(start, end);
 
@@ -40,7 +38,6 @@ const Index = () => {
         const { data: secondBatch, error: secondError } = await supabase
           .from("accommodations")
           .select("*")
-          .eq("status", "active")
           .order("rating", { ascending: false })
           .range(0, remaining - 1);
         if (secondError) throw secondError;

@@ -1,5 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Home, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -103,8 +103,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
                 <li><a href="#" className="text-muted-foreground hover:text-primary">Help Center</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Terms of Service</a></li>
+                <li><Link to="/privacy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
               </ul>
             </div>
 

@@ -52,8 +52,7 @@ const Browse = () => {
     queryFn: async () => {
       let query = supabase
         .from("accommodations")
-        .select("*")
-        .eq("status", "active");
+        .select("*");
 
       if (location) {
         query = query.or(`property_name.ilike.%${location}%,city.ilike.%${location}%,province.ilike.%${location}%,address.ilike.%${location}%`);
