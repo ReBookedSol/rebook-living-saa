@@ -78,26 +78,43 @@ const ListingDetail = () => {
     const title = listing?.property_name || 'Listing';
     const text = listing?.description ? listing.description.slice(0, 140) : `${listing?.property_name || ''} - check this listing`;
 
-    try {
-      if ((navigator as any).share) {
+    if ((navigator as any).share) {
+      try {
         await (navigator as any).share({ title, text, url });
         toast.success('Share dialog opened');
         return;
+      } catch (err: any) {
+        // try clipboard fallback
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(url);
+            toast.success('Listing link copied to clipboard');
+            return;
+          }
+        } catch (e) {
+          // ignore
+        }
+        // final fallback
+        // eslint-disable-next-line no-alert
+        prompt('Copy link', url);
+        return;
       }
+    }
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+    // no native share
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
         await navigator.clipboard.writeText(url);
         toast.success('Listing link copied to clipboard');
         return;
+      } catch (e) {
+        // ignore
       }
-
-      // fallback prompt
-      // eslint-disable-next-line no-alert
-      prompt('Copy link', url);
-    } catch (err: any) {
-      console.debug('Share failed', err?.message || err);
-      toast.error(err?.message || 'Share failed');
     }
+
+    // fallback
+    // eslint-disable-next-line no-alert
+    prompt('Copy link', url);
   };
 
   const { data: listing, isLoading } = useQuery({
