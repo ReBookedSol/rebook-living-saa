@@ -87,6 +87,42 @@ const ListingDetail = () => {
     },
   });
 
+  // Track viewed accommodation
+  useEffect(() => {
+    if (!id || !listing) return;
+    
+    const trackView = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+        if (!userId) return;
+
+        // Check if already viewed in the last 24 hours to avoid duplicates
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { data: existing } = await supabase
+          .from("viewed_accommodations")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("accommodation_id", id)
+          .gte("viewed_at", oneDayAgo)
+          .single();
+
+        if (existing) return; // Already tracked recently
+
+        // Insert new view record
+        await supabase.from("viewed_accommodations").insert({
+          user_id: userId,
+          accommodation_id: id,
+        });
+      } catch (err) {
+        // Silently fail - tracking is not critical
+        console.debug("Failed to track view:", err);
+      }
+    };
+
+    trackView();
+  }, [id, listing]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
