@@ -847,11 +847,12 @@ const ListingDetail = () => {
                   <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No reviews available</div>
                 )}
                 <p className="mt-3 text-xs text-muted-foreground">Reviews are aggregated from Google Reviews. When connected, ratings and excerpts will appear here.</p>
-                {placeUrl && (
-                  <div className="mt-2">
+                <div className="mt-3 flex gap-2 items-center">
+                  <Button size="sm" onClick={() => setAiDialogOpen(true)} className="bg-primary">Get Full Insight with AI</Button>
+                  {placeUrl && (
                     <a href={placeUrl} target="_blank" rel="noreferrer" className="text-sm text-primary underline">View on Google Maps</a>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
 
