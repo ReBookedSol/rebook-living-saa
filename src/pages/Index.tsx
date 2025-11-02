@@ -187,6 +187,15 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Search section extracted from hero to match layout */}
+      <section id="search" className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <SearchBar />
+          </div>
+        </div>
+      </section>
+
       {/* Section header similar to "Workflow Templates" */}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
