@@ -17,13 +17,17 @@ import { toast } from "sonner";
 
 const ListingDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const returnPath = params.get('return') || '/browse';
+
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reportForm, setReportForm] = useState({ 
-    reporter_name: "", 
-    reporter_email: "", 
-    reason: "", 
-    details: "" 
+  const [reportForm, setReportForm] = useState({
+    reporter_name: "",
+    reporter_email: "",
+    reason: "",
+    details: ""
   });
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
