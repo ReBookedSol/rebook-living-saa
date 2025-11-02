@@ -13,34 +13,100 @@ import AddAccommodationTab from "@/components/admin/AddAccommodationTab";
 const Dashboard = () => {
   const { toast } = useToast();
 
-  const csvPrompt = `Please read the following PDF and extract all relevant information to create a text-based CSV in the following format:
+  const jsonPrompt = `Create fully filled JSON records for every accommodation property in the PDF — using both the data in the document and additional verified online research (from official or credible public sources).
 
-property_name,type,address,city,province,monthly_cost,rooms_available,amenities,gender_policy,contact_person,contact_email,contact_phone,university,nsfas_accredited,website,units,description,rating
+🧩 JSON OUTPUT FORMAT
+For each accommodation, output an object in this format:
 
-Guidelines:
+{
+  "property_name": "",
+  "type": "",
+  "address": "",
+  "city": "",
+  "province": "",
+  "monthly_cost": 0,
+  "rooms_available": 0,
+  "amenities": [],
+  "gender_policy": "",
+  "contact_person": "",
+  "contact_email": "",
+  "contact_phone": "",
+  "university": "",
+  "nsfas_accredited": false,
+  "website": "",
+  "units": 0,
+  "description": "",
+  "rating": 0.0
+}
 
-For amenities, separate multiple items with a pipe (|) symbol — for example: WiFi|Laundry|Study Room.
+The final output must be a valid JSON array ([ ... ]) containing all entries in the PDF.
 
-Rating should be in decimal format (e.g., 4.5).
+⚙️ RULES & REQUIREMENTS
+1. Extract all available details from the PDF, such as property name, contact info, address, and capacity.
+2. Research missing details using credible public sources:
+   * Official accommodation websites
+   * University housing portals (UP, Wits, UJ, VUT, etc.)
+   * Property24, Respublica, Campus Africa, Urban Circle, South Point, StudentDigz, etc.
+   * Google Maps, Google Business listings, or student accommodation portals.
+3. Monthly cost:
+   * Must always be filled.
+   * If not in the PDF, find “from” or “average” rental rates online.
+4. Amenities:
+   * Must come from real information found online — do not guess or make them up.
+   * Include everything listed publicly (WiFi, Study Area, Gym, Shuttle, Security, Kitchen, Laundry, Parking, etc.).
+   * Output as an array, for example:
 
-nsfas_accredited should be either true or false.
+"amenities": ["WiFi", "Laundry", "24/7 Security", "Study Area"]
 
-All fields must be completed.
+5. Gender policy:
+   * Determine from official info or website photos — if not stated, use "Co-ed".
+6. nsfas_accredited:
+   * true only if confirmed NSFAS-accredited or on the official university list.
+   * Otherwise false.
+7. rating:
+   * Use actual Google rating if available.
+   * Otherwise use nearby property averages (3.0–5.0 scale).
+8. website:
+   * Use the property’s or management company’s verified website.
+9. description:
+   * Write one short factual summary (1–2 sentences) using verified information.
+10. Combine duplicates — if multiple listings share the same address, merge them and update the units count.
+11. No fields should be empty. If something can’t be found after searching, use the most reasonable verified alternative.
+12. Output clean JSON only — no commentary, no explanations, no notes.
 
-If any information is missing in the PDF, conduct thorough research using credible sources (such as official property websites, university housing pages, or reputable portals like Property24).
+Example Output:
 
-The monthly_cost field is the highest priority — make sure every entry includes this value.
+[
+  {
+    "property_name": "Campus Central Student Accommodation",
+    "type": "Purpose-Built Student Accommodation",
+    "address": "115 Duxbury Road, Hillcrest",
+    "city": "Pretoria",
+    "province": "Gauteng",
+    "monthly_cost": 5500,
+    "rooms_available": 2,
+    "amenities": ["WiFi", "Laundry", "Study Area", "24/7 Security", "Kitchen"],
+    "gender_policy": "Co-ed",
+    "contact_person": "Margie Naidoo",
+    "contact_email": "margie@renprop.co.za",
+    "contact_phone": "0114636161",
+    "university": "University of Pretoria",
+    "nsfas_accredited": true,
+    "website": "https://www.campuscentral.co.za",
+    "units": 200,
+    "description": "NSFAS-accredited student apartments near UP with furnished rooms, study spaces, and laundry facilities.",
+    "rating": 4.6
+  }
+]
 
-If multiple listings share the same address, combine them into a single entry and record the total number of units under the units field. Avoid duplicates of the same accommodation.
-
-Ensure the final CSV is complete, accurate, and properly formatted.`;
+`;
 
   const handleCopyPrompt = async () => {
     try {
-      await navigator.clipboard.writeText(csvPrompt);
+      await navigator.clipboard.writeText(jsonPrompt);
       toast({
         title: "Copied!",
-        description: "CSV extraction prompt copied to clipboard",
+        description: "JSON extraction prompt copied to clipboard",
       });
     } catch (err) {
       toast({
@@ -58,8 +124,8 @@ Ensure the final CSV is complete, accurate, and properly formatted.`;
           <h1 className="text-2xl sm:text-3xl font-bold">Panel 2025-05-19</h1>
           <Button onClick={handleCopyPrompt} variant="outline" size="sm" className="w-full sm:w-auto">
             <Copy className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Copy CSV Prompt</span>
-            <span className="sm:hidden">CSV Prompt</span>
+            <span className="hidden sm:inline">Copy JSON Prompt</span>
+            <span className="sm:hidden">JSON Prompt</span>
           </Button>
         </div>
 

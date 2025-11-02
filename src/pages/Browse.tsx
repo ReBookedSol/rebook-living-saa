@@ -20,7 +20,8 @@ const Browse = () => {
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
 
-  const [sortBy, setSortBy] = useState("rating");
+  // Default sort: newest first so newly added accommodations appear on page 1
+  const [sortBy, setSortBy] = useState("newest");
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 9;
@@ -70,11 +71,16 @@ const Browse = () => {
       }
 
       if (sortBy === "price-low") {
-        query = query.order("monthly_cost", { ascending: true });
+        query = query.order("monthly_cost", { ascending: true }).order("created_at", { ascending: false });
       } else if (sortBy === "price-high") {
-        query = query.order("monthly_cost", { ascending: false });
+        query = query.order("monthly_cost", { ascending: false }).order("created_at", { ascending: false });
       } else if (sortBy === "rating") {
-        query = query.order("rating", { ascending: false });
+        query = query.order("rating", { ascending: false }).order("created_at", { ascending: false });
+      } else if (sortBy === "newest") {
+        query = query.order("created_at", { ascending: false });
+      } else {
+        // fallback to newest first
+        query = query.order("created_at", { ascending: false });
       }
 
       const { data, error, count } = await query.range(from, to);
@@ -102,7 +108,7 @@ const Browse = () => {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => setCurrentPage(i)}
+              onClick={() => { setCurrentPage(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               isActive={currentPage === i}
             >
               {i}
@@ -198,14 +204,14 @@ const Browse = () => {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         {renderPaginationItems()}
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>

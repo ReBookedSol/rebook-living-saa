@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import Ad from "@/components/Ad";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
@@ -17,13 +17,17 @@ import { toast } from "sonner";
 
 const ListingDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const returnPath = params.get('return') || '/browse';
+
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reportForm, setReportForm] = useState({ 
-    reporter_name: "", 
-    reporter_email: "", 
-    reason: "", 
-    details: "" 
+  const [reportForm, setReportForm] = useState({
+    reporter_name: "",
+    reporter_email: "",
+    reason: "",
+    details: ""
   });
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -214,98 +218,16 @@ const ListingDetail = () => {
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
-  const [expandOpen, setExpandOpen] = useState(false);
-  const location = useLocation();
   const passedImages = (location.state as any)?.images as string[] | undefined;
 
   const [reviews, setReviews] = useState<any[] | null>(null);
   const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages.slice(0,3) : null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
-  const [placeUrl, setPlaceUrl] = useState<string | null>(null);
-  // Demo state for AI-powered insights CTA (preview only)
-  const navigate = useNavigate();
-  const [aiDialogOpen, setAiDialogOpen] = useState(false);
 
-  // Auto-open AI Insights if URL has ?ai=1; persist unlock per listing in localStorage
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(location.search);
-      if (params.get('ai') === '1') {
-        setAiDialogOpen(true);
-        if (id) {
-          try {
-            localStorage.setItem(`ai_unlocked_${id}`, '1');
-            console.log(`AI insight unlocked for listing ${id}`);
-          } catch (e) { /* ignore */ }
-        }
-        return;
-      }
 
-      if (id) {
-        const unlocked = localStorage.getItem(`ai_unlocked_${id}`);
-        if (unlocked === '1') {
-          // Already unlocked previously; keep state until user opens via CTA
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
-  }, [location.search, id]);
-  const miniMapRef = useRef<HTMLDivElement | null>(null);
-  const miniMapInstanceRef = useRef<any | null>(null);
-  const streetViewRef = useRef<any | null>(null);
-  const [miniMapType, setMiniMapType] = useState<'roadmap'|'satellite'>('satellite');
 
-  useEffect(() => {
-    if (!aiDialogOpen) {
-      if (miniMapInstanceRef.current) {
-        miniMapInstanceRef.current = null;
-      }
-      if (streetViewRef.current) {
-        streetViewRef.current = null;
-      }
-      return;
-    }
 
-    const google = (window as any).google;
-    if (!google || !miniMapRef.current) return;
-
-    const center = mapInstanceRef.current && typeof mapInstanceRef.current.getCenter === 'function'
-      ? mapInstanceRef.current.getCenter()
-      : { lat: -33.9249, lng: 18.4241 };
-
-    try {
-      const map = new google.maps.Map(miniMapRef.current, { center, zoom: 15, mapTypeId: miniMapType, mapTypeControl: true });
-      new google.maps.Marker({ map, position: center });
-      miniMapInstanceRef.current = map;
-    } catch (e) {
-      console.warn('Mini map init failed', e);
-    }
-
-    return () => { miniMapInstanceRef.current = null; streetViewRef.current = null; };
-  }, [aiDialogOpen, miniMapType]);
-
-  const toggleMiniMapType = () => {
-    const next = miniMapType === 'roadmap' ? 'satellite' : 'roadmap';
-    setMiniMapType(next);
-    if (miniMapInstanceRef.current && miniMapInstanceRef.current.setMapTypeId) {
-      miniMapInstanceRef.current.setMapTypeId(next);
-    }
-  };
-
-  const openMiniStreetView = () => {
-    const google = (window as any).google;
-    if (!google || !miniMapRef.current || !miniMapInstanceRef.current) return;
-    const center = miniMapInstanceRef.current.getCenter ? miniMapInstanceRef.current.getCenter() : { lat: -33.9249, lng: 18.4241 };
-    try {
-      const panorama = new google.maps.StreetViewPanorama(miniMapRef.current, { position: center, pov: { heading: 0, pitch: 0 }, visible: true });
-      miniMapInstanceRef.current.setStreetView(panorama);
-      streetViewRef.current = panorama;
-    } catch (e) {
-      console.warn('Street View init failed', e);
-    }
-  };
 
   useEffect(() => {
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API2;
@@ -340,8 +262,12 @@ const ListingDetail = () => {
           center: { lat: -33.9249, lng: 18.4241 },
           zoom: 15,
           mapTypeId: 'roadmap',
-          mapTypeControl: false,
-          streetViewControl: false,
+          mapTypeControl: true,
+          mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            mapTypeIds: ['roadmap', 'satellite'],
+          },
+          streetViewControl: true,
         });
 
         mapInstanceRef.current = map;
@@ -376,7 +302,6 @@ const ListingDetail = () => {
                         console.warn('Failed to extract photo urls', err);
                       }
                     }
-                    if (detail.url) setPlaceUrl(detail.url);
                   }
                 });
               } catch (e) {
@@ -401,43 +326,34 @@ const ListingDetail = () => {
     }
   }, [mapType]);
 
-  // Initialize large map when expand dialog opens
-  useEffect(() => {
-    if (!expandOpen) return;
-    const google = (window as any).google;
-    if (!google || !largeMapRef.current || !mapInstanceRef.current) return;
-
-    const center = mapInstanceRef.current.getCenter ? mapInstanceRef.current.getCenter() : null;
-    const zoom = Math.max(mapInstanceRef.current.getZoom ? mapInstanceRef.current.getZoom() : 15, 16);
-
-    const largeMap = new google.maps.Map(largeMapRef.current, {
-      center: center || { lat: -33.9249, lng: 18.4241 },
-      zoom,
-      mapTypeId: mapType,
-      mapTypeControl: true,
-      streetViewControl: true,
-    });
-
-    if (markerRef.current && markerRef.current.getPosition) {
-      new google.maps.Marker({ map: largeMap, position: markerRef.current.getPosition(), title: markerRef.current.getTitle ? markerRef.current.getTitle() : undefined });
-    }
-
-    // trigger resize to ensure map renders correctly when dialog opens
+  const enterStreetView = () => {
     try {
-      setTimeout(() => {
-        try {
-          google.maps.event.trigger(largeMap, 'resize');
-          if (center && largeMap.setCenter) largeMap.setCenter(center);
-        } catch (e) {
-          // ignore
-        }
-      }, 200);
-    } catch (e) {
-      // ignore
-    }
+      const google = (window as any).google;
+      if (!google || !mapInstanceRef.current) return;
 
-    // No cleanup necessary — Google handles DOM, but remove listeners if added in future
-  }, [expandOpen]);
+      const svService = new google.maps.StreetViewService();
+      const svPanorama = mapInstanceRef.current.getStreetView();
+      const position = markerRef.current && markerRef.current.getPosition ? markerRef.current.getPosition() : mapInstanceRef.current.getCenter();
+
+      if (!position) {
+        toast.error('No location available for Street View');
+        return;
+      }
+
+      svService.getPanorama({ location: position, radius: 50 }, (data: any, status: any) => {
+        if (status === google.maps.StreetViewStatus.OK && data && svPanorama) {
+          svPanorama.setPano(data.location.pano);
+          svPanorama.setPov({ heading: 270, pitch: 0 });
+          svPanorama.setVisible(true);
+        } else {
+          toast.error('Street View not available at this location');
+        }
+      });
+    } catch (e) {
+      console.warn('enterStreetView error', e);
+      toast.error('Failed to enter Street View');
+    }
+  };
 
   const handleReportSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -468,8 +384,8 @@ const ListingDetail = () => {
       <Layout>
         <div className="max-w-7xl mx-auto px-6 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Listing not found</h1>
-          <Link to="/browse">
-            <Button>Back to Browse</Button>
+          <Link to={returnPath}>
+            <Button>Back</Button>
           </Link>
         </div>
       </Layout>
@@ -479,10 +395,10 @@ const ListingDetail = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Link to="/browse">
+        <Link to={returnPath}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Browse
+            Back
           </Button>
         </Link>
 
@@ -689,123 +605,7 @@ const ListingDetail = () => {
               <Ad />
             </div>
 
-            {/* Demo: AI Photos & Map Insights CTA (placed above Photos & Map) */}
-            <div className="my-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI-powered Photos & Map Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm mb-2">Want the full picture? 📸 AI summaries, extra photos, nearby hotspots & local air quality — unlock now!</p>
-                  <div className="text-center">
-                    <Button onClick={() => {
-                      const returnPath = `/listing/${id}`;
-                      const unlocked = id ? localStorage.getItem(`ai_unlocked_${id}`) === '1' : false;
-                      if (unlocked) {
-                        setAiDialogOpen(true);
-                        return;
-                      }
-                      navigate(`/ad?return=${encodeURIComponent(returnPath)}`);
-                    }} className="w-full bg-primary hover:bg-primary-hover">
-                      See AI Insights — Preview
-                    </Button>
 
-                    <div className={`overflow-hidden transition-all duration-300 mt-4 ${aiDialogOpen ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                      <div className="p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <p className="mt-2 text-center md:text-left text-sm md:text-base text-muted-foreground max-w-prose">AI Summary: <strong>Overall positive sentiment.</strong> Guests praise friendly staff and location, but some mention occasional noise in the evenings. Top features: fast Wi‑Fi, secure building, close to campus.</p>
-
-                            <h4 className="mt-6 font-semibold text-center md:text-left">More photos</h4>
-                            <div className="grid grid-cols-3 gap-3 mt-3">
-                              {(() => {
-                                const aiPhotos = Array.from(new Set([...(listing?.image_urls || []), ...(photos || [])]));
-                                const display = aiPhotos.length > 0 ? aiPhotos.slice(0, 6) : ['/placeholder.svg','/placeholder.svg','/placeholder.svg'];
-                                return display.map((src, i) => (
-                                  <div key={i} className="w-full overflow-hidden rounded-lg bg-muted shadow-sm">
-                                    <img src={src} alt={`AI photo ${i+1}`} className="object-cover w-full h-24 md:h-28 transition-transform duration-200 hover:scale-105" />
-                                  </div>
-                                ));
-                              })()}
-                            </div>
-
-                            <h4 className="mt-6 font-semibold">Nearby places</h4>
-                            <ul className="mt-3 space-y-2 text-sm">
-                              {['Convenience Store — 120 m','Campus Shuttle Stop — 230 m','Cafe & Bakery — 300 m','Laundromat — 400 m'].map((p) => (
-                                <li key={p} className="flex items-start gap-3">
-                                  <span className="w-2 h-2 mt-2 rounded-full bg-muted-foreground/60 flex-shrink-0" />
-                                  <span className="text-sm text-muted-foreground">{p}</span>
-                                </li>
-                              ))}
-                            </ul>
-
-                            <h4 className="mt-6 font-semibold">Air Quality</h4>
-                            <div className="mt-2">
-                              <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-green-100 to-green-50 text-green-800 text-sm font-medium shadow-sm">AQI 42 — Good</div>
-                              <p className="text-xs text-muted-foreground mt-3">Lower AQI means cleaner air — a healthy place to study and sleep.</p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h4 className="font-semibold mb-2">Mini map</h4>
-                            <div ref={miniMapRef} className="w-full h-48 rounded-lg overflow-hidden bg-muted mb-3 shadow-sm" />
-
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
-                              <Button size="sm" variant="outline" onClick={toggleMiniMapType}>{miniMapType === 'roadmap' ? 'Satellite' : 'Map'}</Button>
-                              <Button size="sm" onClick={openMiniStreetView}>Street View</Button>
-
-                              <Dialog open={expandOpen} onOpenChange={setExpandOpen}>
-                                <DialogTrigger asChild>
-                                  <Button size="sm" variant="ghost">Expand Map</Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-4xl w-[95vw] p-0">
-                                  <div className="p-4">
-                                    <DialogHeader>
-                                      <DialogTitle>Map - {listing.property_name}</DialogTitle>
-                                    </DialogHeader>
-                                    <div ref={largeMapRef} className="h-[60vh] w-full rounded-lg overflow-hidden bg-muted mt-4" />
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-
-                          </div>
-                        </div>
-
-                        <h4 className="mt-6 font-semibold">Reviews</h4>
-                        <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2 mt-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-                          {(() => {
-                            const threeStar = (reviews || []).filter((r: any) => Number(r.rating) === 3).slice(0, 3);
-                            const needed = Math.max(0, 3 - threeStar.length);
-                            const demo = Array.from({ length: needed }).map((_, i) => ({ author_name: `Demo ${i+1}`, rating: 3, relative_time_description: 'Recently', text: 'Average stay — mixed experiences.' }));
-                            const combined = [...threeStar, ...demo].slice(0, 3);
-                            return combined.map((r: any, idx: number) => (
-                              <div key={idx} className="p-2 border rounded">
-                                <div className="flex items-start gap-3">
-                                  <div className="w-10 h-10 rounded-full bg-muted" />
-                                  <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                      <div className="font-semibold">{r.author_name || r.author}</div>
-                                      <div className="text-sm text-muted-foreground">{r.rating} ★</div>
-                                    </div>
-                                    <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description || 'some time ago'}</div>
-                                    <p className="mt-2 text-sm">{r.text}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            ));
-                          })()}
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Note: AI insights offers a more detailed map (satellite + Street View) */}
-            <div className="text-center mb-4 text-sm text-muted-foreground">View AI insight for more detailed map</div>
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <Card>
@@ -835,10 +635,13 @@ const ListingDetail = () => {
                     <CardTitle>Map</CardTitle>
                   </CardHeader>
                   <CardContent>
+
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="text-xs text-muted-foreground">Satellite & Street View available in AI Insights</div>
+                        <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>{mapType === 'roadmap' ? 'Satellite' : 'Map'}</Button>
+                        <Button size="sm" onClick={() => enterStreetView()}>Enter Street View</Button>
                       </div>
+                      <div className="text-xs text-muted-foreground">Satellite & Street View available</div>
                     </div>
 
                     <div ref={mapRef} id="gmaps" className="h-64 w-full rounded-md overflow-hidden bg-muted" />
@@ -926,9 +729,6 @@ const ListingDetail = () => {
                   <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No reviews available</div>
                 )}
                 <p className="mt-3 text-xs text-muted-foreground">Reviews are aggregated from Google Reviews. When connected, ratings and excerpts will appear here.</p>
-                <div className="mt-3 flex gap-2 items-center">
-                  <Button size="sm" onClick={() => setAiDialogOpen(true)} className="bg-primary">Get Full Insight with AI</Button>
-                </div>
               </CardContent>
             </Card>
 

@@ -10,11 +10,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const isAdmin = location.pathname.startsWith("/admin");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    // Smooth scroll to top on navigation
+  const scrollToTopSmooth = () => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  useEffect(() => {
+    // Smooth scroll to top on navigation (route changes)
+    scrollToTopSmooth();
   }, [location.pathname]);
 
   useEffect(() => {
@@ -28,6 +32,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
   const [subscriber, setSubscriber] = useState({ firstname: '', lastname: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFooterNav = (e: React.MouseEvent, path: string) => {
+    // If clicking a footer link that points to the current page, prevent navigation and scroll to top
+    if (location.pathname === path) {
+      e.preventDefault();
+      scrollToTopSmooth();
+    } else {
+      // allow navigation; the route change effect will scroll
+    }
+  };
 
   const handleSubscribe = async (e: any) => {
     e.preventDefault();
@@ -122,10 +136,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h4 className="font-semibold mb-4">Explore</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/browse" className="text-muted-foreground hover:text-primary">Browse Listings</Link></li>
-                <li><Link to="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
-                <li><Link to="/contact" className="text-muted-foreground hover:text-primary">Contact</Link></li>
-                <li><Link to="/profile" className="text-muted-foreground hover:text-primary">My Profile</Link></li>
+                <li><Link to="/browse" onClick={(e) => handleFooterNav(e, '/browse')} className="text-muted-foreground hover:text-primary">Browse Listings</Link></li>
+                <li><Link to="/about" onClick={(e) => handleFooterNav(e, '/about')} className="text-muted-foreground hover:text-primary">About Us</Link></li>
+                <li><Link to="/contact" onClick={(e) => handleFooterNav(e, '/contact')} className="text-muted-foreground hover:text-primary">Contact</Link></li>
+                <li><Link to="/profile" onClick={(e) => handleFooterNav(e, '/profile')} className="text-muted-foreground hover:text-primary">My Profile</Link></li>
               </ul>
             </div>
 
