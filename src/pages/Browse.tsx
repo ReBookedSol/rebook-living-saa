@@ -71,11 +71,16 @@ const Browse = () => {
       }
 
       if (sortBy === "price-low") {
-        query = query.order("monthly_cost", { ascending: true });
+        query = query.order("monthly_cost", { ascending: true }).order("created_at", { ascending: false });
       } else if (sortBy === "price-high") {
-        query = query.order("monthly_cost", { ascending: false });
+        query = query.order("monthly_cost", { ascending: false }).order("created_at", { ascending: false });
       } else if (sortBy === "rating") {
-        query = query.order("rating", { ascending: false });
+        query = query.order("rating", { ascending: false }).order("created_at", { ascending: false });
+      } else if (sortBy === "newest") {
+        query = query.order("created_at", { ascending: false });
+      } else {
+        // fallback to newest first
+        query = query.order("created_at", { ascending: false });
       }
 
       const { data, error, count } = await query.range(from, to);
