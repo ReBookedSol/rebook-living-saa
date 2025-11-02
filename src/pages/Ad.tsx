@@ -1,71 +1,49 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+
+const OFFERWALL_SUBDOMAIN = "https://living.rebookedsolutions.co.za";
 
 const Ad = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const returnPath = params.get('return') || '/';
 
-  const [secondsLeft, setSecondsLeft] = useState(8);
-  const [canClose, setCanClose] = useState(false);
-
   useEffect(() => {
-    let mounted = true;
-    if (!mounted) return;
-    const interval = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(interval);
-          setCanClose(true);
-          return 0;
+    const redirectToOfferwall = async () => {
+      try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          // If no user, redirect back without reward
+          window.location.href = returnPath;
+          return;
         }
-        return s - 1;
-      });
-    }, 1000);
 
-    return () => { mounted = false; clearInterval(interval); };
-  }, []);
+        // Build offerwall URL with user_id and return path
+        const offerwallUrl = new URL(`${OFFERWALL_SUBDOMAIN}/wall`);
+        offerwallUrl.searchParams.set('user_id', user.id);
+        offerwallUrl.searchParams.set('return', window.location.origin + returnPath);
+        
+        // Redirect to offerwall
+        window.location.href = offerwallUrl.toString();
+      } catch (error) {
+        console.error('Error redirecting to offerwall:', error);
+        // Fallback: redirect back to return path
+        window.location.href = returnPath;
+      }
+    };
 
-  const finish = () => {
-    const url = `${returnPath}${returnPath.includes('?') ? '&' : '?'}ai=1`;
-    navigate(url, { replace: true });
-  };
+    redirectToOfferwall();
+  }, [returnPath]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-3xl w-full p-6">
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-          <h2 className="text-xl font-semibold mb-4">Sponsored Content</h2>
-          <p className="text-sm text-muted-foreground mb-4">Watch this short message to unlock the AI Insights.</p>
-
-          <div className="w-full h-56 bg-black rounded-md mb-4 flex items-center justify-center text-white">
-            <div>
-              <div className="text-lg font-medium">Ad playing...</div>
-              <div className="text-sm mt-2">Please wait {secondsLeft}s</div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center gap-3">
-            <Button variant="outline" onClick={() => {
-              if (!canClose) {
-                toast('Please watch the full ad to unlock the insight');
-                return;
-              }
-              finish();
-            }}>
-              {canClose ? 'Close Ad' : `Close in ${secondsLeft}s`}
-            </Button>
-
-            <Button onClick={() => finish()}>
-              Finish Now
-            </Button>
-          </div>
-
-          <div className="mt-4 text-xs text-muted-foreground">You will be redirected back to the previous page after the ad finishes.</div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+        <p className="text-muted-foreground">Redirecting to offerwall...</p>
       </div>
     </div>
   );
