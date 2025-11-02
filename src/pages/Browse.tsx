@@ -14,6 +14,7 @@ const Browse = () => {
   const [searchParams] = useSearchParams();
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
+  const province = searchParams.get("province") || "";
   const maxCost = searchParams.get("maxCost") || "";
   const minRating = parseFloat(searchParams.get("minRating") || "") || 0;
   const amenitiesParam = searchParams.get("amenities") || "";
