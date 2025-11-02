@@ -161,6 +161,22 @@ const SearchBar = ({ compact = false }) => {
           </div>
 
           <div className="space-y-2">
+            <label className="text-sm font-medium">Province</label>
+            <Select value={province} onValueChange={setProvince}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SA_PROVINCES.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <label className="text-sm font-medium">Min Rating</label>
             <Select value={String(minRating)} onValueChange={(v) => setMinRating(parseFloat(v))}>
               <SelectTrigger>
