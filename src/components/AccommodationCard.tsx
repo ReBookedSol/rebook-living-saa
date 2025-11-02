@@ -41,6 +41,7 @@ const AccommodationCard = ({
   imageUrls = null,
 }: AccommodationCardProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
