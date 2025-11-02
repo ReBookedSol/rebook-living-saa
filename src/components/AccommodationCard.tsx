@@ -7,7 +7,6 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 interface AccommodationCardProps {
   id: string;
@@ -222,20 +221,16 @@ const AccommodationCard = ({
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
       {localImages && localImages.length > 0 ? (
-        <div className="relative">
-          <Carousel className="w-full">
-            <CarouselContent>
-              {localImages.map((src, idx) => (
-                <CarouselItem key={idx}>
-                  <div className="w-full h-48 overflow-hidden bg-muted">
-                    <img loading="lazy" decoding="async" referrerPolicy="no-referrer" src={src} alt={`${propertyName} ${idx + 1}`} className="object-cover w-full h-full" onError={handleImgError(idx)} />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+        <div className="w-full h-48 overflow-hidden bg-muted">
+          <img
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            src={localImages[0]}
+            alt={propertyName}
+            className="object-cover w-full h-full"
+            onError={handleImgError(0)}
+          />
         </div>
       ) : (
         <div className="w-full h-48 overflow-hidden bg-muted">
