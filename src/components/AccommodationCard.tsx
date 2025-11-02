@@ -149,9 +149,74 @@ const AccommodationCard = ({
     }
   };
 
-  // Intentionally do not prefetch photos or load Google Maps API here.
-  // Images should be provided via the imageUrls prop; detailed photos, reviews, and maps
-  // are fetched only on the ListingDetail page when the user clicks View Details.
+  // If no imageUrls were provided from the server, fetch a single thumbnail for this card only.
+  // This runs per-card when the card mounts (so only accommodations rendered on the current page will fetch).
+  useEffect(() => {
+    if (localImages && localImages.length > 0) return;
+    // Only attempt to fetch a thumbnail if we have a sensible query
+    const query = [propertyName, address, city].filter(Boolean).join(', ');
+    if (!query) return;
+
+    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
+    if (!apiKey) return;
+
+    let mounted = true;
+    const fetchThumb = () => {
+      try {
+        const google = (window as any).google;
+        if (!google) return;
+        const tempDiv = document.createElement('div');
+        const service = new google.maps.places.PlacesService(tempDiv);
+        service.findPlaceFromQuery({ query, fields: ['place_id'] }, (results: any, status: any) => {
+          if (!mounted) return;
+          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+            const place = results[0];
+            service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (detail: any, dStatus: any) => {
+              if (!mounted) return;
+              if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
+                try {
+                  const p = detail.photos[0];
+                  if (p && typeof p.getUrl === 'function') {
+                    const url = p.getUrl({ maxWidth: 800 });
+                    if (url) setLocalImages([url]);
+                  }
+                } catch (err) {
+                  // ignore malformed photo
+                }
+              }
+            });
+          }
+        });
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    const existing = document.getElementById('google-maps-script');
+    if (existing) {
+      if ((window as any).google) {
+        fetchThumb();
+      } else {
+        const onLoad = () => fetchThumb();
+        existing.addEventListener('load', onLoad as any, { once: true } as any);
+        return () => { mounted = false; existing.removeEventListener('load', onLoad as any); };
+      }
+    } else {
+      const script = document.createElement('script');
+      script.id = 'google-maps-script';
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => fetchThumb();
+      script.onerror = () => { /* failed to load maps - just ignore */ };
+      document.head.appendChild(script);
+
+      // cleanup: do not remove the script (might be used by ListingDetail later); just mark unmounted
+      return () => { mounted = false; };
+    }
+
+    return () => { mounted = false; };
+  }, [imageUrls, localImages, propertyName, address, city]);
 
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
