@@ -218,7 +218,6 @@ const ListingDetail = () => {
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
-  const location = useLocation();
   const passedImages = (location.state as any)?.images as string[] | undefined;
 
   const [reviews, setReviews] = useState<any[] | null>(null);
