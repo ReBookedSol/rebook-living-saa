@@ -108,7 +108,7 @@ const Browse = () => {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => setCurrentPage(i)}
+              onClick={() => { setCurrentPage(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               isActive={currentPage === i}
             >
               {i}
