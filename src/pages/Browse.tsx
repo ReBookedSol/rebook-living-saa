@@ -20,7 +20,8 @@ const Browse = () => {
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
 
-  const [sortBy, setSortBy] = useState("rating");
+  // Default sort: newest first so newly added accommodations appear on page 1
+  const [sortBy, setSortBy] = useState("newest");
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 9;
