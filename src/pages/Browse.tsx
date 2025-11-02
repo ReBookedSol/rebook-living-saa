@@ -59,6 +59,10 @@ const Browse = () => {
         query = query.eq("nsfas_accredited", true);
       }
 
+      if (province) {
+        query = query.eq("province", province);
+      }
+
       if (minRating > 0) {
         query = query.gte("rating", minRating);
       }
