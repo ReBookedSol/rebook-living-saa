@@ -6,6 +6,13 @@ import AccommodationCard from "@/components/AccommodationCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   const { data: featuredListings, isLoading } = useQuery({
