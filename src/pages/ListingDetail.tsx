@@ -396,10 +396,10 @@ const ListingDetail = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Link to="/browse">
+        <Link to={returnPath}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Browse
+            Back
           </Button>
         </Link>
 
