@@ -149,74 +149,9 @@ const AccommodationCard = ({
     }
   };
 
-  useEffect(() => {
-    if (localImages && localImages.length > 0) return;
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    const photoApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    if (!apiKey) return;
-
-    const init = () => {
-      try {
-        const google = (window as any).google;
-        if (!google) return;
-        const tempDiv = document.createElement('div');
-        const service = new google.maps.places.PlacesService(tempDiv);
-        const query = [propertyName, address, city].filter(Boolean).join(', ');
-        service.findPlaceFromQuery({ query, fields: ['place_id'] }, (results: any, status: any) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-            const place = results[0];
-            (async () => {
-              try {
-                // Directly request place photos without persisting them to IndexedDB.
-                service.getDetails({ placeId: place.place_id, fields: ['photos'] }, (detail: any, dStatus: any) => {
-                  if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail && detail.photos && detail.photos.length > 0) {
-                    try {
-                      const urls: string[] = [];
-                      for (let i = 0; i < detail.photos.length && i < 8; i++) {
-                        const p = detail.photos[i];
-                        try {
-                          if (p && typeof p.getUrl === 'function') {
-                            urls.push(p.getUrl({ maxWidth: 800 }));
-                          }
-                        } catch (err) {
-                          // ignore malformed photo
-                        }
-                      }
-                      if (urls.length > 0) setLocalImages(urls);
-                    } catch (err) {
-                      console.warn('Failed to extract place photos', err);
-                    }
-                  }
-                });
-              } catch (e) {
-                console.warn('Places photo fetch error', e);
-              }
-            })();
-          }
-        });
-      } catch (err) {
-        console.warn('Places photo fetch error', err);
-      }
-    };
-
-    const existing = document.getElementById('google-maps-script');
-    if (existing) {
-      if ((window as any).google) {
-        init();
-      } else {
-        existing.addEventListener('load', init as any, { once: true } as any);
-      }
-    } else {
-      const script = document.createElement('script');
-      script.id = 'google-maps-script';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = init;
-      script.onerror = () => console.warn('Failed to load Google Maps script');
-      document.head.appendChild(script);
-    }
-  }, [imageUrls, localImages, propertyName, address, city]);
+  // Intentionally do not prefetch photos or load Google Maps API here.
+  // Images should be provided via the imageUrls prop; detailed photos, reviews, and maps
+  // are fetched only on the ListingDetail page when the user clicks View Details.
 
   return (
     <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow">
