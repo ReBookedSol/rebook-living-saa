@@ -227,20 +227,25 @@ const ListingDetail = () => {
   const navigate = useNavigate();
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
 
-  // Auto-open AI Insights if URL has ?ai=1 or sessionStorage grants access for this listing
+  // Auto-open AI Insights if URL has ?ai=1; persist unlock per listing in localStorage
   useEffect(() => {
     try {
       const params = new URLSearchParams(location.search);
       if (params.get('ai') === '1') {
         setAiDialogOpen(true);
+        if (id) {
+          try {
+            localStorage.setItem(`ai_unlocked_${id}`, '1');
+            console.log(`AI insight unlocked for listing ${id}`);
+          } catch (e) { /* ignore */ }
+        }
         return;
       }
 
       if (id) {
-        const allowed = sessionStorage.getItem(`ai_allowed_${id}`);
-        if (allowed === '1') {
-          setAiDialogOpen(true);
-          sessionStorage.removeItem(`ai_allowed_${id}`);
+        const unlocked = localStorage.getItem(`ai_unlocked_${id}`);
+        if (unlocked === '1') {
+          // Already unlocked previously; keep state until user opens via CTA
         }
       }
     } catch (e) {
@@ -694,9 +699,13 @@ const ListingDetail = () => {
                   <p className="text-sm mb-2">Want the full picture? 📸 AI summaries, extra photos, nearby hotspots & local air quality — unlock now!</p>
                   <div className="text-center">
                     <Button onClick={() => {
-                      // Navigate to ad page which will grant access then return
                       const returnPath = `/listing/${id}`;
-                      navigate(`/ad?l=${encodeURIComponent(id || '')}&return=${encodeURIComponent(returnPath)}`);
+                      const unlocked = id ? localStorage.getItem(`ai_unlocked_${id}`) === '1' : false;
+                      if (unlocked) {
+                        setAiDialogOpen(true);
+                        return;
+                      }
+                      navigate(`/ad?return=${encodeURIComponent(returnPath)}`);
                     }} className="w-full bg-primary hover:bg-primary-hover">
                       See AI Insights — Preview
                     </Button>

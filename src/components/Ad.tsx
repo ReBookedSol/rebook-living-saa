@@ -26,14 +26,13 @@ export default function Ad({ className = "" }: { className?: string }) {
   }, []);
 
   return (
-    <div ref={ref} className={`w-full my-4 ${className}`}>
-      {/* Responsive thin ad */}
+    <div ref={ref} className={`w-full my-2 ${className}`}>
       <ins
         className="adsbygoogle block"
-        style={{ display: "block" }}
+        style={{ display: "block", height: 90 }}
         data-ad-client={AD_CLIENT}
         data-ad-slot={AD_SLOT}
-        data-ad-format="auto"
+        data-ad-format="horizontal"
         data-full-width-responsive="true"
       />
     </div>

@@ -3,15 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
 const Ad = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
-  const listingId = params.get('l');
   const returnPath = params.get('return') || '/';
 
   const [secondsLeft, setSecondsLeft] = useState(8);
@@ -34,14 +29,7 @@ const Ad = () => {
     return () => { mounted = false; clearInterval(interval); };
   }, []);
 
-  const finish = (allowed = true) => {
-    if (listingId && allowed) {
-      try {
-        sessionStorage.setItem(`ai_allowed_${listingId}`, '1');
-      } catch (e) {
-        // ignore
-      }
-    }
+  const finish = () => {
     const url = `${returnPath}${returnPath.includes('?') ? '&' : '?'}ai=1`;
     navigate(url, { replace: true });
   };
@@ -51,10 +39,9 @@ const Ad = () => {
       <div className="max-w-3xl w-full p-6">
         <div className="bg-white rounded-lg shadow-lg p-6 text-center">
           <h2 className="text-xl font-semibold mb-4">Sponsored Content</h2>
-          <p className="text-sm text-muted-foreground mb-4">Watch this short message to unlock the AI Insights for this listing.</p>
+          <p className="text-sm text-muted-foreground mb-4">Watch this short message to unlock the AI Insights.</p>
 
-          <div className="w-full h-56 bg-black rounded-md mb-4 flex items-center justify-center text-white"> 
-            {/* Placeholder "ad" area. Replace with video if desired. */}
+          <div className="w-full h-56 bg-black rounded-md mb-4 flex items-center justify-center text-white">
             <div>
               <div className="text-lg font-medium">Ad playing...</div>
               <div className="text-sm mt-2">Please wait {secondsLeft}s</div>
@@ -67,17 +54,17 @@ const Ad = () => {
                 toast('Please watch the full ad to unlock the insight');
                 return;
               }
-              finish(true);
-            }}> 
+              finish();
+            }}>
               {canClose ? 'Close Ad' : `Close in ${secondsLeft}s`}
             </Button>
 
-            <Button onClick={() => finish(true)}>
+            <Button onClick={() => finish()}>
               Finish Now
             </Button>
           </div>
 
-          <div className="mt-4 text-xs text-muted-foreground">You will be redirected back to the listing after the ad finishes.</div>
+          <div className="mt-4 text-xs text-muted-foreground">You will be redirected back to the previous page after the ad finishes.</div>
         </div>
       </div>
     </div>
