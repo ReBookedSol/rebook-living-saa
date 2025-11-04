@@ -67,11 +67,20 @@ const Auth = () => {
     setLoading(false);
 
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Handle rate limit errors specifically
+      if (error.message.includes("rate limit") || error.message.includes("429")) {
+        toast({
+          title: "Too Many Requests",
+          description: "Email sending is temporarily limited. Please disable 'Confirm email' in Supabase Auth Settings to sign up instantly, or try again in a few minutes.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Success",
@@ -113,11 +122,20 @@ const Auth = () => {
     setLoading(false);
 
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Handle rate limit errors specifically
+      if (error.message.includes("rate limit") || error.message.includes("429")) {
+        toast({
+          title: "Too Many Requests",
+          description: "Email sending is temporarily limited. Please try again in a few minutes.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Success",
