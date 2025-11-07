@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Search, MapPin, GraduationCap, DollarSign, CheckCircle } from "lucide-react";
+import { Search, MapPin, GraduationCap, DollarSign, CheckCircle, ChevronsUpDown, Check } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const SA_UNIVERSITIES = [
   "All Universities",
@@ -57,9 +60,35 @@ const SearchBar = ({ compact = false }) => {
   const [maxCost, setMaxCost] = useState("");
   const [minRating, setMinRating] = useState<number>(0);
   const [amenities, setAmenities] = useState<string[]>([]);
-  const AMENITIES = ["WiFi", "Laundry", "Study Room", "Parking", "Security"];
+  const AMENITIES = [
+    "WiFi/Internet",
+    "Laundry Facilities",
+    "Study Room",
+    "Parking",
+    "24/7 Security",
+    "CCTV Surveillance",
+    "Kitchen Facilities",
+    "Furnished",
+    "Gym/Fitness Center",
+    "Swimming Pool",
+    "Cleaning Services",
+    "Air Conditioning",
+    "Heating",
+    "Hot Water",
+    "Electricity Included",
+    "Water Included",
+    "Common Area/Lounge",
+    "Garden/Outdoor Space",
+    "Bike Storage",
+    "Pet Friendly",
+    "Wheelchair Access",
+    "Fire Safety Equipment",
+    "Medical Facilities Nearby",
+    "Public Transport Access",
+  ];
   const [nsfasOnly, setNsfasOnly] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [amenitiesOpen, setAmenitiesOpen] = useState(false);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -192,21 +221,48 @@ const SearchBar = ({ compact = false }) => {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Amenities</label>
-            <div className="grid grid-cols-2 gap-2">
-              {AMENITIES.map((a) => (
-                <div key={a} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`amenity-${a}`}
-                    checked={amenities.includes(a)}
-                    onCheckedChange={(checked) => {
-                      if (checked) setAmenities([...amenities, a]);
-                      else setAmenities(amenities.filter((x) => x !== a));
-                    }}
-                  />
-                  <label htmlFor={`amenity-${a}`} className="text-sm">{a}</label>
-                </div>
-              ))}
-            </div>
+            <Popover open={amenitiesOpen} onOpenChange={setAmenitiesOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={amenitiesOpen}
+                  className="w-full justify-between text-left font-normal"
+                >
+                  {amenities.length > 0
+                    ? `${amenities.length} selected`
+                    : "Select amenities"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 pointer-events-auto" align="start">
+                <ScrollArea className="h-[300px] w-full">
+                  <div className="p-4 space-y-2">
+                    {AMENITIES.map((amenity) => (
+                      <div key={amenity} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`amenity-${amenity}`}
+                          checked={amenities.includes(amenity)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setAmenities([...amenities, amenity]);
+                            } else {
+                              setAmenities(amenities.filter((x) => x !== amenity));
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={`amenity-${amenity}`}
+                          className="text-sm cursor-pointer flex-1"
+                        >
+                          {amenity}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-2 col-span-1 md:col-span-2">
