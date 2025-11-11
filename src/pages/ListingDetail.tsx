@@ -602,7 +602,7 @@ const ListingDetail = () => {
             </Card>
 
             <div className="my-6">
-              <Ad />
+              <Ad density="compact" />
             </div>
 
 
@@ -653,7 +653,7 @@ const ListingDetail = () => {
 
             {/* Ad after photos and map */}
             <div className="my-6">
-              <Ad />
+              <Ad density="compact" />
             </div>
 
           </div>
@@ -733,7 +733,7 @@ const ListingDetail = () => {
             </Card>
 
             <div className="my-6">
-              <Ad />
+              <Ad density="compact" />
             </div>
 
             <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
