@@ -168,39 +168,24 @@ const Browse = () => {
             ) : paginatedAccommodations && paginatedAccommodations.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {(() => {
-                    const nodes: React.ReactNode[] = [];
-                    paginatedAccommodations.forEach((accommodation, idx) => {
-                      nodes.push(
-                        <AccommodationCard
-                          key={accommodation.id}
-                          id={accommodation.id}
-                          propertyName={accommodation.property_name}
-                          type={accommodation.type}
-                          university={accommodation.university || ""}
-                          address={accommodation.address}
-                          city={accommodation.city || ""}
-                          monthlyCost={accommodation.monthly_cost || 0}
-                          rating={accommodation.rating || 0}
-                          nsfasAccredited={accommodation.nsfas_accredited || false}
-                          genderPolicy={accommodation.gender_policy || ""}
-                          website={accommodation.website || null}
-                          amenities={accommodation.amenities || []}
-                          imageUrls={accommodation.image_urls || []}
-                        />
-                      );
-
-                      // After every 2 accommodations, insert an ad before the next accommodation (but not after last item)
-                      if ((idx + 1) % 2 === 0 && idx !== paginatedAccommodations.length - 1) {
-                        nodes.push(
-                          <div key={`ad-${idx}`} className="col-span-1 sm:col-span-2 lg:col-span-3">
-                            <Ad />
-                          </div>
-                        );
-                      }
-                    });
-                    return nodes;
-                  })()}
+                  {paginatedAccommodations.map((accommodation) => (
+                    <AccommodationCard
+                      key={accommodation.id}
+                      id={accommodation.id}
+                      propertyName={accommodation.property_name}
+                      type={accommodation.type}
+                      university={accommodation.university || ""}
+                      address={accommodation.address}
+                      city={accommodation.city || ""}
+                      monthlyCost={accommodation.monthly_cost || 0}
+                      rating={accommodation.rating || 0}
+                      nsfasAccredited={accommodation.nsfas_accredited || false}
+                      genderPolicy={accommodation.gender_policy || ""}
+                      website={accommodation.website || null}
+                      amenities={accommodation.amenities || []}
+                      imageUrls={accommodation.image_urls || []}
+                    />
+                  ))}
                 </div>
                 
                 {totalPages > 1 && (
