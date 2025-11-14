@@ -25,7 +25,17 @@ const Browse = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 15;
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const ITEMS_PER_PAGE = isLargeScreen ? 15 : 9;
 
   // Reset page when filters/search params change
   React.useEffect(() => {
