@@ -66,7 +66,7 @@ const Index = () => {
           <div className="w-full max-w-4xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="max-w-3xl text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-snug md:leading-tight text-white break-words">
+              <h1 className="max-w-3xl text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug md:leading-tight text-white">
                 Find Student Accommodation Near Your University
               </h1>
             </div>
