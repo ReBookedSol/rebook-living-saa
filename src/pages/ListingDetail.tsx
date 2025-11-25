@@ -293,8 +293,8 @@ const ListingDetail = () => {
                 service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
                   if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
                     if (detail.reviews) setReviews(detail.reviews.slice(0, 5));
-                    // Only set photos from Google if no images were passed from the listing card
-                    if ((!photos || photos.length === 0) && detail.photos && detail.photos.length > 0) {
+                    // Always fetch all photos from Google Places API for comprehensive gallery
+                    if (detail.photos && detail.photos.length > 0) {
                       try {
                         const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
                         setPhotos(urls);
