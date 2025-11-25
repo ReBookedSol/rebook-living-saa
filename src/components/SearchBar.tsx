@@ -101,6 +101,14 @@ const SearchBar = ({ compact = false }) => {
     if (amenities.length > 0) params.set("amenities", amenities.join(","));
 
     navigate(`/browse?${params.toString()}`);
+
+    // Smooth scroll to first listing after navigation
+    setTimeout(() => {
+      const firstListing = document.querySelector('[data-listings-container]');
+      if (firstListing) {
+        firstListing.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   if (compact) {
