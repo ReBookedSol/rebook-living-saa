@@ -203,14 +203,12 @@ const Browse = () => {
                         </div>
                       );
 
-                      // Add ad only after the first row
-                      if (i === 0) {
-                        rows.push(
-                          <div key={`ad-row-${i}`} className="my-4">
-                            <Ad />
-                          </div>
-                        );
-                      }
+                      // Add ad after each row
+                      rows.push(
+                        <div key={`ad-row-${i}`} className="my-4">
+                          <Ad />
+                        </div>
+                      );
                     }
                     return rows;
                   })()}
