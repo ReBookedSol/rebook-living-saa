@@ -221,7 +221,7 @@ const ListingDetail = () => {
   const passedImages = (location.state as any)?.images as string[] | undefined;
 
   const [reviews, setReviews] = useState<any[] | null>(null);
-  const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages.slice(0,3) : null);
+  const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages : null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
 
