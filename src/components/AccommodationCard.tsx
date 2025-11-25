@@ -7,6 +7,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 
 interface AccommodationCardProps {
   id: string;
