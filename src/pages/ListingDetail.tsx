@@ -615,7 +615,7 @@ const ListingDetail = () => {
                   <CardContent>
                     {photos && photos.length > 0 ? (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {photos.slice(0,3).map((src, i) => (
+                        {photos.map((src, i) => (
                           <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full overflow-hidden rounded-lg shadow-sm">
                             <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-36 md:h-44 transition-transform duration-200 hover:scale-105" />
                           </button>
@@ -624,7 +624,7 @@ const ListingDetail = () => {
                     ) : (
                       <div className="h-48 bg-muted rounded-lg flex items-center justify-center text-sm text-muted-foreground">No photos available</div>
                     )}
-                    {photos && photos.length > 3 && <div className="text-sm text-muted-foreground mt-2">Showing {Math.min(3, photos.length)} of {photos.length} photos</div>}
+                    {photos && photos.length > 1 && <div className="text-sm text-muted-foreground mt-2">Showing {photos.length} photos</div>}
                   </CardContent>
                 </Card>
               </div>
