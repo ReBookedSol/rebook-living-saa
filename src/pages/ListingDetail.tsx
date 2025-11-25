@@ -601,11 +601,6 @@ const ListingDetail = () => {
               </CardContent>
             </Card>
 
-            <div className="my-6">
-              <Ad density="compact" />
-            </div>
-
-
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <Card>
