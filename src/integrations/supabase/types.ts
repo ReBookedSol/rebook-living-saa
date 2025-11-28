@@ -101,6 +101,138 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_pack_cache: {
+        Row: {
+          cache_key: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          pack_data: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          pack_data: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          pack_data?: Json
+        }
+        Relationships: []
+      }
+      ai_pack_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          request_data: Json
+          response_data: Json | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          request_data: Json
+          response_data?: Json | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          request_data?: Json
+          response_data?: Json | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_settings: {
+        Row: {
+          feature_name: string
+          id: string
+          is_enabled: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          feature_name: string
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          feature_name?: string
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      bursaries: {
+        Row: {
+          amount: string | null
+          application_process: string | null
+          closing_date: string | null
+          coverage_details: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          opening_date: string | null
+          provider: string | null
+          qualifications: string | null
+          required_documents: string[] | null
+          requirements: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: string | null
+          application_process?: string | null
+          closing_date?: string | null
+          coverage_details?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          opening_date?: string | null
+          provider?: string | null
+          qualifications?: string | null
+          required_documents?: string[] | null
+          requirements?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: string | null
+          application_process?: string | null
+          closing_date?: string | null
+          coverage_details?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          opening_date?: string | null
+          provider?: string | null
+          qualifications?: string | null
+          required_documents?: string[] | null
+          requirements?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           accommodation_id: string

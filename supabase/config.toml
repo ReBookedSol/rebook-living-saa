@@ -2,3 +2,6 @@ project_id = "gzihagvdpdjcoyjpvyvs"
 
 [functions.offerwall-callback]
 verify_jwt = false
+
+[functions.generate-bursary-pack]
+verify_jwt = false

@@ -9,6 +9,8 @@ import MessagesTab from "@/components/admin/MessagesTab";
 import StatsTab from "@/components/admin/StatsTab";
 import ReportsTab from "@/components/admin/ReportsTab";
 import AddAccommodationTab from "@/components/admin/AddAccommodationTab";
+import BursariesTab from "@/components/admin/BursariesTab";
+import AISettingsTab from "@/components/admin/AISettingsTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -130,10 +132,12 @@ Example Output:
         </div>
 
         <Tabs defaultValue="stats" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 gap-1 h-auto p-1">
             <TabsTrigger value="stats" className="text-xs sm:text-sm">Stats</TabsTrigger>
             <TabsTrigger value="accommodations" className="text-xs sm:text-sm">Listings</TabsTrigger>
             <TabsTrigger value="add" className="text-xs sm:text-sm">Add</TabsTrigger>
+            <TabsTrigger value="bursaries" className="text-xs sm:text-sm">Bursaries</TabsTrigger>
+            <TabsTrigger value="ai-settings" className="text-xs sm:text-sm">AI Settings</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs sm:text-sm">Messages</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs sm:text-sm">Reports</TabsTrigger>
             <TabsTrigger value="profiles" className="text-xs sm:text-sm">Profiles</TabsTrigger>
@@ -161,6 +165,14 @@ Example Output:
 
           <TabsContent value="profiles">
             <ProfilesTab />
+          </TabsContent>
+
+          <TabsContent value="bursaries">
+            <BursariesTab />
+          </TabsContent>
+
+          <TabsContent value="ai-settings">
+            <AISettingsTab />
           </TabsContent>
         </Tabs>
       </div>
