@@ -33,12 +33,7 @@ const Contact = () => {
 
       if (error) throw error;
 
-      await triggerWebhook("contact_message", {
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
-      });
+      await triggerWebhook("contact_message", formData);
 
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({ name: "", email: "", subject: "", message: "" });

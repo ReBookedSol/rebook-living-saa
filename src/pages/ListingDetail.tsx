@@ -192,6 +192,7 @@ const ListingDetail = () => {
         email: contactForm.email,
         subject: `Inquiry about ${listing?.property_name}`,
         message: `${contactForm.message}\n\nProperty: ${listing?.property_name} (${id})`,
+        accommodation_id: id,
       });
 
       toast.success("Message sent! The landlord will contact you soon.");
@@ -213,10 +214,7 @@ const ListingDetail = () => {
       return reportData;
     },
     onSuccess: async (reportData) => {
-      await triggerWebhook("report", {
-        accommodation_id: id,
-        ...reportData,
-      });
+      await triggerWebhook("report", reportData);
       toast.success("Report submitted successfully. Thank you for helping us maintain quality.");
       setReportForm({ reporter_name: "", reporter_email: "", reason: "", details: "" });
       setReportDialogOpen(false);
