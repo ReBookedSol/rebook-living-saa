@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { triggerWebhook } from "@/lib/webhook";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -31,6 +32,8 @@ const Contact = () => {
       });
 
       if (error) throw error;
+
+      await triggerWebhook("contact_message", formData);
 
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({ name: "", email: "", subject: "", message: "" });

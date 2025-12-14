@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { triggerWebhook } from "@/lib/webhook";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -186,6 +187,14 @@ const ListingDetail = () => {
 
       if (error) throw error;
 
+      await triggerWebhook("contact_message", {
+        name: contactForm.name,
+        email: contactForm.email,
+        subject: `Inquiry about ${listing?.property_name}`,
+        message: `${contactForm.message}\n\nProperty: ${listing?.property_name} (${id})`,
+        accommodation_id: id,
+      });
+
       toast.success("Message sent! The landlord will contact you soon.");
       setContactForm({ name: "", email: "", message: "" });
     } catch (error) {
@@ -202,8 +211,10 @@ const ListingDetail = () => {
         ...reportData,
       });
       if (error) throw error;
+      return reportData;
     },
-    onSuccess: () => {
+    onSuccess: async (reportData) => {
+      await triggerWebhook("report", reportData);
       toast.success("Report submitted successfully. Thank you for helping us maintain quality.");
       setReportForm({ reporter_name: "", reporter_email: "", reason: "", details: "" });
       setReportDialogOpen(false);
