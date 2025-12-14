@@ -211,8 +211,13 @@ const ListingDetail = () => {
         ...reportData,
       });
       if (error) throw error;
+      return reportData;
     },
-    onSuccess: () => {
+    onSuccess: async (reportData) => {
+      await triggerWebhook("report", {
+        accommodation_id: id,
+        ...reportData,
+      });
       toast.success("Report submitted successfully. Thank you for helping us maintain quality.");
       setReportForm({ reporter_name: "", reporter_email: "", reason: "", details: "" });
       setReportDialogOpen(false);
