@@ -188,6 +188,13 @@ const ListingDetail = () => {
 
       if (error) throw error;
 
+      await triggerWebhook("contact_message", {
+        name: contactForm.name,
+        email: contactForm.email,
+        subject: `Inquiry about ${listing?.property_name}`,
+        message: `${contactForm.message}\n\nProperty: ${listing?.property_name} (${id})`,
+      });
+
       toast.success("Message sent! The landlord will contact you soon.");
       setContactForm({ name: "", email: "", message: "" });
     } catch (error) {
