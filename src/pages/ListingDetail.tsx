@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { triggerWebhook } from "@/lib/webhook";
 
 const ListingDetail = () => {
   const { id } = useParams();
