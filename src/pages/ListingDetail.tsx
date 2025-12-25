@@ -665,6 +665,21 @@ const ListingDetail = () => {
               <Ad density="compact" />
             </div>
 
+            {/* Reviews Section */}
+            <div>
+              <ReviewForm
+                accommodationId={id || ""}
+                onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
+              />
+            </div>
+
+            <div>
+              <ReviewsList
+                accommodationId={id}
+                onReviewsUpdated={() => setReviewsRefreshTrigger(prev => prev + 1)}
+              />
+            </div>
+
           </div>
 
           {/* Sidebar */}
