@@ -51,21 +51,34 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("Not authenticated");
 
+      if (!accommodationId) throw new Error("Accommodation ID is required");
+
       // Check moderation before submitting
       const moderation = comment ? moderateContent(comment) : { isClean: true, flaggedTerms: [] };
 
-      const { error, data } = await supabase.from("reviews").insert([
-        {
-          accommodation_id: accommodationId,
-          user_id: session.user.id,
-          rating,
-          comment: comment || null,
-          is_flagged: !moderation.isClean,
-          flag_reason: !moderation.isClean ? getFlagReason(moderation) : null,
-        },
-      ]).select().single();
+      const reviewData: any = {
+        user_id: session.user.id,
+        rating,
+        comment: comment || null,
+        is_flagged: !moderation.isClean,
+        flag_reason: !moderation.isClean ? getFlagReason(moderation) : null,
+      };
 
-      if (error) throw error;
+      // Add accommodation_id if column exists in schema
+      if (accommodationId) {
+        reviewData.accommodation_id = accommodationId;
+      }
+
+      const { error, data } = await supabase.from("reviews").insert([reviewData]).select().single();
+
+      if (error) {
+        if (error.message.includes("accommodation_id")) {
+          throw new Error(
+            "Database schema needs to be updated. Please run the accommodation_id migration."
+          );
+        }
+        throw error;
+      }
 
       // Create review stats entry
       await supabase.from("review_stats").insert([
