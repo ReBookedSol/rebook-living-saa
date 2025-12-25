@@ -185,51 +185,50 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
   const userInitial = review.user?.email?.charAt(0).toUpperCase() || "U";
 
   return (
-    <Card className="review-card">
-      <CardHeader className="review-header">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <Avatar className="review-avatar">
-              <AvatarFallback>{userInitial}</AvatarFallback>
+    <Card className="review-card border shadow-none">
+      <CardHeader className="review-header pb-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Avatar className="review-avatar h-8 w-8">
+              <AvatarFallback className="text-xs">{userInitial}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-sm review-author">
+              <p className="font-medium text-xs review-author truncate">
                 {review.user?.email?.split("@")[0] || "Anonymous"}
               </p>
               <p className="text-xs text-gray-500 review-date">{formatDate(review.created_at)}</p>
             </div>
           </div>
           {isAdmin && (
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => hideReviewMutation.mutate()}
-                disabled={hideReviewMutation.isPending}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0"
+              onClick={() => hideReviewMutation.mutate()}
+              disabled={hideReviewMutation.isPending}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
           )}
         </div>
       </CardHeader>
-      <CardContent className="review-content">
+      <CardContent className="review-content pt-2 space-y-2">
         {review.is_flagged && (
-          <Alert className="mb-4 border-yellow-200 bg-yellow-50">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="text-yellow-800">
-              This review has been flagged for inappropriate content
+          <Alert className="border-yellow-200 bg-yellow-50 py-1.5 px-2">
+            <AlertTriangle className="h-3 w-3" />
+            <AlertDescription className="text-xs text-yellow-800">
+              Flagged for moderation
             </AlertDescription>
           </Alert>
         )}
 
         {/* Rating Stars */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex gap-1">
+        <div className="flex items-center gap-1.5">
+          <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`w-4 h-4 ${
+                className={`w-3.5 h-3.5 ${
                   star <= review.rating
                     ? "fill-yellow-400 text-yellow-400"
                     : "text-gray-300"
@@ -237,26 +236,26 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
               />
             ))}
           </div>
-          <span className="text-sm font-medium">{review.rating}/5</span>
+          <span className="text-xs font-medium text-gray-700">{review.rating}/5</span>
         </div>
 
         {/* Comment */}
         {review.comment && (
-          <p className="text-sm text-gray-700 mb-4 review-comment">{review.comment}</p>
+          <p className="text-sm text-gray-700 review-comment line-clamp-3">{review.comment}</p>
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-4 mt-4">
+        <div className="flex items-center gap-3 pt-1">
           <button
             onClick={handleLike}
             disabled={likeMutation.isPending}
-            className={`flex items-center gap-2 text-sm transition-colors ${
+            className={`flex items-center gap-1 text-xs transition-colors ${
               isLiked
                 ? "text-blue-600 font-medium"
                 : "text-gray-600 hover:text-blue-600"
             }`}
           >
-            <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+            <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? "fill-current" : ""}`} />
             <span>{likeCount}</span>
           </button>
 
@@ -264,18 +263,18 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
             <>
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600 transition-colors"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-3.5 h-3.5" />
                 <span>{replies?.length || 0}</span>
               </button>
 
               <button
                 onClick={() => flagReviewMutation.mutate()}
                 disabled={flagReviewMutation.isPending}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                className="flex items-center gap-1 text-xs text-gray-600 hover:text-red-600 transition-colors"
               >
-                <Flag className="w-4 h-4" />
+                <Flag className="w-3.5 h-3.5" />
                 <span>Flag</span>
               </button>
             </>
@@ -295,18 +294,19 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
 
         {/* Replies List */}
         {replies && replies.length > 0 && (
-          <div className="mt-4 space-y-3 border-t pt-4 review-replies-list">
+          <div className="mt-2 space-y-2 border-t pt-2 review-replies-list">
             {replies.map((reply) => (
-              <div key={reply.id} className="pl-4 border-l-2 border-gray-200 review-reply-item">
-                <p className="text-xs text-gray-500">{reply.user_id}</p>
-                <p className="text-sm text-gray-700">{reply.reply_text}</p>
+              <div key={reply.id} className="pl-3 border-l border-gray-300 review-reply-item">
+                <p className="text-xs text-gray-500 mb-0.5">{reply.user_id}</p>
+                <p className="text-xs text-gray-700">{reply.reply_text}</p>
                 {reply.is_flagged && (
-                  <p className="text-xs text-red-600 mt-1">⚠️ Flagged for moderation</p>
+                  <p className="text-xs text-red-600 mt-1">⚠️ Flagged</p>
                 )}
                 {isAdmin && (
                   <Button
                     size="sm"
                     variant="ghost"
+                    className="h-6 text-xs mt-1"
                     onClick={async () => {
                       const { error } = await supabase
                         .from("review_replies")
