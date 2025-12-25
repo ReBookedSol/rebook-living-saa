@@ -11,6 +11,7 @@ import ReportsTab from "@/components/admin/ReportsTab";
 import AddAccommodationTab from "@/components/admin/AddAccommodationTab";
 import BursariesTab from "@/components/admin/BursariesTab";
 import AISettingsTab from "@/components/admin/AISettingsTab";
+import ReviewsTab from "@/components/admin/ReviewsTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
