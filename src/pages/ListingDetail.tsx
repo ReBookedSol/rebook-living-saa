@@ -237,6 +237,7 @@ const ListingDetail = () => {
   const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages : null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
+  const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
 
 
