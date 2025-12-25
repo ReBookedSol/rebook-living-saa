@@ -127,23 +127,23 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
   const hasFlag = comment && !moderateContent(comment).isClean;
 
   return (
-    <Card className="review-form-card">
-      <CardHeader>
-        <CardTitle>Leave a Review</CardTitle>
+    <Card className="review-form-card border shadow-none">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">Leave a Review</CardTitle>
       </CardHeader>
-      <CardContent className="review-form-content">
+      <CardContent className="review-form-content space-y-3">
         {hasSubmitted && (
-          <Alert className="mb-4 border-green-200 bg-green-50">
-            <AlertDescription className="text-green-800">
-              Thank you for your review! It will be visible after moderation.
+          <Alert className="border-green-200 bg-green-50 py-2 px-3">
+            <AlertDescription className="text-sm text-green-800">
+              Thank you for your review!
             </AlertDescription>
           </Alert>
         )}
 
         {/* Star Rating */}
-        <div className="mb-6">
-          <Label className="block mb-3">Rating</Label>
-          <div className="flex gap-2">
+        <div>
+          <Label className="text-sm mb-2 block">Rating *</Label>
+          <div className="flex gap-1.5">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -154,7 +154,7 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
                 aria-label={`Rate ${star} stars`}
               >
                 <Star
-                  className={`w-8 h-8 transition-colors ${
+                  className={`w-6 h-6 transition-colors ${
                     star <= (hoverRating || rating)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-gray-300"
@@ -162,41 +162,41 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
                 />
               </button>
             ))}
+            {rating > 0 && (
+              <span className="text-sm text-gray-600 ml-2">{rating}/5</span>
+            )}
           </div>
-          {rating > 0 && (
-            <p className="text-sm text-gray-600 mt-2">{rating} out of 5 stars</p>
-          )}
         </div>
 
         {/* Comment */}
-        <div className="mb-4">
-          <Label htmlFor="review-comment" className="block mb-2">
-            Comment (Optional)
+        <div>
+          <Label htmlFor="review-comment" className="text-sm mb-1.5 block">
+            Comment <span className="text-gray-500">(Optional)</span>
           </Label>
           <Textarea
             id="review-comment"
-            placeholder="Share your honest feedback about this accommodation..."
+            placeholder="Share your feedback..."
             value={comment}
             onChange={(e) => handleCommentChange(e.target.value)}
             maxLength={500}
-            className="min-h-32 review-textarea"
+            className="min-h-24 review-textarea text-sm"
           />
-          <div className="flex justify-between mt-2">
-            <p className="text-sm text-gray-500">{comment.length}/500 characters</p>
+          <div className="flex justify-between items-center mt-1.5 text-xs text-gray-500">
+            <span>{comment.length}/500</span>
             {moderationWarning && (
-              <p className="text-sm text-amber-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
+              <span className="text-amber-600 flex items-center gap-0.5">
+                <AlertCircle className="w-3 h-3" />
                 {moderationWarning}
-              </p>
+              </span>
             )}
           </div>
         </div>
 
         {hasFlag && (
-          <Alert className="mb-4 border-amber-200 bg-amber-50">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-amber-800">
-              Your review contains language that will be flagged for moderation. Honest feedback is welcome, but please avoid vulgar or abusive language.
+          <Alert className="border-amber-200 bg-amber-50 py-2 px-3">
+            <AlertCircle className="h-3.5 w-3.5" />
+            <AlertDescription className="text-xs text-amber-800">
+              Your review contains flagged language and will need admin review.
             </AlertDescription>
           </Alert>
         )}
@@ -205,9 +205,10 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
         <Button
           onClick={() => submitMutation.mutate()}
           disabled={!isValid || submitMutation.isPending || hasFlag}
-          className="w-full review-submit-button"
+          className="w-full review-submit-button h-9 text-sm"
+          size="sm"
         >
-          {submitMutation.isPending ? "Submitting..." : "Submit Review"}
+          {submitMutation.isPending ? "Submitting..." : "Submit"}
         </Button>
       </CardContent>
     </Card>
