@@ -81,43 +81,42 @@ export const ReviewReplyForm = ({ reviewId, onReplySubmitted }: ReviewReplyFormP
   const isValid = replyText.trim().length > 0;
 
   return (
-    <div className="review-reply-form mt-4 pt-4 border-t space-y-3">
+    <div className="review-reply-form mt-2 pt-2 border-t space-y-2">
       <Textarea
-        placeholder="Share your reply..."
+        placeholder="Reply..."
         value={replyText}
         onChange={(e) => handleTextChange(e.target.value)}
         maxLength={300}
-        className="min-h-20"
+        className="min-h-16 text-sm"
       />
 
-      <div className="flex justify-between items-start gap-2">
-        <p className="text-xs text-gray-500">{replyText.length}/300 characters</p>
+      <div className="flex justify-between items-center gap-2 text-xs">
+        <span className="text-gray-500">{replyText.length}/300</span>
         {moderationWarning && (
-          <p className="text-xs text-amber-600 flex items-center gap-1">
+          <span className="text-amber-600 flex items-center gap-0.5">
             <AlertCircle className="w-3 h-3" />
             {moderationWarning}
-          </p>
+          </span>
         )}
       </div>
 
       {hasFlag && (
-        <Alert className="border-amber-200 bg-amber-50">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-sm text-amber-800">
-            Your reply contains language that will be flagged.
+        <Alert className="border-amber-200 bg-amber-50 py-1.5 px-2">
+          <AlertCircle className="h-3 w-3" />
+          <AlertDescription className="text-xs text-amber-800">
+            Contains flagged language.
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="flex gap-2">
-        <Button
-          onClick={() => submitMutation.mutate()}
-          disabled={!isValid || submitMutation.isPending || hasFlag}
-          size="sm"
-        >
-          {submitMutation.isPending ? "Submitting..." : "Reply"}
-        </Button>
-      </div>
+      <Button
+        onClick={() => submitMutation.mutate()}
+        disabled={!isValid || submitMutation.isPending || hasFlag}
+        size="sm"
+        className="h-8 text-xs"
+      >
+        {submitMutation.isPending ? "Submitting..." : "Reply"}
+      </Button>
     </div>
   );
 };
