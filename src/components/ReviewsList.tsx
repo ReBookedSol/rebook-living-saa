@@ -102,21 +102,18 @@ export const ReviewsList = ({
   const hasReviews = reviews && reviews.length > 0;
 
   return (
-    <div className="reviews-list-container space-y-6">
+    <div className="reviews-list-container space-y-4">
       {/* Reviews Summary */}
       {hasReviews && !isAdmin && (
-        <Card className="reviews-summary">
-          <CardHeader>
-            <CardTitle>Reviews Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="reviews-summary-content">
-            <div className="flex items-center gap-4">
+        <Card className="reviews-summary border shadow-none">
+          <CardContent className="pt-4 reviews-summary-content">
+            <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex gap-1">
+                <div className="flex gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-5 h-5 ${
+                      className={`w-4 h-4 ${
                         star <= Math.round(parseFloat(averageRating))
                           ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-300"
@@ -124,26 +121,26 @@ export const ReviewsList = ({
                     />
                   ))}
                 </div>
-                <span className="text-2xl font-bold">{averageRating}</span>
-                <span className="text-gray-600">({reviews.length} reviews)</span>
+                <span className="text-xl font-bold">{averageRating}</span>
               </div>
+              <span className="text-sm text-gray-600">{reviews.length} reviews</span>
             </div>
 
-            {/* Rating Distribution */}
-            <div className="mt-6 space-y-2 reviews-rating-distribution">
+            {/* Rating Distribution - Compact */}
+            <div className="mt-3 space-y-1.5 reviews-rating-distribution">
               {[5, 4, 3, 2, 1].map((rating) => {
                 const count = reviews.filter((r) => r.rating === rating).length;
                 const percentage = (count / reviews.length) * 100;
                 return (
-                  <div key={rating} className="flex items-center gap-3">
-                    <span className="text-sm font-medium w-12">{rating}★</span>
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div key={rating} className="flex items-center gap-2 text-xs">
+                    <span className="w-8">{rating}★</span>
+                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-yellow-400 transition-all"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
-                    <span className="text-sm text-gray-600 w-12 text-right">{count}</span>
+                    <span className="w-6 text-right text-gray-600">{count}</span>
                   </div>
                 );
               })}
