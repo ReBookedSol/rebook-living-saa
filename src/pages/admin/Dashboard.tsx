@@ -165,6 +165,10 @@ Example Output:
             <ReportsTab />
           </TabsContent>
 
+          <TabsContent value="reviews">
+            <ReviewsTab />
+          </TabsContent>
+
           <TabsContent value="profiles">
             <ProfilesTab />
           </TabsContent>
