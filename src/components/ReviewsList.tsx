@@ -70,12 +70,9 @@ export const ReviewsList = ({
 
   if (error) {
     return (
-      <Card className="reviews-list-error">
-        <CardHeader>
-          <CardTitle>Error Loading Reviews</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-600">Failed to load reviews. Please try again.</p>
+      <Card className="reviews-list-error border-red-200 bg-red-50 shadow-none">
+        <CardContent className="pt-4">
+          <p className="text-sm text-red-600">Failed to load reviews. Please try again.</p>
         </CardContent>
       </Card>
     );
@@ -83,19 +80,11 @@ export const ReviewsList = ({
 
   if (isLoading) {
     return (
-      <Card className="reviews-list-skeleton">
-        <CardHeader>
-          <CardTitle>Reviews</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-20 w-full" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <div className="space-y-2">
+        {[1, 2].map((i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
+      </div>
     );
   }
 
@@ -151,15 +140,13 @@ export const ReviewsList = ({
 
       {/* Reviews List */}
       {hasReviews ? (
-        <div className="reviews-list-items space-y-4">
+        <div className="reviews-list-items space-y-3">
           {isAdmin && filterFlagged && (
-            <Card className="border-yellow-200 bg-yellow-50">
-              <CardContent className="pt-6">
-                <p className="text-sm text-yellow-800">
-                  Showing {reviews.length} flagged review(s) requiring moderation
-                </p>
-              </CardContent>
-            </Card>
+            <Alert className="border-yellow-200 bg-yellow-50 py-2 px-3">
+              <AlertDescription className="text-xs text-yellow-800">
+                {reviews.length} flagged review(s) requiring moderation
+              </AlertDescription>
+            </Alert>
           )}
           {reviews.map((review) => (
             <ReviewCard
@@ -178,15 +165,12 @@ export const ReviewsList = ({
           ))}
         </div>
       ) : (
-        <Card className="reviews-list-empty">
-          <CardHeader>
-            <CardTitle>No Reviews Yet</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">
+        <Card className="reviews-list-empty border shadow-none">
+          <CardContent className="pt-4">
+            <p className="text-sm text-gray-600">
               {filterFlagged
                 ? "No flagged reviews to moderate"
-                : "Be the first to review this accommodation!"}
+                : "No reviews yet. Be the first to review!"}
             </p>
           </CardContent>
         </Card>
