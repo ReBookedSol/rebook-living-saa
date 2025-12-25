@@ -95,14 +95,14 @@ All colors MUST be HSL.
   }
 }
 
-/* Review Components Styles */
+/* Review Components Styles - Compact */
 @layer components {
   .review-form-card {
-    @apply shadow-sm;
+    @apply shadow-none;
   }
 
   .review-form-content {
-    @apply space-y-4;
+    @apply space-y-3;
   }
 
   .review-star-button {
@@ -118,7 +118,7 @@ All colors MUST be HSL.
   }
 
   .review-card {
-    @apply shadow-sm hover:shadow-md transition-shadow;
+    @apply shadow-none hover:shadow-sm transition-shadow border;
   }
 
   .review-header {
@@ -126,7 +126,7 @@ All colors MUST be HSL.
   }
 
   .review-avatar {
-    @apply h-10 w-10;
+    @apply h-8 w-8;
   }
 
   .review-author {
@@ -138,7 +138,7 @@ All colors MUST be HSL.
   }
 
   .review-content {
-    @apply space-y-3;
+    @apply space-y-2;
   }
 
   .review-comment {
@@ -146,47 +146,47 @@ All colors MUST be HSL.
   }
 
   .review-replies-list {
-    @apply space-y-3;
-  }
-
-  .review-reply-item {
-    @apply py-3 px-0 rounded;
-  }
-
-  .review-reply-form {
-    @apply space-y-3;
-  }
-
-  .reviews-list-container {
-    @apply space-y-6;
-  }
-
-  .reviews-summary {
-    @apply shadow-sm;
-  }
-
-  .reviews-summary-content {
-    @apply space-y-4;
-  }
-
-  .reviews-rating-distribution {
     @apply space-y-2;
   }
 
-  .reviews-list-items {
+  .review-reply-item {
+    @apply py-2 px-0 rounded;
+  }
+
+  .review-reply-form {
+    @apply space-y-2;
+  }
+
+  .reviews-list-container {
     @apply space-y-4;
   }
 
+  .reviews-summary {
+    @apply shadow-none;
+  }
+
+  .reviews-summary-content {
+    @apply space-y-3;
+  }
+
+  .reviews-rating-distribution {
+    @apply space-y-1.5;
+  }
+
+  .reviews-list-items {
+    @apply space-y-3;
+  }
+
   .reviews-list-empty {
-    @apply shadow-sm;
+    @apply shadow-none;
   }
 
   .reviews-list-error {
-    @apply shadow-sm border-red-200 bg-red-50;
+    @apply shadow-none border-red-200 bg-red-50;
   }
 
   .reviews-list-skeleton {
-    @apply shadow-sm;
+    @apply shadow-none;
   }
 
   .admin-reviews-summary {
