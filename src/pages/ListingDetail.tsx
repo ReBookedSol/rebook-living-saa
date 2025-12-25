@@ -15,6 +15,8 @@ import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, F
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
+import { ReviewForm } from "@/components/ReviewForm";
+import { ReviewsList } from "@/components/ReviewsList";
 
 const ListingDetail = () => {
   const { id } = useParams();
