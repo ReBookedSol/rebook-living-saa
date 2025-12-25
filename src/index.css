@@ -94,3 +94,126 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Review Components Styles */
+@layer components {
+  .review-form-card {
+    @apply shadow-sm;
+  }
+
+  .review-form-content {
+    @apply space-y-4;
+  }
+
+  .review-star-button {
+    @apply cursor-pointer;
+  }
+
+  .review-textarea {
+    @apply resize-none;
+  }
+
+  .review-submit-button {
+    @apply transition-colors;
+  }
+
+  .review-card {
+    @apply shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  .review-header {
+    @apply flex items-start justify-between;
+  }
+
+  .review-avatar {
+    @apply h-10 w-10;
+  }
+
+  .review-author {
+    @apply truncate;
+  }
+
+  .review-date {
+    @apply text-gray-500;
+  }
+
+  .review-content {
+    @apply space-y-3;
+  }
+
+  .review-comment {
+    @apply whitespace-pre-wrap break-words;
+  }
+
+  .review-replies-list {
+    @apply space-y-3;
+  }
+
+  .review-reply-item {
+    @apply py-3 px-0 rounded;
+  }
+
+  .review-reply-form {
+    @apply space-y-3;
+  }
+
+  .reviews-list-container {
+    @apply space-y-6;
+  }
+
+  .reviews-summary {
+    @apply shadow-sm;
+  }
+
+  .reviews-summary-content {
+    @apply space-y-4;
+  }
+
+  .reviews-rating-distribution {
+    @apply space-y-2;
+  }
+
+  .reviews-list-items {
+    @apply space-y-4;
+  }
+
+  .reviews-list-empty {
+    @apply shadow-sm;
+  }
+
+  .reviews-list-error {
+    @apply shadow-sm border-red-200 bg-red-50;
+  }
+
+  .reviews-list-skeleton {
+    @apply shadow-sm;
+  }
+
+  .admin-reviews-summary {
+    @apply shadow-sm;
+  }
+
+  .admin-reviews-summary-content {
+    @apply space-y-4;
+  }
+
+  .admin-flagged-content-card {
+    @apply shadow-sm;
+  }
+
+  .admin-flagged-content-table {
+    @apply w-full;
+  }
+
+  .admin-flagged-row {
+    @apply hover:bg-gray-50;
+  }
+
+  .admin-flagged-detail-dialog {
+    @apply max-w-2xl;
+  }
+
+  .admin-flagged-detail-content {
+    @apply space-y-4;
+  }
+}
