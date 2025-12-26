@@ -15,6 +15,8 @@ import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, F
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
+import { ReviewForm } from "@/components/ReviewForm";
+import { ReviewsList } from "@/components/ReviewsList";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -235,6 +237,7 @@ const ListingDetail = () => {
   const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages : null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
+  const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
 
 
@@ -660,6 +663,21 @@ const ListingDetail = () => {
             {/* Ad after photos and map */}
             <div className="my-6">
               <Ad density="compact" />
+            </div>
+
+            {/* Reviews Section */}
+            <div>
+              <ReviewForm
+                accommodationId={id || ""}
+                onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
+              />
+            </div>
+
+            <div>
+              <ReviewsList
+                accommodationId={id}
+                onReviewsUpdated={() => setReviewsRefreshTrigger(prev => prev + 1)}
+              />
             </div>
 
           </div>
