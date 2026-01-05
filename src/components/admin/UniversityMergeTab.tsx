@@ -148,7 +148,8 @@ const UniversityMergeTab = () => {
       // Update each accommodation to replace source with target in all university fields
       if (accsToMerge && accsToMerge.length > 0) {
         for (const acc of accsToMerge) {
-          const updatedCertified = updateCertifiedUniversities(
+          // Replace all occurrences of source university with target in certified list
+          const updatedCertified = replaceCertifiedUniversity(
             acc.certified_universities,
             selectedSourceUniversity,
             selectedTargetUniversity
