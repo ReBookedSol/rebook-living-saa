@@ -74,10 +74,19 @@ const UniversityMergeTab = () => {
     return accommodations.filter(acc => acc.university === selectedSourceUniversity).length;
   }, [accommodations, selectedSourceUniversity]);
 
-  // Helper function to update certified_universities array
-  const updateCertifiedUniversities = (certified: string[] | null, sourceUni: string, targetUni: string): string[] | null => {
+  // Helper function to merge certified_universities array (for merge operation)
+  const replaceCertifiedUniversity = (certified: string[] | null, sourceUni: string, targetUni: string): string[] | null => {
     if (!certified || certified.length === 0) return certified;
     return certified.map(uni => uni === sourceUni ? targetUni : uni);
+  };
+
+  // Helper function to add to certified_universities array (for bulk update operation)
+  const addToCertifiedUniversities = (certified: string[] | null, targetUni: string): string[] => {
+    const currentList = certified || [];
+    if (currentList.includes(targetUni)) {
+      return currentList;
+    }
+    return [...currentList, targetUni];
   };
 
   // Mutations
@@ -93,14 +102,10 @@ const UniversityMergeTab = () => {
 
       if (fetchError) throw fetchError;
 
-      // Update each accommodation
+      // Update each accommodation: change main university and add to certified list
       if (accsToUpdate && accsToUpdate.length > 0) {
         for (const acc of accsToUpdate) {
-          const updatedCertified = updateCertifiedUniversities(
-            acc.certified_universities,
-            targetUniversity,
-            targetUniversity
-          );
+          const updatedCertified = addToCertifiedUniversities(acc.certified_universities, targetUniversity);
 
           const { error } = await supabase
             .from("accommodations")
@@ -116,7 +121,7 @@ const UniversityMergeTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-accommodations"] });
-      toast.success(`Successfully updated ${selectedIds.length} accommodations and their certified universities to "${targetUniversityForSelected}"`);
+      toast.success(`Successfully updated ${selectedIds.length} accommodations to "${targetUniversityForSelected}" (added to certified universities)`);
       setSelectedIds([]);
       setTargetUniversityForSelected("");
       setBulkUpdateDialogOpen(false);
