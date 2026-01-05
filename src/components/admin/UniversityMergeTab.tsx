@@ -471,16 +471,16 @@ const UniversityMergeTab = () => {
             <AlertDialogTitle>Confirm University Merge</AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                This will permanently merge <strong>{sourceUniversityCount} accommodation{sourceUniversityCount !== 1 ? 's' : ''}</strong>:
+                This will permanently merge <strong>{sourceUniversityCount} accommodation{sourceUniversityCount !== 1 ? 's' : ''}</strong> that have "{selectedSourceUniversity}" in either the main university field or certified universities array:
               </p>
               <p className="font-semibold">
                 {selectedSourceUniversity} <ArrowRight className="h-4 w-4 inline mx-2" /> {selectedTargetUniversity}
               </p>
               <div className="text-xs bg-red-50 p-3 rounded border border-red-200">
-                <p className="font-semibold mb-1">Fields that will be updated:</p>
+                <p className="font-semibold mb-1">What will be updated:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li><strong>university:</strong> Changed from "{selectedSourceUniversity}" to "{selectedTargetUniversity}"</li>
-                  <li><strong>certified_universities:</strong> All occurrences of "{selectedSourceUniversity}" replaced with "{selectedTargetUniversity}"</li>
+                  <li><strong>university field:</strong> If equals "{selectedSourceUniversity}", changed to "{selectedTargetUniversity}"</li>
+                  <li><strong>certified_universities array:</strong> All occurrences of "{selectedSourceUniversity}" replaced with "{selectedTargetUniversity}"</li>
                 </ul>
               </div>
               <p className="text-xs text-muted-foreground">
