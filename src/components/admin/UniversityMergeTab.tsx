@@ -24,16 +24,21 @@ const UniversityMergeTab = () => {
   const [bulkUpdateDialogOpen, setBulkUpdateDialogOpen] = useState(false);
   const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
 
-  // Fetch accommodations
+  // Fetch ALL accommodations (including all fields for university extraction)
   const { data: accommodations, isLoading: accommodationsLoading } = useQuery({
     queryKey: ["admin-accommodations"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("accommodations")
-        .select("*")
+        .select("id, property_name, city, university, certified_universities, type, address, status, created_at")
         .order("created_at", { ascending: false });
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error("Error fetching accommodations:", error);
+        throw error;
+      }
+
+      console.log("Accommodations loaded:", data?.length);
       return data;
     },
   });
