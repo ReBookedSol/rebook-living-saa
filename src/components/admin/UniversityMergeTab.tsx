@@ -38,15 +38,27 @@ const UniversityMergeTab = () => {
     },
   });
 
-  // Extract unique universities and their counts
+  // Extract unique universities and their counts from BOTH university and certified_universities fields
   const universities = useMemo(() => {
     if (!accommodations) return [];
     const uniMap = new Map<string, number>();
+
     accommodations.forEach((acc: any) => {
+      // Count from main university field
       if (acc.university) {
         uniMap.set(acc.university, (uniMap.get(acc.university) || 0) + 1);
       }
+
+      // Count from certified_universities array
+      if (acc.certified_universities && Array.isArray(acc.certified_universities)) {
+        acc.certified_universities.forEach((uni: string) => {
+          if (uni) {
+            uniMap.set(uni, (uniMap.get(uni) || 0) + 1);
+          }
+        });
+      }
     });
+
     return Array.from(uniMap.entries())
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => a.name.localeCompare(b.name));
