@@ -232,7 +232,16 @@ const UniversityMergeTab = () => {
   };
 
   if (accommodationsLoading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return <div className="text-center py-8 text-lg">Loading accommodations...</div>;
+  }
+
+  if (!accommodations || accommodations.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-lg font-semibold">No accommodations found</p>
+        <p className="text-muted-foreground">Please check if data is loaded in the Listings tab</p>
+      </div>
+    );
   }
 
   return (
