@@ -175,11 +175,13 @@ const UniversityMergeTab = () => {
             selectedTargetUniversity
           );
 
+          // Update main university only if it matches source university
+          const updatedMainUniversity = acc.university === selectedSourceUniversity ? selectedTargetUniversity : acc.university;
+
           const { error } = await supabase
             .from("accommodations")
             .update({
-              // Only change main university if it matches source, otherwise keep it
-              ...(acc.university === selectedSourceUniversity && { university: selectedTargetUniversity }),
+              university: updatedMainUniversity,
               certified_universities: updatedCertified
             })
             .eq("id", acc.id);
