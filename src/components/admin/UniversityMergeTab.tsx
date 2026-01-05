@@ -80,10 +80,13 @@ const UniversityMergeTab = () => {
     });
   }, [accommodations, searchQuery]);
 
-  // Count affected accommodations for merge
+  // Count affected accommodations for merge (includes both main university field and certified_universities array)
   const sourceUniversityCount = useMemo(() => {
     if (!accommodations) return 0;
-    return accommodations.filter(acc => acc.university === selectedSourceUniversity).length;
+    return accommodations.filter(acc =>
+      acc.university === selectedSourceUniversity ||
+      (acc.certified_universities && acc.certified_universities.includes(selectedSourceUniversity))
+    ).length;
   }, [accommodations, selectedSourceUniversity]);
 
   // Helper function to merge certified_universities array (for merge operation)
