@@ -78,17 +78,51 @@ const UniversityMergeTab = () => {
   const bulkUpdateMutation = useMutation({
     mutationFn: async (targetUniversity: string) => {
       if (selectedIds.length === 0) throw new Error("No accommodations selected");
-      
-      const { error } = await supabase
+
+      // Get all selected accommodations to update their certified_universities arrays
+      const { data: accsToUpdate, error: fetchError } = await supabase
         .from("accommodations")
-        .update({ university: targetUniversity })
+        .select("id, certified_universities")
         .in("id", selectedIds);
-      
-      if (error) throw error;
+
+      if (fetchError) throw fetchError;
+
+      // Update both university and certified_universities fields
+      const updateData: any = {
+        university: targetUniversity
+      };
+
+      // Update certified_universities for each accommodation
+      if (accsToUpdate && accsToUpdate.length > 0) {
+        for (const acc of accsToUpdate) {
+          const updatedCertified = (acc.certified_universities || []).map((uni: string) =>
+            // If old university exists in certified list, replace it with target
+            (uni && acc.certified_universities?.includes(uni)) ? targetUniversity : uni
+          );
+
+          const { error } = await supabase
+            .from("accommodations")
+            .update({
+              university: targetUniversity,
+              certified_universities: updatedCertified
+            })
+            .eq("id", acc.id);
+
+          if (error) throw error;
+        }
+      } else {
+        // Fallback: just update university field
+        const { error } = await supabase
+          .from("accommodations")
+          .update(updateData)
+          .in("id", selectedIds);
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-accommodations"] });
-      toast.success(`Successfully updated ${selectedIds.length} accommodations to "${targetUniversityForSelected}"`);
+      toast.success(`Successfully updated ${selectedIds.length} accommodations and their certified universities to "${targetUniversityForSelected}"`);
       setSelectedIds([]);
       setTargetUniversityForSelected("");
       setBulkUpdateDialogOpen(false);
@@ -104,16 +138,37 @@ const UniversityMergeTab = () => {
         throw new Error("Both source and target universities are required");
       }
 
-      const { error } = await supabase
+      // Fetch all accommodations with the source university
+      const { data: accsToMerge, error: fetchError } = await supabase
         .from("accommodations")
-        .update({ university: selectedTargetUniversity })
+        .select("id, university, certified_universities")
         .eq("university", selectedSourceUniversity);
-      
-      if (error) throw error;
+
+      if (fetchError) throw fetchError;
+
+      // Update each accommodation to replace source with target in all university fields
+      if (accsToMerge && accsToMerge.length > 0) {
+        for (const acc of accsToMerge) {
+          // Update certified_universities array - replace source with target
+          const updatedCertified = (acc.certified_universities || []).map((uni: string) =>
+            uni === selectedSourceUniversity ? selectedTargetUniversity : uni
+          );
+
+          const { error } = await supabase
+            .from("accommodations")
+            .update({
+              university: selectedTargetUniversity,
+              certified_universities: updatedCertified
+            })
+            .eq("id", acc.id);
+
+          if (error) throw error;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-accommodations"] });
-      toast.success(`Successfully merged ${sourceUniversityCount} accommodations from "${selectedSourceUniversity}" to "${selectedTargetUniversity}"`);
+      toast.success(`Successfully merged ${sourceUniversityCount} accommodations from "${selectedSourceUniversity}" to "${selectedTargetUniversity}" (including certified universities)`);
       setSelectedSourceUniversity("");
       setSelectedTargetUniversity("");
       setMergeDialogOpen(false);
