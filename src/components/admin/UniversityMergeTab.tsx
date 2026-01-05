@@ -416,8 +416,17 @@ const UniversityMergeTab = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Bulk Update</AlertDialogTitle>
-            <AlertDialogDescription>
-              Update {selectedIds.length} accommodation{selectedIds.length !== 1 ? 's' : ''} to <strong>{targetUniversityForSelected}</strong>?
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Update {selectedIds.length} accommodation{selectedIds.length !== 1 ? 's' : ''} to <strong>{targetUniversityForSelected}</strong>?
+              </p>
+              <div className="text-xs bg-blue-50 p-3 rounded border border-blue-200">
+                <p className="font-semibold mb-1">Fields that will be updated:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>university:</strong> Changed to "{targetUniversityForSelected}"</li>
+                  <li><strong>certified_universities:</strong> "{targetUniversityForSelected}" will be added (if not already present)</li>
+                </ul>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
