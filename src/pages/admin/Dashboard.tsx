@@ -159,6 +159,10 @@ Example Output:
             <AddAccommodationTab />
           </TabsContent>
 
+          <TabsContent value="university">
+            <UniversityMergeTab />
+          </TabsContent>
+
           <TabsContent value="messages">
             <MessagesTab />
           </TabsContent>
