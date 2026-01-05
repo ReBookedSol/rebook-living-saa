@@ -246,6 +246,13 @@ const UniversityMergeTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Data Summary */}
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm">
+          <strong>Data Loaded:</strong> {accommodations?.length || 0} accommodations | {universities.length} unique universities
+        </p>
+      </div>
+
       {/* Bulk Update Selected Listings */}
       <Card>
         <CardHeader>
