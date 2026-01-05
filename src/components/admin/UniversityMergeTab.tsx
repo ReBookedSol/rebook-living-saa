@@ -45,7 +45,11 @@ const UniversityMergeTab = () => {
 
   // Extract unique universities and their counts from BOTH university and certified_universities fields
   const universities = useMemo(() => {
-    if (!accommodations) return [];
+    if (!accommodations || accommodations.length === 0) {
+      console.log("No accommodations to extract universities from");
+      return [];
+    }
+
     const uniMap = new Map<string, number>();
 
     accommodations.forEach((acc: any) => {
@@ -57,16 +61,21 @@ const UniversityMergeTab = () => {
       // Count from certified_universities array
       if (acc.certified_universities && Array.isArray(acc.certified_universities)) {
         acc.certified_universities.forEach((uni: string) => {
-          if (uni) {
+          if (uni && uni.trim()) {
             uniMap.set(uni, (uniMap.get(uni) || 0) + 1);
           }
         });
       }
     });
 
-    return Array.from(uniMap.entries())
+    const result = Array.from(uniMap.entries())
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => a.name.localeCompare(b.name));
+
+    console.log(`Extracted ${result.length} unique universities from ${accommodations.length} accommodations`);
+    console.log("Universities:", result);
+
+    return result;
   }, [accommodations]);
 
   // Filter accommodations based on search
