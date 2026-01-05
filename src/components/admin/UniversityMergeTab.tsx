@@ -375,12 +375,18 @@ const UniversityMergeTab = () => {
                 <SelectTrigger id="source-university">
                   <SelectValue placeholder="Select source" />
                 </SelectTrigger>
-                <SelectContent>
-                  {universities.map((uni) => (
-                    <SelectItem key={uni.name} value={uni.name}>
-                      {uni.name} ({uni.count})
-                    </SelectItem>
-                  ))}
+                <SelectContent className="max-h-[300px]">
+                  {universities.length > 0 ? (
+                    universities.map((uni) => (
+                      <SelectItem key={uni.name} value={uni.name}>
+                        {uni.name} ({uni.count})
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      No universities found
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
               {selectedSourceUniversity && (
