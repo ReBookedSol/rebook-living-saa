@@ -453,8 +453,15 @@ const UniversityMergeTab = () => {
               <p className="font-semibold">
                 {selectedSourceUniversity} <ArrowRight className="h-4 w-4 inline mx-2" /> {selectedTargetUniversity}
               </p>
+              <div className="text-xs bg-red-50 p-3 rounded border border-red-200">
+                <p className="font-semibold mb-1">Fields that will be updated:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>university:</strong> Changed from "{selectedSourceUniversity}" to "{selectedTargetUniversity}"</li>
+                  <li><strong>certified_universities:</strong> All occurrences of "{selectedSourceUniversity}" replaced with "{selectedTargetUniversity}"</li>
+                </ul>
+              </div>
               <p className="text-xs text-muted-foreground">
-                This action cannot be undone. All accommodations from the source university will be reassigned to the target university.
+                This action cannot be undone.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
