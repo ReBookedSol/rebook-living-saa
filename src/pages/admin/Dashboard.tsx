@@ -12,6 +12,7 @@ import AddAccommodationTab from "@/components/admin/AddAccommodationTab";
 import BursariesTab from "@/components/admin/BursariesTab";
 import AISettingsTab from "@/components/admin/AISettingsTab";
 import ReviewsTab from "@/components/admin/ReviewsTab";
+import UniversityMergeTab from "@/components/admin/UniversityMergeTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
