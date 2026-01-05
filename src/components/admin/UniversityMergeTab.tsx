@@ -30,8 +30,7 @@ const UniversityMergeTab = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("accommodations")
-        .select("id, property_name, city, university, certified_universities, type, address, status, created_at")
-        .order("created_at", { ascending: false });
+        .select("*");
 
       if (error) {
         console.error("Error fetching accommodations:", error);
