@@ -152,13 +152,18 @@ const UniversityMergeTab = () => {
         throw new Error("Both source and target universities are required");
       }
 
-      // Fetch all accommodations with the source university
-      const { data: accsToMerge, error: fetchError } = await supabase
+      // Fetch ALL accommodations (we'll filter client-side for those with source university)
+      const { data: allAccommodations, error: fetchError } = await supabase
         .from("accommodations")
-        .select("id, certified_universities")
-        .eq("university", selectedSourceUniversity);
+        .select("id, university, certified_universities");
 
       if (fetchError) throw fetchError;
+
+      // Filter accommodations that have the source university in either field
+      const accsToMerge = allAccommodations?.filter((acc: any) =>
+        acc.university === selectedSourceUniversity ||
+        (acc.certified_universities && acc.certified_universities.includes(selectedSourceUniversity))
+      ) || [];
 
       // Update each accommodation to replace source with target in all university fields
       if (accsToMerge && accsToMerge.length > 0) {
@@ -173,7 +178,8 @@ const UniversityMergeTab = () => {
           const { error } = await supabase
             .from("accommodations")
             .update({
-              university: selectedTargetUniversity,
+              // Only change main university if it matches source, otherwise keep it
+              ...(acc.university === selectedSourceUniversity && { university: selectedTargetUniversity }),
               certified_universities: updatedCertified
             })
             .eq("id", acc.id);
