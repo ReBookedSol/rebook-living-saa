@@ -247,9 +247,24 @@ const UniversityMergeTab = () => {
     <div className="space-y-6">
       {/* Data Summary */}
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm">
-          <strong>Data Loaded:</strong> {accommodations?.length || 0} accommodations | {universities.length} unique universities
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm">
+            <strong>Data Loaded:</strong> {accommodations?.length || 0} accommodations | {universities.length} unique universities
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              console.log("Total accommodations:", accommodations?.length);
+              console.log("Total unique universities:", universities.length);
+              console.log("Universities list:", universities);
+              console.log("Sample accommodations:", accommodations?.slice(0, 5));
+              toast.success(`Logged ${universities.length} universities to console`);
+            }}
+          >
+            Log Debug Info
+          </Button>
+        </div>
       </div>
 
       {/* Bulk Update Selected Listings */}
