@@ -493,6 +493,25 @@ const UniversityMergeTab = () => {
           >
             Merge Universities
           </Button>
+
+          {/* Debug: Show all universities found */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
+            <p className="text-sm font-semibold mb-3">All Universities Found ({universities.length}):</p>
+            <div className="max-h-[300px] overflow-y-auto">
+              {universities.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {universities.map((uni) => (
+                    <div key={uni.name} className="text-xs p-2 bg-white rounded border">
+                      <span className="font-medium">{uni.name}</span>
+                      <span className="text-muted-foreground ml-2">({uni.count})</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No universities found in database</p>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
