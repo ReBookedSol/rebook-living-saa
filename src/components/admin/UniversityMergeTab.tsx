@@ -357,7 +357,7 @@ const UniversityMergeTab = () => {
             Merge Universities (Global)
           </CardTitle>
           <CardDescription>
-            Update all accommodations from one university name to another existing university name
+            Update all accommodations from one university name to another existing university name. This searches both the main university field and certified universities list.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
