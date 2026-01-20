@@ -30,6 +30,8 @@ export type Database = {
           gender_policy: string | null
           id: string
           image_urls: string[] | null
+          is_landlord_listing: boolean | null
+          landlord_id: string | null
           monthly_cost: number | null
           nsfas_accredited: boolean | null
           property_name: string
@@ -58,6 +60,8 @@ export type Database = {
           gender_policy?: string | null
           id?: string
           image_urls?: string[] | null
+          is_landlord_listing?: boolean | null
+          landlord_id?: string | null
           monthly_cost?: number | null
           nsfas_accredited?: boolean | null
           property_name: string
@@ -86,6 +90,8 @@ export type Database = {
           gender_policy?: string | null
           id?: string
           image_urls?: string[] | null
+          is_landlord_listing?: boolean | null
+          landlord_id?: string | null
           monthly_cost?: number | null
           nsfas_accredited?: boolean | null
           property_name?: string
@@ -350,6 +356,201 @@ export type Database = {
             columns: ["review_id"]
             isOneToOne: false
             referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landlord_documents: {
+        Row: {
+          document_name: string
+          document_type: string
+          file_size: number | null
+          id: string
+          landlord_listing_id: string
+          mime_type: string | null
+          storage_path: string
+          uploaded_at: string
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          document_name: string
+          document_type: string
+          file_size?: number | null
+          id?: string
+          landlord_listing_id: string
+          mime_type?: string | null
+          storage_path: string
+          uploaded_at?: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          document_name?: string
+          document_type?: string
+          file_size?: number | null
+          id?: string
+          landlord_listing_id?: string
+          mime_type?: string | null
+          storage_path?: string
+          uploaded_at?: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landlord_documents_landlord_listing_id_fkey"
+            columns: ["landlord_listing_id"]
+            isOneToOne: false
+            referencedRelation: "landlord_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landlord_listings: {
+        Row: {
+          accommodation_id: string
+          admin_notes: string | null
+          created_at: string
+          id: string
+          landlord_id: string
+          payment_status: string
+          published_at: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          submission_status: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          accommodation_id: string
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          landlord_id: string
+          payment_status?: string
+          published_at?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submission_status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accommodation_id?: string
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          landlord_id?: string
+          payment_status?: string
+          published_at?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submission_status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landlord_listings_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: true
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landlord_subscriptions: {
+        Row: {
+          additional_listing_fee: number
+          base_amount: number
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          max_free_listings: number
+          paystack_customer_code: string | null
+          paystack_subscription_code: string | null
+          plan_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_listing_fee?: number
+          base_amount?: number
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          max_free_listings?: number
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
+          plan_type?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_listing_fee?: number
+          base_amount?: number
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          max_free_listings?: number
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
+          plan_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      listing_analytics: {
+        Row: {
+          accommodation_id: string
+          clicks: number
+          created_at: string
+          date: string
+          favorites: number
+          id: string
+          shares: number
+          views: number
+        }
+        Insert: {
+          accommodation_id: string
+          clicks?: number
+          created_at?: string
+          date?: string
+          favorites?: number
+          id?: string
+          shares?: number
+          views?: number
+        }
+        Update: {
+          accommodation_id?: string
+          clicks?: number
+          created_at?: string
+          date?: string
+          favorites?: number
+          id?: string
+          shares?: number
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_analytics_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
             referencedColumns: ["id"]
           },
         ]
@@ -832,13 +1033,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_listing_analytics: {
+        Args: { p_accommodation_id: string; p_field: string }
+        Returns: undefined
+      }
       increment_user_credits: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "landlord"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -966,7 +1171,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "landlord"],
     },
   },
 } as const
