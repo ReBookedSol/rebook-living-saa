@@ -54,7 +54,7 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
       if (!accommodationId) throw new Error("Accommodation ID is required");
 
       // Check moderation before submitting
-      const moderation = comment ? moderateContent(comment) : { isClean: true, flaggedTerms: [] };
+      const moderation = comment ? moderateContent(comment) : { isClean: true, flaggedTerms: [], severity: 'low' as const };
 
       const reviewData: any = {
         user_id: session.user.id,

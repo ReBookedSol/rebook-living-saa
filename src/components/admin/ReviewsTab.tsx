@@ -42,8 +42,8 @@ const ReviewsTab = () => {
         .from("flagged_content")
         .select(
           `*,
-          reviews(*),
-          review_replies(*)
+          review:reviews(*),
+          reply:review_replies(*)
         `
         );
 
@@ -303,7 +303,7 @@ const ReviewsTab = () => {
               </div>
 
               {/* Content Preview */}
-              {selectedFlagged.flag_type === "review" && selectedFlagged.reviews && (
+              {selectedFlagged.flag_type === "review" && selectedFlagged.review && (
                 <div className="border-b pb-4">
                   <Label className="block mb-2">Review Content</Label>
                   <Alert className="border-yellow-200 bg-yellow-50">
@@ -311,15 +311,15 @@ const ReviewsTab = () => {
                     <AlertDescription>This review has been flagged for moderation</AlertDescription>
                   </Alert>
                   <div className="mt-3 p-3 bg-gray-50 rounded">
-                    <p className="text-sm font-medium mb-2">Rating: {selectedFlagged.reviews.rating}/5</p>
-                    {selectedFlagged.reviews.comment && (
-                      <p className="text-sm">{selectedFlagged.reviews.comment}</p>
+                    <p className="text-sm font-medium mb-2">Rating: {selectedFlagged.review.rating}/5</p>
+                    {selectedFlagged.review.comment && (
+                      <p className="text-sm">{selectedFlagged.review.comment}</p>
                     )}
                   </div>
                 </div>
               )}
 
-              {selectedFlagged.flag_type === "reply" && selectedFlagged.review_replies && (
+              {selectedFlagged.flag_type === "reply" && selectedFlagged.reply && (
                 <div className="border-b pb-4">
                   <Label className="block mb-2">Reply Content</Label>
                   <Alert className="border-yellow-200 bg-yellow-50">
@@ -327,7 +327,7 @@ const ReviewsTab = () => {
                     <AlertDescription>This reply has been flagged for moderation</AlertDescription>
                   </Alert>
                   <div className="mt-3 p-3 bg-gray-50 rounded">
-                    <p className="text-sm">{selectedFlagged.review_replies.reply_text}</p>
+                    <p className="text-sm">{selectedFlagged.reply.reply_text}</p>
                   </div>
                 </div>
               )}
