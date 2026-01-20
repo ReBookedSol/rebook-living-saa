@@ -13,9 +13,12 @@ import Terms from "./pages/Terms";
 import Dashboard from "./pages/admin/Dashboard";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import LandlordDashboard from "./pages/landlord/Dashboard";
+import AddListing from "./pages/landlord/AddListing";
 
 import NotFound from "./pages/NotFound";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import ProtectedLandlordRoute from "./components/ProtectedLandlordRoute";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -72,6 +75,11 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             
+            {/* Landlord Routes */}
+            <Route path="/landlord" element={<ProtectedLandlordRoute><LandlordDashboard /></ProtectedLandlordRoute>} />
+            <Route path="/landlord/add-listing" element={<ProtectedLandlordRoute><AddListing /></ProtectedLandlordRoute>} />
+            
+            {/* Admin Routes */}
             <Route path="/panel" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
