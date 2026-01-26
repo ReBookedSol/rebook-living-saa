@@ -4,13 +4,14 @@ import Layout from "@/components/Layout";
 import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Shield, GraduationCap, Building2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
   const { data: featuredListings, isLoading } = useQuery({
     queryKey: ["featured-accommodations", Math.floor(Date.now() / (60 * 60 * 1000))],
     queryFn: async () => {
+      // Determine total active accommodations
       const { data: countData, count, error: countError } = await supabase
         .from("accommodations")
         .select("id", { count: "exact" });
@@ -45,180 +46,181 @@ const Index = () => {
 
       return firstBatch;
     },
-    refetchInterval: 60 * 60 * 1000,
+    refetchInterval: 60 * 60 * 1000, // Refetch every hour
   });
-
-  const universityLogos = [
-    { name: 'Cape Peninsula University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdd3f79bff5204a1598dafadcf67dc845?format=webp&width=800' },
-    { name: 'University of Zululand', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fa1462063edff4136aa6b3f8f2f28fb60?format=webp&width=800' },
-    { name: 'Walter Sisulu University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F7336ffee8a5d444fb73e0305fb1de017?format=webp&width=800' },
-    { name: 'University of Venda', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fddbea07a58154b82adce08a5ec4ee7d6?format=webp&width=800' },
-    { name: 'University of South Africa', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fcf83ac7e02484e3b9d997a344ba71b38?format=webp&width=800' },
-    { name: 'Nelson Mandela University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdaaa8a2acf8048d1bfa0719fb10bac30?format=webp&width=800' },
-    { name: 'University of Johannesburg', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F83842c23ccc3423e863dd8a8f3870db0?format=webp&width=800' },
-    { name: 'Wits University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fa7c47d3fcaed4d519b24179ecb387ab5?format=webp&width=800' },
-    { name: 'Stellenbosch University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F2587c0fe8bba4fc49f5a7e3a595d658f?format=webp&width=800' },
-    { name: 'University of Pretoria', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fd6ef31c9ee0e4ee5af4eb8c0f15c6e78?format=webp&width=800' },
-    { name: 'North-West University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F848378a075a84246b0514b8b57cc72e2?format=webp&width=800' },
-    { name: 'University of Cape Town', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fd5948bbfce7f40658e8e73601575e3d6?format=webp&width=800' },
-  ];
 
   return (
     <Layout>
-      {/* Hero Section - Modern, Clean Design */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-20">
-        {/* Background with gradient overlay */}
-        <div className="absolute inset-0">
-          <img
-            src="https://images.pexels.com/photos/4907201/pexels-photo-4907201.jpeg"
-            alt="Modern student accommodation"
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-        </div>
+      {/* Hero - background house image */}
+      <section className="relative h-[65vh] md:h-[72vh]">
+        <img
+          src="https://images.pexels.com/photos/4907201/pexels-photo-4907201.jpeg"
+          alt="Modern student accommodation with spacious living areas and study rooms near South African universities"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-primary/30 to-transparent" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl animate-fade-in">
-            {/* Tagline */}
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <GraduationCap className="w-4 h-4" />
-              Student Accommodation Made Simple
+        <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
+          <div className="w-full max-w-4xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <h1 className="max-w-3xl text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug md:leading-tight text-white">
+                Find Student Accommodation Near Your University
+              </h1>
             </div>
-
-            {/* Main Heading */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight mb-6">
-              Hey There! Where are you{" "}
-              <span className="text-gradient">Studying</span>?
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mb-8">
-              Find verified, NSFAS-accredited student rooms near South African universities. Compare prices and amenities with ease.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-4">
-              <Link to="/browse">
-                <Button size="lg" className="rounded-full px-8 gap-2 btn-modern">
-                  Explore Now
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <a href="#search">
-                <Button size="lg" variant="outline" className="rounded-full px-8">
-                  Search Accommodation
-                </Button>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Floating Search Card */}
-        <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-20 hidden lg:block">
-          <div className="container mx-auto px-4">
-            <div className="search-card-float p-6 max-w-5xl mx-auto">
-              <SearchBar />
+              <div className="flex flex-col items-start gap-6">
+                <p className="text-base md:text-lg text-white/90 max-w-md">
+                  Browse verified, NSFAS-accredited student rooms across South Africa. Compare prices, amenities, and locations to find your perfect home.
+                </p>
+                <div className="flex items-center gap-3">
+                  <Link to="/browse">
+                    <Button size="lg" className="rounded-full px-8 bg-white text-primary">
+                      Explore Listings
+                    </Button>
+                  </Link>
+                  <a href="#search" className="text-sm font-medium text-white/90 hover:underline">
+                    Advanced search
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mobile Search - Visible on smaller screens */}
-      <section id="search" className="py-12 lg:pt-32 lg:hidden">
+      {/* Feature tiles - four up row using brand colors */}
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="search-card-float p-6">
+          <h2 className="sr-only">Why Choose ReBooked Living for Student Accommodation</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="rounded-2xl p-6 bg-secondary text-secondary-foreground">
+              <div className="text-2xl font-semibold">Browse</div>
+              <p className="text-sm mt-2 text-muted-foreground">Curated student listings</p>
+            </div>
+            <div className="rounded-2xl p-6 bg-primary text-primary-foreground">
+              <div className="text-2xl font-semibold">NSFAS</div>
+              <p className="text-sm mt-2 opacity-90">Accredited options</p>
+            </div>
+            <div className="rounded-2xl p-6 bg-accent text-accent-foreground">
+              <div className="text-2xl font-semibold">Guides</div>
+              <p className="text-sm mt-2 opacity-90">Housing & budgeting</p>
+            </div>
+            <div className="rounded-2xl p-6 bg-muted">
+              <div className="text-2xl font-semibold">Partners</div>
+              <p className="text-sm mt-2 text-muted-foreground">Work with Rebooked Living</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* Accredited Universities carousel (continuous auto-scrolling marquee) */}
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Accredited Accommodations From</h2>
+          <p className="text-sm text-muted-foreground mb-4">Explore accommodations accredited for these universities.</p>
+
+          <style>{`
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .marquee-wrapper { overflow: hidden; }
+            .marquee-track { display: flex; gap: 1rem; align-items: center; width: max-content; animation: marquee 30s linear infinite; }
+            .marquee-item { flex: 0 0 auto; width: 160px; }
+          `}</style>
+
+          <div className="marquee-wrapper">
+            <div className="marquee-track">
+              {(() => {
+                const items = [
+                  { name: 'Cape Peninsula University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdd3f79bff5204a1598dafadcf67dc845?format=webp&width=800' },
+                  { name: 'University of Zululand', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fa1462063edff4136aa6b3f8f2f28fb60?format=webp&width=800' },
+                  { name: 'Walter Sisulu University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F7336ffee8a5d444fb73e0305fb1de017?format=webp&width=800' },
+                  { name: 'University of Venda', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fddbea07a58154b82adce08a5ec4ee7d6?format=webp&width=800' },
+                  { name: 'University of South Africa (UNISA)', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fcf83ac7e02484e3b9d997a344ba71b38?format=webp&width=800' },
+                  { name: 'Nelson Mandela University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdaaa8a2acf8048d1bfa0719fb10bac30?format=webp&width=800' },
+                  { name: 'University of Johannesburg', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F83842c23ccc3423e863dd8a8f3870db0?format=webp&width=800' },
+                  { name: 'University of the Witwatersrand', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fa7c47d3fcaed4d519b24179ecb387ab5?format=webp&width=800' },
+                  { name: 'Stellenbosch University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F2587c0fe8bba4fc49f5a7e3a595d658f?format=webp&width=800' },
+                  { name: 'Sefako Makgatho Health Sciences University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F8192f040973b47aa83916dc1d4ac4576?format=webp&width=800' },
+
+                  { name: 'Rhodes University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F7a6a9c9034814f95a50b9f6809364413?format=webp&width=800' },
+                  { name: 'University of Pretoria', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fd6ef31c9ee0e4ee5af4eb8c0f15c6e78?format=webp&width=800' },
+                  { name: 'North-West University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F848378a075a84246b0514b8b57cc72e2?format=webp&width=800' },
+                  { name: 'University of Limpopo', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F4e0a3bf953c74672b7497e0639e3144e?format=webp&width=800' },
+                  { name: 'University of KwaZulu-Natal', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F279fcfd0958f49f08a8d882c939b2d3e?format=webp&width=800' },
+                  { name: 'University of the Free State', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F978596f651974bd5a03106c8c489d706?format=webp&width=800' },
+                  { name: 'University of Fort Hare', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F4c011c2a32bf47cba51ea98ce746d059?format=webp&width=800' },
+                  { name: 'University of Cape Town', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fd5948bbfce7f40658e8e73601575e3d6?format=webp&width=800' },
+                  { name: 'Vaal University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F1fd45a76dc5c48afa9da7a6c114d7c9c?format=webp&width=800' },
+                  { name: 'Tshwane University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F0ca5e48711b446e4a6ab7265b1fe70c0?format=webp&width=800' },
+
+                  { name: 'Sol Plaatje University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fb6c76e80b95a4395b104a26b3df10226?format=webp&width=800' },
+                  { name: 'University of Mpumalanga', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fbd74672545364f308902d10f33374a06?format=webp&width=800' },
+                  { name: 'Mangosuthu University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F138df0329f6d4c2cafc27caa699da2ab?format=webp&width=800' },
+                  { name: 'Durban University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdd56c08897c54cf58fc7f304e268c801?format=webp&width=800' },
+                  { name: 'Central University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fad248754621646e68feca7f8c01de238?format=webp&width=800' },
+                ];
+
+                // duplicate the list for seamless scroll
+                const track = items.concat(items);
+
+                return track.map((u, idx) => (
+                  <div key={`${u.name}-${idx}`} className="marquee-item flex flex-col items-center p-4 bg-card rounded-lg">
+                    <img src={u.logo} alt={u.name} className="w-full h-20 object-contain mb-2" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
+                    <div className="text-sm text-center">{u.name}</div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* Search section extracted from hero to match layout */}
+      <section id="search" className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Search Student Accommodation</h2>
+            <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Use our advanced filters to find NSFAS-accredited rooms, compare monthly costs, and discover accommodation near your university.
+            </p>
             <SearchBar />
           </div>
         </div>
       </section>
 
-      {/* Feature Cards */}
-      <section className="py-16 lg:pt-32">
+      {/* Section header similar to "Workflow Templates" */}
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
-            <div className="card-modern p-6 group">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <Building2 className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Browse</h3>
-              <p className="text-sm text-muted-foreground">Curated student listings near major universities</p>
-            </div>
-
-            <div className="card-modern p-6 group">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <Shield className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">NSFAS</h3>
-              <p className="text-sm text-muted-foreground">Verified NSFAS-accredited accommodation options</p>
-            </div>
-
-            <div className="card-modern p-6 group">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <GraduationCap className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Guides</h3>
-              <p className="text-sm text-muted-foreground">Expert housing and budgeting resources</p>
-            </div>
-
-            <div className="card-modern p-6 group">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <MapPin className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Partners</h3>
-              <p className="text-sm text-muted-foreground">Work with trusted property partners</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* University Logos Marquee */}
-      <section className="py-12 bg-secondary/30">
-        <div className="container mx-auto px-4 mb-8">
-          <div className="text-center">
-            <h2 className="section-heading text-2xl md:text-3xl mb-2">Accredited Accommodations</h2>
-            <p className="section-subheading mx-auto">Partnered with leading South African universities</p>
-          </div>
-        </div>
-
-        <div className="marquee-wrapper">
-          <div className="marquee-track">
-            {[...universityLogos, ...universityLogos].map((uni, idx) => (
-              <div key={`${uni.name}-${idx}`} className="marquee-item">
-                <img 
-                  src={uni.logo} 
-                  alt={uni.name} 
-                  className="w-full h-16 object-contain" 
-                  loading="lazy"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Listings Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+          <div className="grid md:grid-cols-2 gap-8 items-start">
             <div>
-              <h2 className="section-heading mb-4">Featured Student Rooms</h2>
-              <p className="section-subheading">
-                Top-rated, NSFAS-approved accommodation near major universities. Safe, affordable options from R1,500/month.
-              </p>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Featured Student Rooms</h2>
             </div>
-            <Link to="/browse" className="shrink-0">
-              <Button variant="outline" className="rounded-full gap-2">
-                View All
+            <p className="text-sm md:text-base text-muted-foreground max-w-prose">
+              Browse top-rated, NSFAS-approved accommodation near major universities. Safe, affordable options from R1500/month.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Catalog-style grid for featured listings */}
+      <section className="pb-16">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-muted-foreground">Top rated NSFAS-accredited student accommodation</span>
+            <Link to="/browse">
+              <Button variant="outline" className="items-center gap-2 rounded-full">
+                Browse All Listings
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
           </div>
 
-          {/* Listings Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -226,7 +228,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredListings?.map((listing) => (
                 <AccommodationCard
                   key={listing.id}
@@ -248,10 +250,9 @@ const Index = () => {
             </div>
           )}
 
-          {/* Mobile CTA */}
-          <div className="text-center mt-10 md:hidden">
+          <div className="text-center mt-8 md:hidden">
             <Link to="/browse">
-              <Button variant="outline" className="rounded-full gap-2">
+              <Button variant="outline" className="items-center gap-2 rounded-full">
                 View all listings
                 <ArrowRight className="w-4 h-4" />
               </Button>
@@ -260,26 +261,20 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA band using accent gradient */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="card-modern overflow-hidden">
-            <div className="relative p-8 md:p-12 lg:p-16 bg-gradient-to-r from-primary to-primary/80">
-              <div className="relative z-10 text-center max-w-2xl mx-auto">
-                <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                  Want to collaborate or advertise?
-                </h2>
-                <p className="text-lg text-primary-foreground/90 mb-8">
-                  We're open to partnerships and thoughtful collaborations. Get in touch and let's discuss how we can work together.
-                </p>
-                <Link to="/contact">
-                  <Button size="lg" variant="secondary" className="rounded-full px-8">
-                    Contact Us
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
+        <div className="container mx-auto px-4 text-center" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))', padding: '3rem', borderRadius: '0.75rem' }}>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Want to collaborate or advertise with us?
+          </h2>
+          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            We're open to partnerships and thoughtful collaborations. Get in touch and let's discuss how we can work together.
+          </p>
+          <Link to="/contact">
+            <Button size="lg" variant="secondary" className="text-lg px-8 rounded-full">
+              Contact Us
+            </Button>
+          </Link>
         </div>
       </section>
     </Layout>
