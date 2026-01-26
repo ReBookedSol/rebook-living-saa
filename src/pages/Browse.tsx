@@ -200,6 +200,7 @@ const Browse = () => {
                               website={accommodation.website || null}
                               amenities={accommodation.amenities || []}
                               imageUrls={accommodation.image_urls || []}
+                              isLandlordListing={accommodation.is_landlord_listing || false}
                             />
                           ))}
                         </div>

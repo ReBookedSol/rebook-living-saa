@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share } from "lucide-react";
+import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
@@ -429,6 +429,12 @@ const ListingDetail = () => {
             <p className="text-sm text-white/90 truncate">{listing.type} • {listing.city}</p>
           </div>
           <div className="flex items-center gap-2">
+            {listing.is_landlord_listing && (
+              <Badge className="bg-green-500 text-white hover:bg-green-600">
+                <Building2 className="w-3 h-3 mr-1" />
+                Listed by Landlord
+              </Badge>
+            )}
             {listing.nsfas_accredited && (
               <Badge className="bg-accent text-accent-foreground">
                 <CheckCircle className="w-3 h-3 mr-1" />
