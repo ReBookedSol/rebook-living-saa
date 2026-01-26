@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Info, Heart, Share } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Info, Heart, Share, Building2 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
@@ -23,6 +23,7 @@ interface AccommodationCardProps {
   website?: string | null;
   amenities?: string[];
   imageUrls?: string[] | null;
+  isLandlordListing?: boolean;
 }
 
 const AccommodationCard = ({
@@ -39,6 +40,7 @@ const AccommodationCard = ({
   website,
   amenities = [],
   imageUrls = null,
+  isLandlordListing = false,
 }: AccommodationCardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -266,12 +268,20 @@ const AccommodationCard = ({
         )}
 
         <div className="relative py-4 px-4" style={{ background: 'hsl(var(--primary))' }}>
-          {nsfasAccredited && (
-            <Badge className="absolute" style={{ top: 8, right: 12, background: 'white', color: 'hsl(var(--primary))' }}>
-              <CheckCircle className="w-3 h-3 mr-1" />
-              NSFAS
-            </Badge>
-          )}
+          <div className="absolute top-2 right-3 flex items-center gap-2">
+            {isLandlordListing && (
+              <Badge className="bg-green-500 text-white hover:bg-green-600">
+                <Building2 className="w-3 h-3 mr-1" />
+                Listed by Landlord
+              </Badge>
+            )}
+            {nsfasAccredited && (
+              <Badge style={{ background: 'white', color: 'hsl(var(--primary))' }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                NSFAS
+              </Badge>
+            )}
+          </div>
           <div className="flex-1 text-white">
             <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
             <p className="text-xs text-white/90">{type} • {city}</p>

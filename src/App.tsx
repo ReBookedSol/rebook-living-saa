@@ -13,8 +13,10 @@ import Terms from "./pages/Terms";
 import Dashboard from "./pages/admin/Dashboard";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Campus from "./pages/Campus";
 import LandlordDashboard from "./pages/landlord/Dashboard";
 import AddListing from "./pages/landlord/AddListing";
+import LandlordPayment from "./pages/landlord/Payment";
 
 import NotFound from "./pages/NotFound";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
@@ -74,10 +76,12 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/campus" element={<Campus />} />
             
             {/* Landlord Routes */}
             <Route path="/landlord" element={<ProtectedLandlordRoute><LandlordDashboard /></ProtectedLandlordRoute>} />
             <Route path="/landlord/add-listing" element={<ProtectedLandlordRoute><AddListing /></ProtectedLandlordRoute>} />
+            <Route path="/landlord/pay/:listingId" element={<ProtectedLandlordRoute><LandlordPayment /></ProtectedLandlordRoute>} />
             
             {/* Admin Routes */}
             <Route path="/panel" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
