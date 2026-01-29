@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
