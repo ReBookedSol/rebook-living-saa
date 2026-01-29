@@ -169,9 +169,9 @@ const Index = () => {
                 const track = items.concat(items);
 
                 return track.map((u, idx) => (
-                  <div key={`${u.name}-${idx}`} className="marquee-item flex flex-col items-center p-4 bg-card rounded-lg">
-                    <img src={u.logo} alt={u.name} className="w-full h-20 object-contain mb-2" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
-                    <div className="text-sm text-center">{u.name}</div>
+                  <div key={`${u.name}-${idx}`} className="marquee-item flex flex-col items-center justify-center p-5 bg-white/60 backdrop-blur rounded-xl border border-white/30 hover:border-primary/20 transition-all">
+                    <img src={u.logo} alt={u.name} className="w-full h-16 object-contain" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
+                    <div className="text-xs text-center text-muted-foreground mt-3 line-clamp-2">{u.name}</div>
                   </div>
                 ));
               })()}
