@@ -266,7 +266,7 @@ const Index = () => {
       </section>
 
       {/* CTA with pricing offer */}
-      <section className="py-16 md:py-24">
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="rounded-2xl bg-white/80 backdrop-blur border border-white/40 px-6 md:px-12 py-12 md:py-16">
