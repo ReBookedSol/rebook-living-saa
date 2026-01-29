@@ -13,6 +13,7 @@ interface UpgradePromptProps {
   totalCount?: number;
   className?: string;
   compact?: boolean;
+  buttonText?: string;
 }
 
 const promptContent = {
