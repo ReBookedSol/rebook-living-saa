@@ -83,6 +83,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/campus" element={<Campus />} />
             <Route path="/campus-guide" element={<ReBookedCampus />} />
+            <Route path="/university/:id" element={<UniversityProfile />} />
 
             {/* Payment Result Routes */}
             <Route path="/payment/success" element={<PaymentResult />} />
