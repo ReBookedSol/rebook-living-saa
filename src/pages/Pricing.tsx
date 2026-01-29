@@ -1,8 +1,10 @@
 import { Check, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import Layout from "@/components/Layout";
+import { Link } from "react-router-dom";
 
 const Pricing = () => {
   const premiumFeatures = [
