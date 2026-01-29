@@ -201,7 +201,7 @@ const Index = () => {
       {/* Section header similar to "Workflow Templates" */}
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 items-start mb-2">
+          <div className="grid md:grid-cols-2 gap-8 items-start mb-6">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Top Rated Rooms</h2>
             </div>
