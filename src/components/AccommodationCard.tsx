@@ -246,106 +246,117 @@ const AccommodationCard = ({
     <Link
       to={`/listing/${id}?return=${encodeURIComponent(location.pathname + location.search)}`}
       state={{ images: (localImages && localImages.length > 0) ? localImages : (imageUrls && imageUrls.length > 0) ? imageUrls : [thumb] }}
-      className="block"
+      className="block group"
     >
-      <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-shadow cursor-pointer">
-        {localImages && localImages.length > 0 ? (
-          <div className="w-full h-48 overflow-hidden bg-muted">
+      <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border-0 h-full flex flex-col">
+        {/* Image Section with Overlay */}
+        <div className="relative w-full h-56 overflow-hidden bg-muted group-hover:brightness-95 transition-all duration-300">
+          {localImages && localImages.length > 0 ? (
             <img
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
               src={localImages[0]}
               alt={propertyName}
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
               onError={handleImgError(0)}
             />
-          </div>
-        ) : (
-          <div className="w-full h-48 overflow-hidden bg-muted">
-            <img loading="lazy" decoding="async" referrerPolicy="no-referrer" src={thumb} alt={propertyName} className="object-cover w-full h-full" onError={handleImgError()} />
-          </div>
-        )}
+          ) : (
+            <img loading="lazy" decoding="async" referrerPolicy="no-referrer" src={thumb} alt={propertyName} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" onError={handleImgError()} />
+          )}
 
-        <div className="relative py-4 px-4" style={{ background: 'hsl(var(--primary))' }}>
-          <div className="absolute top-2 right-3 flex items-center gap-2">
+          {/* Badges Overlay */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
             {isLandlordListing && (
-              <Badge className="bg-green-500 text-white hover:bg-green-600">
+              <Badge className="bg-green-500 text-white hover:bg-green-600 shadow-lg">
                 <Building2 className="w-3 h-3 mr-1" />
-                Listed by Landlord
+                Landlord
               </Badge>
             )}
             {nsfasAccredited && (
-              <Badge style={{ background: 'white', color: 'hsl(var(--primary))' }}>
+              <Badge className="bg-white text-primary shadow-lg font-semibold">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 NSFAS
               </Badge>
             )}
           </div>
-          <div className="flex-1 text-white">
-            <h3 className="font-semibold text-lg leading-tight text-white">{propertyName}</h3>
-            <p className="text-xs text-white/90">{type} • {city}</p>
-          </div>
         </div>
 
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="pr-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span>{address || city}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
+        {/* Header with Title and Price */}
+        <div className="p-4 pb-2 flex-shrink-0">
+          <h3 className="font-bold text-lg leading-snug text-foreground line-clamp-2 mb-1">{propertyName}</h3>
+          <p className="text-xs text-muted-foreground font-medium">{type} • {city}</p>
+        </div>
+
+        {/* Content Section */}
+        <CardContent className="p-4 py-3 flex-1">
+          <div className="space-y-3">
+            {/* Location */}
+            <div className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-foreground">{address || city}</div>
+            </div>
+
+            {/* University and Rating Row */}
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground font-medium">
                 {university}
-                {nsfasAccredited && (
-                  <span title={`NSFAS accredited for ${university}`} className="inline-flex items-center ml-2 text-accent">
-                    <CheckCircle className="w-4 h-4" />
-                  </span>
-                )}
-              </p>
-
-              <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" />{genderPolicy || 'Mixed'}</div>
-                <div className="flex items-center gap-1">
-                  {[0,1,2,3,4].map((i) => {
-                    const diff = (rating || 0) - i;
-                    if (diff >= 1) {
-                      return <Star key={i} className="w-4 h-4 text-accent" fill="currentColor" />;
-                    }
-                    if (diff > 0 && diff < 1) {
-                      return (
-                        <span key={i} className="relative inline-block w-4 h-4">
-                          <Star className="absolute inset-0 w-4 h-4 text-muted-foreground" />
-                          <Star className="absolute inset-0 w-4 h-4 text-accent" fill="currentColor" style={{ clipPath: 'inset(0 50% 0 0)' }} />
-                        </span>
-                      );
-                    }
-                    return <Star key={i} className="w-4 h-4 text-muted-foreground" />;
-                  })}
-                  <span className="ml-1">{(rating || 0).toFixed(1)}</span>
-                </div>
               </div>
+              <div className="flex items-center gap-1">
+                {[0,1,2,3,4].map((i) => {
+                  const diff = (rating || 0) - i;
+                  if (diff >= 1) {
+                    return <Star key={i} className="w-3.5 h-3.5 text-accent" fill="currentColor" />;
+                  }
+                  if (diff > 0 && diff < 1) {
+                    return (
+                      <span key={i} className="relative inline-block w-3.5 h-3.5">
+                        <Star className="absolute inset-0 w-3.5 h-3.5 text-muted-foreground" />
+                        <Star className="absolute inset-0 w-3.5 h-3.5 text-accent" fill="currentColor" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+                      </span>
+                    );
+                  }
+                  return <Star key={i} className="w-3.5 h-3.5 text-muted-foreground" />;
+                })}
+                <span className="text-xs font-semibold ml-1 text-foreground">{(rating || 0).toFixed(1)}</span>
+              </div>
+            </div>
 
-              {amenities.length > 0 && (
-                <div className="mt-3 text-sm text-muted-foreground">
-                  <strong className="text-sm">Amenities:</strong> {amenities.slice(0,3).join(", ")}{amenities.length > 3 ? '...' : ''}
-                </div>
+            {/* Gender Policy and NSFAS Badge */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs">
+                <Users className="w-3.5 h-3.5 text-primary" />
+                <span className="text-muted-foreground">{genderPolicy || 'Mixed'}</span>
+              </div>
+              {nsfasAccredited && (
+                <span className="text-xs font-semibold text-primary flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                </span>
               )}
             </div>
 
-            <div className="text-right flex-shrink-0">
-              <p className="text-2xl font-bold text-primary">{typeof monthlyCost === 'number' ? `R${monthlyCost.toLocaleString()}` : 'Contact for price'}</p>
-              <p className="text-xs text-muted-foreground">per month</p>
-            </div>
+            {/* Amenities */}
+            {amenities.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">Amenities:</span> {amenities.slice(0,2).join(", ")}{amenities.length > 2 ? '...' : ''}
+              </div>
+            )}
           </div>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex items-center justify-between">
-          <div className="flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+        {/* Price Section */}
+        <div className="px-4 py-2 bg-gradient-to-r from-primary/5 to-accent/5 border-t">
+          <p className="text-lg font-bold text-primary">{typeof monthlyCost === 'number' ? `R${monthlyCost.toLocaleString()}` : 'Contact'}</p>
+          <p className="text-xs text-muted-foreground">per month</p>
+        </div>
+
+        {/* Action Buttons */}
+        <CardFooter className="p-4 pt-3 flex items-center justify-between gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="rounded-full border border-primary/20 w-8 h-8 flex items-center justify-center text-primary hover:bg-primary/10">
-                  <Info className="w-4 h-4 text-primary" />
+                <Button variant="ghost" size="sm" className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs">
+                  <Info className="w-4 h-4" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-xs w-[90vw] rounded-xl p-4">
@@ -370,8 +381,8 @@ const AccommodationCard = ({
               </DialogContent>
             </Dialog>
 
-            <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); shareListing(); }} className="rounded-full border border-primary/20 w-8 h-8 flex items-center justify-center text-primary hover:bg-primary/10">
-              <Share className="w-4 h-4 text-primary" />
+            <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); shareListing(); }} className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs">
+              <Share className="w-4 h-4" />
             </Button>
           </div>
 
@@ -380,12 +391,12 @@ const AccommodationCard = ({
               variant="ghost"
               size="icon"
               onClick={toggleSave}
-              className={`w-10 h-10 flex items-center justify-center rounded-full border transform transition-all duration-200 ${isSaved ? 'bg-green-50 border-green-200 text-green-600' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
+              className={`h-8 w-8 rounded-lg transition-all duration-200 ${isSaved ? 'bg-accent/10 text-accent' : 'text-primary hover:bg-primary/10'}`}
               aria-pressed={isSaved}
               disabled={loading}
               title={isSaved ? 'Remove saved' : 'Save'}
             >
-              <Heart className={`w-5 h-5 transition-transform duration-200 ${isSaved ? 'text-green-600' : 'text-primary'} ${animating ? 'scale-125' : ''}`} />
+              <Heart className={`w-4 h-4 transition-transform duration-200 ${animating ? 'scale-125' : ''}`} fill={isSaved ? "currentColor" : "none"} />
             </Button>
           </div>
         </CardFooter>
