@@ -84,26 +84,30 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Feature tiles - four up row using brand colors */}
-      <section className="py-12 md:py-16">
+      {/* Feature tiles - modern, minimal design */}
+      <section className="py-16 md:py-20 bg-gradient-to-b from-transparent via-white/30 to-transparent">
         <div className="container mx-auto px-4">
           <h2 className="sr-only">Why Choose ReBooked Living for Student Accommodation</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="rounded-2xl p-6 bg-secondary text-secondary-foreground">
-              <div className="text-2xl font-semibold">Browse</div>
-              <p className="text-sm mt-2 text-muted-foreground">Curated student listings</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">01</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">Browse Listings</div>
+              <p className="text-sm mt-2 text-muted-foreground">Curated student accommodation options</p>
             </div>
-            <div className="rounded-2xl p-6 bg-primary text-primary-foreground">
-              <div className="text-2xl font-semibold">NSFAS</div>
-              <p className="text-sm mt-2 opacity-90">Accredited options</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">02</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">NSFAS Accredited</div>
+              <p className="text-sm mt-2 text-muted-foreground">Verified options across SA</p>
             </div>
-            <div className="rounded-2xl p-6 bg-accent text-accent-foreground">
-              <div className="text-2xl font-semibold">Guides</div>
-              <p className="text-sm mt-2 opacity-90">Housing & budgeting</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">03</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">Smart Filters</div>
+              <p className="text-sm mt-2 text-muted-foreground">Find what matters to you</p>
             </div>
-            <div className="rounded-2xl p-6 bg-muted">
-              <div className="text-2xl font-semibold">Partners</div>
-              <p className="text-sm mt-2 text-muted-foreground">Work with Rebooked Living</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">04</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">Easy Connection</div>
+              <p className="text-sm mt-2 text-muted-foreground">Connect directly with landlords</p>
             </div>
           </div>
         </div>
