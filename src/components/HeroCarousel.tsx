@@ -59,7 +59,6 @@ export const HeroCarousel = () => {
     return () => clearInterval(timer);
   }, []);
 
-
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
@@ -67,62 +66,78 @@ export const HeroCarousel = () => {
   const currentSlideData = carouselSlides[currentSlide];
 
   return (
-    <section className="relative h-[65vh] md:h-[72vh]">
-      {/* Background image with overlay */}
-      <img
-        src={currentSlideData.image}
-        alt={currentSlideData.alt}
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
-        }}
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20" />
+    <>
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        .hero-content {
+          animation: fadeIn 0.6s ease-in-out;
+        }
+      `}</style>
+      <section className="relative h-[65vh] md:h-[72vh]">
+        {/* Background image with overlay */}
+        <img
+          key={currentSlide}
+          src={currentSlideData.image}
+          alt={currentSlideData.alt}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+          }}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20" />
 
-      {/* Carousel content */}
-      <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-        <div className="w-full max-w-3xl" style={{ animation: "fadeIn 0.8s ease-in-out" }}>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
-            {currentSlideData.headline}
-          </h1>
-          <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
-            {currentSlideData.description}
-          </p>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Link to="/browse">
-              <Button
-                size="lg"
-                className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold"
+        {/* Carousel content */}
+        <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
+          <div className="w-full max-w-3xl hero-content">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
+              {currentSlideData.headline}
+            </h1>
+            <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
+              {currentSlideData.description}
+            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Link to="/browse">
+                <Button
+                  size="lg"
+                  className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold"
+                >
+                  Explore Listings
+                </Button>
+              </Link>
+              <a
+                href="#search"
+                className="text-base font-medium text-white hover:text-white/80 transition-colors"
               >
-                Explore Listings
-              </Button>
-            </Link>
-            <a
-              href="#search"
-              className="text-base font-medium text-white hover:text-white/80 transition-colors"
-            >
-              Advanced search →
-            </a>
+                Advanced search →
+              </a>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Indicator dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {carouselSlides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
-              index === currentSlide
-                ? "bg-white w-8"
-                : "bg-white/50 hover:bg-white/75"
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
-    </section>
+        {/* Indicator dots */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {carouselSlides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === currentSlide
+                  ? "bg-white w-8"
+                  : "bg-white/50 hover:bg-white/75"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </section>
+    </>
   );
 };
