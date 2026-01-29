@@ -49,6 +49,9 @@ interface Degree {
   duration?: string;
   apsRequirement: number;
   universitySpecificAPS?: Record<string, number>;
+  faculty?: string;
+  careerProspects?: string[];
+  subjects?: Array<{ name: string; isRequired?: boolean; level?: number }>;
 }
 
 interface University {
