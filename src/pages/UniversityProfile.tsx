@@ -35,7 +35,6 @@ import {
   Filter,
 } from "lucide-react";
 import Layout from "@/components/Layout";
-import GoogleAd from "@/components/ads/GoogleAd";
 
 interface Faculty {
   name: string;
