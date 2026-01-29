@@ -829,65 +829,6 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Reviews Sidebar */}
-              <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MessageCircle className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-lg">Reviews</CardTitle>
-                    </div>
-                    {hasMoreReviews && (
-                      <Badge variant="secondary" className="text-xs">
-                        {FREE_TIER_LIMITS.MAX_REVIEWS} of {totalReviews}
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {reviews && reviews.length > 0 ? (
-                    <>
-                      <div className="space-y-3 max-h-[50vh] overflow-y-auto">
-                        {reviews.map((r: any, idx: number) => (
-                          <div key={idx} className="p-3 bg-muted/30 rounded-lg border border-muted">
-                            <div className="flex gap-2 items-start mb-2">
-                              {r.profile_photo_url ? (
-                                <img src={r.profile_photo_url} alt={r.author_name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-muted flex-shrink-0" />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 justify-between mb-0.5">
-                                  <p className="font-semibold text-sm truncate">{r.author_name}</p>
-                                  <span className="text-xs text-yellow-500 font-medium">{r.rating}★</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground">{r.relative_time_description}</p>
-                              </div>
-                            </div>
-                            <p className="text-sm text-foreground line-clamp-3">{r.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                      {hasMoreReviews && (
-                        <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                          <UpgradePrompt 
-                            type="reviews" 
-                            totalCount={totalReviews} 
-                            compact 
-                          />
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="h-40 bg-muted rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <MessageCircle className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                        <p className="text-xs text-muted-foreground">No reviews yet</p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
