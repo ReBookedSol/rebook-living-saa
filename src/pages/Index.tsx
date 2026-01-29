@@ -52,38 +52,8 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero - background house image */}
-      <section className="relative h-[65vh] md:h-[72vh]">
-        <img
-          src="https://images.pexels.com/photos/4907201/pexels-photo-4907201.jpeg"
-          alt="Modern student accommodation with spacious living areas and study rooms near South African universities"
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20" />
-
-        <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-          <div className="w-full max-w-3xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
-              Your Perfect Student Home Awaits
-            </h1>
-            <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
-              Discover verified, NSFAS-accredited accommodation near South African universities. Safe, affordable, and perfect for student life.
-            </p>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Link to="/browse">
-                <Button size="lg" className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold">
-                  Explore Listings
-                </Button>
-              </Link>
-              <a href="#search" className="text-base font-medium text-white hover:text-white/80 transition-colors">
-                Advanced search →
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Carousel */}
+      <HeroCarousel />
 
       {/* Feature tiles - modern, minimal design */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-transparent via-white/30 to-transparent">
