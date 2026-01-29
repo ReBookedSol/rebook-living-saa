@@ -49,12 +49,13 @@ const promptContent = {
   },
 };
 
-export const UpgradePrompt = ({ type, totalCount, className = "", compact = false }: UpgradePromptProps) => {
+export const UpgradePrompt = ({ type, totalCount, className = "", compact = false, buttonText }: UpgradePromptProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<"weekly" | "monthly" | null>(null);
   const navigate = useNavigate();
   const content = promptContent[type];
   const Icon = content.icon;
+  const ctaText = buttonText || content.cta;
 
   const handleUpgrade = async (paymentType: "weekly" | "monthly") => {
     setIsLoading(paymentType);
