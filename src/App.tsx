@@ -17,6 +17,7 @@ import Campus from "./pages/Campus";
 import LandlordDashboard from "./pages/landlord/Dashboard";
 import AddListing from "./pages/landlord/AddListing";
 import LandlordPayment from "./pages/landlord/Payment";
+import PaymentResult from "./pages/PaymentResult";
 
 import NotFound from "./pages/NotFound";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
@@ -77,6 +78,11 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/campus" element={<Campus />} />
+            
+            {/* Payment Result Routes */}
+            <Route path="/payment/success" element={<PaymentResult />} />
+            <Route path="/payment/pending" element={<PaymentResult />} />
+            <Route path="/payment/cancel" element={<PaymentResult />} />
             
             {/* Landlord Routes */}
             <Route path="/landlord" element={<ProtectedLandlordRoute><LandlordDashboard /></ProtectedLandlordRoute>} />
