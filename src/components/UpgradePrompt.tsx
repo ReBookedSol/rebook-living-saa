@@ -122,7 +122,7 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         <DialogTrigger asChild>
           <Button variant="outline" size="sm" className={`gap-2 ${className}`}>
             <Lock className="w-3 h-3" />
-            {content.cta}
+            {ctaText}
             {totalCount && <Badge variant="secondary" className="ml-1">{totalCount}+</Badge>}
           </Button>
         </DialogTrigger>
