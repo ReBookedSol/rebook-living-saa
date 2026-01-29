@@ -215,7 +215,7 @@ const Index = () => {
       {/* Catalog-style grid for featured listings */}
       <section className="pb-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <span className="text-base text-muted-foreground font-medium">Curated selections across South Africa</span>
             <Link to="/browse">
               <Button variant="outline" className="items-center gap-2 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
