@@ -98,7 +98,9 @@ const Pricing = () => {
                   ))}
                 </div>
 
-                <UpgradePrompt type="general" compact={true} className="w-full justify-center" />
+                <Link to="/checkout?type=weekly" className="block">
+                  <Button className="w-full bg-primary text-white hover:bg-primary/90">Continue to checkout</Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -130,7 +132,9 @@ const Pricing = () => {
                   ))}
                 </div>
 
-                <UpgradePrompt type="general" compact={true} className="w-full justify-center" />
+                <Link to="/checkout?type=monthly" className="block">
+                  <Button className="w-full bg-primary text-white hover:bg-primary/90">Continue to checkout</Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
