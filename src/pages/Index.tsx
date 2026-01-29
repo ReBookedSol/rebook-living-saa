@@ -213,7 +213,7 @@ const Index = () => {
       </section>
 
       {/* Catalog-style grid for featured listings */}
-      <section className="pb-16">
+      <section className="pb-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <span className="text-base text-muted-foreground font-medium">Curated selections across South Africa</span>
