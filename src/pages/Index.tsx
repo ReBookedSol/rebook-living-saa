@@ -85,7 +85,7 @@ const Index = () => {
       </section>
 
       {/* Feature tiles - modern, minimal design */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-transparent via-white/30 to-transparent">
+      <section className="py-12 md:py-16 bg-gradient-to-b from-transparent via-white/30 to-transparent">
         <div className="container mx-auto px-4">
           <h2 className="sr-only">Why Choose ReBooked Living for Student Accommodation</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
