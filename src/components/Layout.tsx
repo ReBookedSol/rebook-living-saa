@@ -169,7 +169,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
 
-          <div className="border-t border-white/20 pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t border-white/20 pt-6 text-center text-sm text-muted-foreground">
             <p>&copy; 2025 Rebooked Solutions. All rights reserved.</p>
           </div>
         </div>
