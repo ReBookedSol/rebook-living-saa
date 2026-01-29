@@ -35,6 +35,7 @@ import {
   Filter,
 } from "lucide-react";
 import Layout from "@/components/Layout";
+import ProgramDetailModal from "@/components/ProgramDetailModal";
 
 interface Faculty {
   name: string;
