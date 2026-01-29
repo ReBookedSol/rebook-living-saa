@@ -125,7 +125,7 @@ const APSCalculator = () => {
 // University Card Component
 const UniversityCard = ({ university }: { university: any }) => {
   return (
-    <Link to={`/campus?uni=${university.id}`}>
+    <Link to={`/university/${university.id}`}>
       <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border-0 shadow-md h-full">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
