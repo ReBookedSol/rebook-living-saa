@@ -274,7 +274,7 @@ const AccommodationCard = ({
               </Badge>
             )}
             {nsfasAccredited && (
-              <Badge className="bg-green-500 text-white shadow-lg font-semibold">
+              <Badge className="bg-white text-primary shadow-lg font-semibold">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 NSFAS
               </Badge>
