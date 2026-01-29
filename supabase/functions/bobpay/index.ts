@@ -111,7 +111,7 @@ async function handleInitialize(req: Request, supabase: any) {
   }
 
   // Determine amount and duration based on payment type
-  const amount = payment_type === "weekly" ? 20 : 60;
+  const amount = payment_type === "weekly" ? 19 : 59;
   const duration_days = payment_type === "weekly" ? 7 : 30;
   const item_name = payment_type === "weekly" ? "Weekly Access Pass" : "Monthly Access Pass";
   const item_description = `ReBooked ${payment_type === "weekly" ? "7-day" : "30-day"} premium access - all photos, reviews, maps & no ads`;

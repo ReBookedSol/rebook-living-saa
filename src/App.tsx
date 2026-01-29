@@ -8,6 +8,7 @@ import ListingDetail from "./pages/ListingDetail";
 import Ad from "./pages/Ad";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Dashboard from "./pages/admin/Dashboard";
@@ -73,6 +74,7 @@ const App = () => {
             <Route path="/ad" element={<Ad />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/pricing" element={<Pricing />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />
