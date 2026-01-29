@@ -60,31 +60,25 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-primary/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20" />
 
         <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-          <div className="w-full max-w-4xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="max-w-3xl text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug md:leading-tight text-white">
-                Find Student Accommodation Near Your University
-              </h1>
-            </div>
-              <div className="flex flex-col items-start gap-6">
-                <p className="text-base md:text-lg text-white/90 max-w-md">
-                  Browse verified, NSFAS-accredited student rooms across South Africa. Compare prices, amenities, and locations to find your perfect home.
-                </p>
-                <div className="flex items-center gap-3">
-                  <Link to="/browse">
-                    <Button size="lg" className="rounded-full px-8 bg-white text-primary">
-                      Explore Listings
-                    </Button>
-                  </Link>
-                  <a href="#search" className="text-sm font-medium text-white/90 hover:underline">
-                    Advanced search
-                  </a>
-                </div>
-              </div>
+          <div className="w-full max-w-3xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
+              Your Perfect Student Home Awaits
+            </h1>
+            <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
+              Discover verified, NSFAS-accredited accommodation near South African universities. Safe, affordable, and perfect for student life.
+            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Link to="/browse">
+                <Button size="lg" className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold">
+                  Explore Listings
+                </Button>
+              </Link>
+              <a href="#search" className="text-base font-medium text-white hover:text-white/80 transition-colors">
+                Advanced search →
+              </a>
             </div>
           </div>
         </div>
