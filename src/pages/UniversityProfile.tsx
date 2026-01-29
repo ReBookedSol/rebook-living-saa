@@ -942,6 +942,13 @@ const UniversityProfile: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
+
+        <ProgramDetailModal
+          program={selectedProgram}
+          university={university}
+          isOpen={isProgramModalOpen}
+          onClose={() => setIsProgramModalOpen(false)}
+        />
       </div>
     </Layout>
   );
