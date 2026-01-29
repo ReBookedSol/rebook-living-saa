@@ -276,7 +276,6 @@ const Checkout = () => {
                     type="general"
                     compact={true}
                     className="w-full justify-center mt-6"
-                    passType={passType}
                   />
 
                   {/* Security Badge */}
