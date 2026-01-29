@@ -82,11 +82,11 @@ export const HeroCarousel = () => {
 
       {/* Carousel content */}
       <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-        <div className="w-full max-w-3xl opacity-0 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6 transition-all duration-500">
+        <div className="w-full max-w-3xl transition-opacity duration-700" key={currentSlide}>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
             {currentSlideData.headline}
           </h1>
-          <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed transition-all duration-500">
+          <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
             {currentSlideData.description}
           </p>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
