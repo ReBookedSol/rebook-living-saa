@@ -218,7 +218,7 @@ const UpgradeDialog = ({ isLoading, onUpgrade, type, totalCount }: UpgradeDialog
                 <p className="text-sm text-muted-foreground">7 days of premium access</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">R20</p>
+                <p className="text-2xl font-bold">R19</p>
                 <p className="text-xs text-muted-foreground">one-time</p>
               </div>
             </CardContent>
@@ -237,7 +237,7 @@ const UpgradeDialog = ({ isLoading, onUpgrade, type, totalCount }: UpgradeDialog
                 <p className="text-sm text-muted-foreground">30 days of premium access</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">R60</p>
+                <p className="text-2xl font-bold">R59</p>
                 <p className="text-xs text-muted-foreground">one-time</p>
               </div>
             </CardContent>
