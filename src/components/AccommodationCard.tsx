@@ -245,10 +245,13 @@ const AccommodationCard = ({
   }, [id, address]);
 
 
+  // Apply image limit for free users
+  const displayImages = !isPaidUser && imageUrls ? imageUrls.slice(0, FREE_TIER_LIMITS.MAX_PHOTOS) : imageUrls;
+
   return (
     <Link
       to={`/listing/${id}?return=${encodeURIComponent(location.pathname + location.search)}`}
-      state={{ images: (localImages && localImages.length > 0) ? localImages : (imageUrls && imageUrls.length > 0) ? imageUrls : [thumb] }}
+      state={{ images: (localImages && localImages.length > 0) ? localImages : (displayImages && displayImages.length > 0) ? displayImages : [thumb] }}
       className="block group"
     >
       <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border border-primary/20 h-full flex flex-col">
