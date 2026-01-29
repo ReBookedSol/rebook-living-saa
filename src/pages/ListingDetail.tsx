@@ -759,6 +759,76 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
+              {/* Unified Reviews Section - Mobile on main, sidebar on desktop */}
+              <Card className="border-0 shadow-md lg:col-span-full">
+                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                  <CardTitle className="text-lg">Reviews & Feedback</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {/* Review Form */}
+                    <div className="pb-4 border-b">
+                      <ReviewForm
+                        accommodationId={id || ""}
+                        onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
+                      />
+                    </div>
+
+                    {/* All Reviews */}
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">All Reviews</h3>
+                      <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                        {/* ReBooked Living Reviews */}
+                        <ReviewsList
+                          accommodationId={id}
+                          onReviewsUpdated={() => setReviewsRefreshTrigger(prev => prev + 1)}
+                        />
+
+                        {/* Google Reviews */}
+                        {reviews && reviews.length > 0 && (
+                          <>
+                            <div className="my-3 text-center text-xs text-muted-foreground">
+                              ─ Google Reviews ─
+                            </div>
+                            {reviews.map((r: any, idx: number) => (
+                              <div key={`google-${idx}`} className="p-2.5 bg-muted/30 rounded-lg border border-muted text-sm">
+                                <div className="flex gap-2 items-start mb-1.5">
+                                  {r.profile_photo_url ? (
+                                    <img src={r.profile_photo_url} alt={r.author_name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                                  ) : (
+                                    <div className="w-7 h-7 rounded-full bg-muted flex-shrink-0" />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5 justify-between mb-0.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <p className="font-semibold text-xs truncate">{r.author_name}</p>
+                                        <span className="text-xs px-1 py-0.5 bg-blue-100 text-blue-700 rounded-full">Google</span>
+                                      </div>
+                                      <span className="text-xs text-yellow-500 font-medium">{r.rating}★</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{r.relative_time_description}</p>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-foreground line-clamp-2">{r.text}</p>
+                              </div>
+                            ))}
+                            {hasMoreReviews && (
+                              <div className="mt-3 p-2.5 bg-muted/50 rounded-lg">
+                                <UpgradePrompt
+                                  type="reviews"
+                                  totalCount={totalReviews}
+                                  compact
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
             </div>
           </div>
         </div>
