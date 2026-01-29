@@ -115,10 +115,12 @@ const Index = () => {
 
 
       {/* Accredited Universities carousel (continuous auto-scrolling marquee) */}
-      <section className="py-8">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-white/30 to-white/10">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Accredited Accommodations From</h2>
-          <p className="text-sm text-muted-foreground mb-4">Explore accommodations accredited for these universities.</p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Accredited Across South Africa</h2>
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">We partner with verified accommodations for top universities nationwide</p>
+          </div>
 
           <style>{`
             @keyframes marquee {
