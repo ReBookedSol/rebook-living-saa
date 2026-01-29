@@ -57,18 +57,25 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
 
   const handleUpgrade = async (paymentType: "weekly" | "monthly") => {
     setIsLoading(paymentType);
-    
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session?.user) {
         toast.error("Please sign in to upgrade");
         navigate("/auth");
         return;
       }
 
+      // Get BobPay function URL from environment
+      const bobpayFunctionUrl = import.meta.env.VITE_BOBPAY_FUNCTION_URL;
+
+      if (!bobpayFunctionUrl) {
+        throw new Error("Payment service is not configured. Please contact support.");
+      }
+
       const response = await fetch(
-        `https://gzihagvdpdjcoyjpvyvs.supabase.co/functions/v1/bobpay/initialize`,
+        `${bobpayFunctionUrl}/initialize`,
         {
           method: "POST",
           headers: {
