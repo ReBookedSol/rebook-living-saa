@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock } from "lucide-react";
+import { MapPin, Star, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock, Image, MessageCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
@@ -98,7 +98,6 @@ const ListingDetail = () => {
         toast.success('Share dialog opened');
         return;
       } catch (err: any) {
-        // try clipboard fallback
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
             await navigator.clipboard.writeText(url);
@@ -108,14 +107,12 @@ const ListingDetail = () => {
         } catch (e) {
           // ignore
         }
-        // final fallback
         // eslint-disable-next-line no-alert
         prompt('Copy link', url);
         return;
       }
     }
 
-    // no native share
     if (navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(url);
@@ -126,7 +123,6 @@ const ListingDetail = () => {
       }
     }
 
-    // fallback
     // eslint-disable-next-line no-alert
     prompt('Copy link', url);
   };
@@ -145,7 +141,6 @@ const ListingDetail = () => {
     },
   });
 
-  // Track viewed accommodation
   useEffect(() => {
     if (!id || !listing) return;
     
@@ -155,7 +150,6 @@ const ListingDetail = () => {
         const userId = session?.user?.id;
         if (!userId) return;
 
-        // Check if already viewed in the last 24 hours to avoid duplicates
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { data: existing } = await supabase
           .from("viewed_accommodations")
@@ -165,15 +159,13 @@ const ListingDetail = () => {
           .gte("viewed_at", oneDayAgo)
           .single();
 
-        if (existing) return; // Already tracked recently
+        if (existing) return;
 
-        // Insert new view record
         await supabase.from("viewed_accommodations").insert({
           user_id: userId,
           accommodation_id: id,
         });
       } catch (err) {
-        // Silently fail - tracking is not critical
         console.debug("Failed to track view:", err);
       }
     };
@@ -233,7 +225,6 @@ const ListingDetail = () => {
   });
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const largeMapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
@@ -245,7 +236,6 @@ const ListingDetail = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
-  // Apply access control limits to photos and reviews
   const photos = isPaidUser ? allPhotos : allPhotos?.slice(0, FREE_TIER_LIMITS.MAX_PHOTOS);
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
   const totalPhotos = allPhotos?.length || 0;
@@ -253,12 +243,7 @@ const ListingDetail = () => {
   const hasMorePhotos = !isPaidUser && totalPhotos > FREE_TIER_LIMITS.MAX_PHOTOS;
   const hasMoreReviews = !isPaidUser && totalReviews > FREE_TIER_LIMITS.MAX_REVIEWS;
 
-
-
-
-
   useEffect(() => {
-    // Only load map for paid users to save API costs
     if (!isPaidUser) return;
     
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
@@ -317,27 +302,19 @@ const ListingDetail = () => {
               markerRef.current = new google.maps.Marker({ map, position: place.geometry.location, title: place.name });
             }
 
-            (async () => {
-              try {
-                // Simply request place details and use the photos directly; do NOT persist photos or reviews.
-                service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
-                  if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
-                    if (detail.reviews) setAllReviews(detail.reviews.slice(0, 10));
-                    // Always fetch all photos from Google Places API for comprehensive gallery
-                    if (detail.photos && detail.photos.length > 0) {
-                      try {
-                        const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                        setAllPhotos(urls);
-                      } catch (err) {
-                        console.warn('Failed to extract photo urls', err);
-                      }
-                    }
+            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
+              if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
+                if (detail.reviews) setAllReviews(detail.reviews.slice(0, 10));
+                if (detail.photos && detail.photos.length > 0) {
+                  try {
+                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
+                    setAllPhotos(urls);
+                  } catch (err) {
+                    console.warn('Failed to extract photo urls', err);
                   }
-                });
-              } catch (e) {
-                console.warn('place details error', e);
+                }
               }
-            })();
+            });
           }
         });
       } catch (err) {
@@ -345,11 +322,9 @@ const ListingDetail = () => {
       }
     }
 
-    // cleanup not strictly necessary
     return () => {};
   }, [listing, isPaidUser]);
 
-  // Sync map type when changed
   useEffect(() => {
     if (mapInstanceRef.current) {
       mapInstanceRef.current.setMapTypeId(mapType);
@@ -394,11 +369,10 @@ const ListingDetail = () => {
     reportMutation.mutate(reportForm);
   };
 
-
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-96 bg-muted rounded-lg mb-8"></div>
             <div className="h-8 bg-muted rounded w-1/2 mb-4"></div>
@@ -412,7 +386,7 @@ const ListingDetail = () => {
   if (!listing) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto px-6 py-8 text-center">
+        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Listing not found</h1>
           <Link to={returnPath}>
             <Button>Back</Button>
@@ -424,438 +398,466 @@ const ListingDetail = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <Link to={returnPath}>
-          <Button variant="ghost" className="mb-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </Link>
-
-        {/* Header band (multicolor) */}
-        <div className="mb-6 relative">
-          <div className="rounded-lg flex flex-col md:flex-row items-start md:items-center gap-3 p-4" style={{ background: 'hsl(var(--primary))' }}>
-          <div className="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center mr-0 md:mr-3 flex-shrink-0">
-            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
-            </svg>
-          </div>
-          <div className="text-white flex-1 min-w-0">
-            <h2 className="font-semibold text-lg md:text-xl truncate">{listing.property_name}</h2>
-            <p className="text-sm text-white/90 truncate">{listing.type} • {listing.city}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {listing.is_landlord_listing && (
-              <Badge className="bg-green-500 text-white hover:bg-green-600">
-                <Building2 className="w-3 h-3 mr-1" />
-                Listed by Landlord
-              </Badge>
-            )}
-            {listing.nsfas_accredited && (
-              <Badge className="bg-accent text-accent-foreground">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                NSFAS Accredited
-              </Badge>
-            )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleFavorite}
-              className={`w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 ${isSaved ? 'bg-white/10 text-red-500' : 'text-white/90'}`}
-              aria-pressed={isSaved}
-              title={isSaved ? 'Remove favorite' : 'Save favorite'}
-              disabled={savingFavorite}
-            >
-              <Heart className={`w-4 h-4 ${isSaved ? 'text-red-500' : 'text-white'}`} />
+      <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Back Button */}
+          <Link to={returnPath} className="inline-block mb-6">
+            <Button variant="ghost" className="gap-2 hover:bg-muted">
+              <ArrowLeft className="h-4 w-4" />
+              Back to browse
             </Button>
+          </Link>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={shareListing}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 text-white/90"
-              title="Share listing"
-            >
-              <Share className="w-4 h-4 text-white" />
-            </Button>
+          {/* Header Card */}
+          <Card className="mb-8 border-0 shadow-md">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    {listing.is_landlord_listing && (
+                      <Badge className="bg-green-500 text-white gap-1.5">
+                        <Building2 className="w-3 h-3" />
+                        Listed by Landlord
+                      </Badge>
+                    )}
+                    {listing.nsfas_accredited && (
+                      <Badge className="bg-blue-500 text-white gap-1.5">
+                        <CheckCircle className="w-3 h-3" />
+                        NSFAS Accredited
+                      </Badge>
+                    )}
+                  </div>
+                  <h1 className="text-4xl font-bold mb-3 text-foreground">{listing.property_name}</h1>
+                  <div className="flex items-center gap-1 text-muted-foreground mb-4">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-lg">{listing.address}, {listing.city}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary" className="text-sm">{listing.type}</Badge>
+                    <Badge variant="secondary" className="text-sm">{listing.gender_policy}</Badge>
+                    {listing.rooms_available && (
+                      <Badge variant="secondary" className="text-sm">{listing.rooms_available} rooms available</Badge>
+                    )}
+                  </div>
+                </div>
 
-            <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-                  <Flag className="w-4 h-4 mr-2" />
-                  Report
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Report Listing</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleReportSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="reason">Reason for reporting *</Label>
-                    <Select
-                      value={reportForm.reason}
-                      onValueChange={(value) => setReportForm({ ...reportForm, reason: value })}
-                      required
+                <div className="flex flex-col items-end gap-4">
+                  <div className="text-center bg-accent/10 px-4 py-3 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <Star className="h-5 w-5 text-accent fill-accent" />
+                      <span className="text-2xl font-bold">{(listing.rating || 0).toFixed(1)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Rating</p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={toggleFavorite}
+                      className="rounded-full"
+                      disabled={savingFavorite}
+                      title={isSaved ? 'Remove favorite' : 'Save favorite'}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a reason" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Inaccurate Information">Inaccurate Information</SelectItem>
-                        <SelectItem value="Scam or Fraud">Scam or Fraud</SelectItem>
-                        <SelectItem value="Property No Longer Available">Property No Longer Available</SelectItem>
-                        <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="report-details">Details</Label>
-                    <Textarea
-                      id="report-details"
-                      value={reportForm.details}
-                      onChange={(e) => setReportForm({ ...reportForm, details: e.target.value })}
-                      placeholder="Please provide more information about this report..."
-                      rows={4}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="reporter-name">Your Name (optional)</Label>
-                    <Input
-                      id="reporter-name"
-                      value={reportForm.reporter_name}
-                      onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="reporter-email">Your Email (optional)</Label>
-                    <Input
-                      id="reporter-email"
-                      type="email"
-                      value={reportForm.reporter_email}
-                      onChange={(e) => setReportForm({ ...reportForm, reporter_email: e.target.value })}
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                  <Button type="submit" disabled={reportMutation.isPending}>
-                    {reportMutation.isPending ? "Submitting..." : "Submit Report"}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            <div>
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold mb-2">{listing.property_name}</h1>
-                  <div className="flex items-center gap-4 text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span>{listing.address}, {listing.city}, {listing.province}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 bg-accent/10 px-3 py-2 rounded-lg">
-                  <Star className="w-4 h-4 text-accent" />
-                  <span className="font-bold text-sm">{(listing.rating || 0).toFixed(1)}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                <Badge variant="secondary">{listing.type}</Badge>
-                <Badge variant="secondary">{listing.gender_policy}</Badge>
-                {listing.rooms_available && (
-                  <Badge variant="secondary">{listing.rooms_available} rooms available</Badge>
-                )}
-              </div>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Property Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {listing.description && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Description</h3>
-                    <p className="text-sm text-muted-foreground">{listing.description}</p>
-                  </div>
-                )}
-                
-                <div>
-                  <h3 className="font-semibold mb-2">University</h3>
-                  <p>{listing.university}</p>
-                </div>
-
-                {listing.units && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Units</h3>
-                    <p>{listing.units} units available</p>
-                  </div>
-                )}
-                
-                {listing.amenities && listing.amenities.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Amenities</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {listing.amenities.map((amenity: string) => (
-                        <Badge key={amenity} variant="outline">
-                          {amenity}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {listing.certified_universities && listing.certified_universities.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Certified Universities</h3>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground">
-                      {listing.certified_universities.map((uni: string) => (
-                        <li key={uni}>{uni}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {listing.website && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Website</h3>
-                    <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary underline">{listing.website}</a>
-                  </div>
-                )}
-
-              </CardContent>
-            </Card>
-
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>Photos</span>
-                      {hasMorePhotos && (
-                        <Badge variant="secondary" className="text-xs">
-                          {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
-                        </Badge>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {photos && photos.length > 0 ? (
-                      <>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                          {photos.map((src, i) => (
-                            <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full overflow-hidden rounded-lg shadow-sm">
-                              <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-36 md:h-44 transition-transform duration-200 hover:scale-105" />
-                            </button>
-                          ))}
-                        </div>
-                        {hasMorePhotos && (
-                          <div className="mt-4">
-                            <UpgradePrompt 
-                              type="photos" 
-                              totalCount={totalPhotos} 
-                              compact 
+                      <Heart className={`h-4 w-4 ${isSaved ? 'fill-red-500 text-red-500' : ''}`} />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={shareListing}
+                      className="rounded-full"
+                      title="Share listing"
+                    >
+                      <Share className="h-4 w-4" />
+                    </Button>
+                    <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="icon" className="rounded-full" title="Report listing">
+                          <Flag className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Report Listing</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleReportSubmit} className="space-y-4">
+                          <div>
+                            <Label htmlFor="reason">Reason for reporting *</Label>
+                            <Select
+                              value={reportForm.reason}
+                              onValueChange={(value) => setReportForm({ ...reportForm, reason: value })}
+                              required
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a reason" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Inaccurate Information">Inaccurate Information</SelectItem>
+                                <SelectItem value="Scam or Fraud">Scam or Fraud</SelectItem>
+                                <SelectItem value="Property No Longer Available">Property No Longer Available</SelectItem>
+                                <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="report-details">Details</Label>
+                            <Textarea
+                              id="report-details"
+                              value={reportForm.details}
+                              onChange={(e) => setReportForm({ ...reportForm, details: e.target.value })}
+                              placeholder="Please provide more information about this report..."
+                              rows={4}
                             />
                           </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="h-48 bg-muted rounded-lg flex items-center justify-center text-sm text-muted-foreground">No photos available</div>
-                    )}
-                    {isPaidUser && photos && photos.length > 1 && (
-                      <div className="text-sm text-muted-foreground mt-2">Showing all {photos.length} photos</div>
-                    )}
-                  </CardContent>
-                </Card>
+                          <div>
+                            <Label htmlFor="reporter-name">Your Name (optional)</Label>
+                            <Input
+                              id="reporter-name"
+                              value={reportForm.reporter_name}
+                              onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
+                              placeholder="John Doe"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="reporter-email">Your Email (optional)</Label>
+                            <Input
+                              id="reporter-email"
+                              type="email"
+                              value={reportForm.reporter_email}
+                              onChange={(e) => setReportForm({ ...reportForm, reporter_email: e.target.value })}
+                              placeholder="john@example.com"
+                            />
+                          </div>
+                          <Button type="submit" disabled={reportMutation.isPending}>
+                            {reportMutation.isPending ? "Submitting..." : "Submit Report"}
+                          </Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <span>Map</span>
-                      {!isPaidUser && (
-                        <Lock className="w-4 h-4 text-muted-foreground" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Photos Card */}
+              <Card className="border-0 shadow-md overflow-hidden">
+                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Image className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Gallery</CardTitle>
+                    </div>
+                    {hasMorePhotos && (
+                      <Badge variant="secondary" className="text-xs">
+                        {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {photos && photos.length > 0 ? (
+                    <>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {photos.map((src, i) => (
+                          <button
+                            key={i}
+                            onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }}
+                            className="group relative overflow-hidden rounded-lg aspect-square bg-muted hover:shadow-lg transition-all duration-200"
+                          >
+                            <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                          </button>
+                        ))}
+                      </div>
+                      {hasMorePhotos && (
+                        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                          <UpgradePrompt 
+                            type="photos" 
+                            totalCount={totalPhotos} 
+                            compact 
+                          />
+                        </div>
                       )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {isPaidUser ? (
-                      <>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>{mapType === 'roadmap' ? 'Satellite' : 'Map'}</Button>
-                            <Button size="sm" onClick={() => enterStreetView()}>Enter Street View</Button>
-                          </div>
-                          <div className="text-xs text-muted-foreground">Satellite & Street View available</div>
-                        </div>
-                        <div ref={mapRef} id="gmaps" className="h-64 w-full rounded-md overflow-hidden bg-muted" />
-                      </>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="h-48 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/10" />
-                          <div className="relative z-10 text-center p-4">
-                            <Lock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">Map view is locked</p>
-                          </div>
-                        </div>
-                        <UpgradePrompt type="map" />
+                    </>
+                  ) : (
+                    <div className="h-48 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
+                      <div className="text-center">
+                        <Image className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No photos available</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Details Card */}
+              <Card className="border-0 shadow-md">
+                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                  <CardTitle className="text-lg">About this property</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  {listing.description && (
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
+                      <p className="text-foreground leading-relaxed">{listing.description}</p>
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">University</h3>
+                      <p className="text-foreground font-medium">{listing.university}</p>
+                    </div>
+                    {listing.units && (
+                      <div>
+                        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Available Units</h3>
+                        <p className="text-foreground font-medium">{listing.units} units</p>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                  </div>
 
+                  {listing.amenities && listing.amenities.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">Amenities</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {listing.amenities.map((amenity: string) => (
+                          <Badge key={amenity} variant="outline" className="border-primary/20 bg-primary/5">
+                            {amenity}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-            {/* Ad after photos and map - only for free users */}
-            {!isPaidUser && (
-              <div className="my-6">
-                <Ad density="compact" />
-              </div>
-            )}
+                  {listing.certified_universities && listing.certified_universities.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">Accredited For</h3>
+                      <div className="space-y-1">
+                        {listing.certified_universities.map((uni: string) => (
+                          <div key={uni} className="flex items-center gap-2 text-foreground">
+                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span>{uni}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-            {/* Reviews Section */}
-            <div>
+                  {listing.website && (
+                    <div className="pt-2 border-t">
+                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Website</h3>
+                      <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-sm">
+                        {listing.website}
+                      </a>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Map Card */}
+              <Card className="border-0 shadow-md">
+                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Location</CardTitle>
+                    {!isPaidUser && (
+                      <Badge variant="secondary" className="gap-1.5">
+                        <Lock className="h-3 w-3" />
+                        Premium
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {isPaidUser ? (
+                    <>
+                      <div className="flex gap-2 mb-4">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}
+                        >
+                          {mapType === 'roadmap' ? '🛰️ Satellite' : '🗺️ Map'}
+                        </Button>
+                        <Button size="sm" onClick={() => enterStreetView()}>
+                          Street View
+                        </Button>
+                      </div>
+                      <div ref={mapRef} id="gmaps" className="h-80 w-full rounded-lg overflow-hidden bg-muted" />
+                    </>
+                  ) : (
+                    <div className="h-64 bg-gradient-to-br from-muted to-muted-foreground/10 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <Lock className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+                        <p className="text-muted-foreground mb-4">Unlock map and street view with a premium pass</p>
+                        <UpgradePrompt type="map" compact />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Ad Card */}
+              {!isPaidUser && (
+                <div className="my-6">
+                  <Ad density="compact" />
+                </div>
+              )}
+
+              {/* Reviews Section */}
               <ReviewForm
                 accommodationId={id || ""}
                 onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
               />
-            </div>
 
-            <div>
               <ReviewsList
                 accommodationId={id}
                 onReviewsUpdated={() => setReviewsRefreshTrigger(prev => prev + 1)}
               />
             </div>
 
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6 lg:sticky lg:top-24">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center mb-6">
-                  <p className="text-3xl font-bold text-primary">R{listing.monthly_cost?.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">per month</p>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="w-4 h-4 text-primary" />
-                    <span>{listing.contact_phone}</span>
+            {/* Sidebar */}
+            <div className="space-y-6 lg:sticky lg:top-20">
+              {/* Contact Card */}
+              <Card className="border-0 shadow-md">
+                <CardContent className="p-6">
+                  <div className="mb-6">
+                    <div className="text-4xl font-bold text-primary mb-1">R{listing.monthly_cost?.toLocaleString()}</div>
+                    <p className="text-sm text-muted-foreground">per month</p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="w-4 h-4 text-primary" />
-                    <span className="truncate">{listing.contact_email}</span>
-                  </div>
-                  {listing.contact_person && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="w-4 h-4 text-primary" />
-                      <span>{listing.contact_person}</span>
+
+                  <div className="space-y-3 mb-6 pb-6 border-b">
+                    <div className="flex items-start gap-3">
+                      <Phone className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                        <p className="font-medium text-sm break-all">{listing.contact_phone}</p>
+                      </div>
                     </div>
-                  )}
-                </div>
-
-                <a href={`tel:${listing.contact_phone}`}>
-                  <Button className="w-full mb-2 bg-primary hover:bg-primary-hover">
-                    Call Now
-                  </Button>
-                </a>
-                <a href={`mailto:${listing.contact_email}`}>
-                  <Button variant="outline" className="w-full">
-                    Send Email
-                  </Button>
-                </a>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Google Reviews</span>
-                  {hasMoreReviews && (
-                    <Badge variant="secondary" className="text-xs">
-                      {FREE_TIER_LIMITS.MAX_REVIEWS} of {totalReviews}
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {reviews && reviews.length > 0 ? (
-                  <>
-                    <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                      {reviews.map((r: any, idx: number) => (
-                        <div key={idx} className="p-2 border rounded">
-                          <div className="flex items-start gap-3">
-                            {r.profile_photo_url ? (
-                              <img src={r.profile_photo_url} alt={r.author_name} className="w-10 h-10 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-full bg-muted" />
-                            )}
-
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <div className="font-semibold">{r.author_name}</div>
-                                <div className="text-sm text-muted-foreground">{r.rating} ★</div>
-                              </div>
-                              <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description}</div>
-                              <p className="mt-2 text-sm">{r.text}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="flex items-start gap-3">
+                      <Mail className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                        <p className="font-medium text-sm break-all">{listing.contact_email}</p>
+                      </div>
                     </div>
-                    {hasMoreReviews && (
-                      <div className="mt-4">
-                        <UpgradePrompt 
-                          type="reviews" 
-                          totalCount={totalReviews} 
-                          compact 
-                        />
+                    {listing.contact_person && (
+                      <div className="flex items-start gap-3">
+                        <p className="text-xs text-muted-foreground mb-0.5">Contact Person</p>
+                        <p className="font-medium text-sm">{listing.contact_person}</p>
                       </div>
                     )}
-                  </>
-                ) : (
-                  <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No reviews available</div>
-                )}
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {isPaidUser 
-                    ? `Showing all ${reviews?.length || 0} Google reviews.`
-                    : "Reviews are aggregated from Google Reviews. Upgrade to see all reviews."
-                  }
-                </p>
-              </CardContent>
-            </Card>
-
-            <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-              <DialogContent className="max-w-3xl w-[90vw]">
-                <div className="p-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <Button variant="ghost" onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))} disabled={selectedPhoto === 0}>Prev</Button>
-                    <div className="text-sm">{selectedPhoto + 1} / {photos?.length || 0}</div>
-                    <Button variant="ghost" onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))} disabled={photos && selectedPhoto >= photos.length - 1}>Next</Button>
                   </div>
-                  <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[60vh] object-contain" />
-                </div>
-              </DialogContent>
-            </Dialog>
 
+                  <div className="space-y-2">
+                    <a href={`tel:${listing.contact_phone}`} className="block">
+                      <Button className="w-full bg-primary hover:bg-primary/90">
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call Now
+                      </Button>
+                    </a>
+                    <a href={`mailto:${listing.contact_email}`} className="block">
+                      <Button variant="outline" className="w-full">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Send Email
+                      </Button>
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Reviews Sidebar */}
+              <Card className="border-0 shadow-md">
+                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Reviews</CardTitle>
+                    </div>
+                    {hasMoreReviews && (
+                      <Badge variant="secondary" className="text-xs">
+                        {FREE_TIER_LIMITS.MAX_REVIEWS} of {totalReviews}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {reviews && reviews.length > 0 ? (
+                    <>
+                      <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                        {reviews.map((r: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-muted/30 rounded-lg border border-muted">
+                            <div className="flex gap-2 items-start mb-2">
+                              {r.profile_photo_url ? (
+                                <img src={r.profile_photo_url} alt={r.author_name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-muted flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 justify-between mb-0.5">
+                                  <p className="font-semibold text-sm truncate">{r.author_name}</p>
+                                  <span className="text-xs text-yellow-500 font-medium">{r.rating}★</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground">{r.relative_time_description}</p>
+                              </div>
+                            </div>
+                            <p className="text-sm text-foreground line-clamp-3">{r.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {hasMoreReviews && (
+                        <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                          <UpgradePrompt 
+                            type="reviews" 
+                            totalCount={totalReviews} 
+                            compact 
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="h-40 bg-muted rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <MessageCircle className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                        <p className="text-xs text-muted-foreground">No reviews yet</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
+
+        {/* Photo Dialog */}
+        <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
+          <DialogContent className="max-w-4xl w-[95vw] p-2">
+            <div>
+              <div className="flex items-center justify-between mb-4 px-2">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))} 
+                  disabled={selectedPhoto === 0}
+                >
+                  ← Prev
+                </Button>
+                <p className="text-sm font-medium">{selectedPhoto + 1} / {photos?.length || 0}</p>
+                <Button 
+                  variant="ghost"
+                  onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))} 
+                  disabled={photos && selectedPhoto >= photos.length - 1}
+                >
+                  Next →
+                </Button>
+              </div>
+              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[65vh] object-contain rounded" />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
