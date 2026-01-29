@@ -248,7 +248,7 @@ const AccommodationCard = ({
       state={{ images: (localImages && localImages.length > 0) ? localImages : (imageUrls && imageUrls.length > 0) ? imageUrls : [thumb] }}
       className="block group"
     >
-      <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border-0 h-full flex flex-col">
+      <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border border-primary/20 h-full flex flex-col">
         {/* Image Section with Overlay */}
         <div className="relative w-full h-56 overflow-hidden bg-muted group-hover:brightness-95 transition-all duration-300">
           {localImages && localImages.length > 0 ? (
