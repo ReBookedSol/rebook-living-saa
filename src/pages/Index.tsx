@@ -182,14 +182,18 @@ const Index = () => {
 
 
       {/* Search section extracted from hero to match layout */}
-      <section id="search" className="py-8">
+      <section id="search" className="py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Search Student Accommodation</h2>
-            <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Use our advanced filters to find NSFAS-accredited rooms, compare monthly costs, and discover accommodation near your university.
-            </p>
-            <SearchBar />
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Find Your Home Now</h2>
+              <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+                Use smart filters to search by location, price, amenities, and NSFAS accreditation status
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-white/40 to-white/20 backdrop-blur border border-white/30 rounded-2xl p-6 md:p-8">
+              <SearchBar />
+            </div>
           </div>
         </div>
       </section>
