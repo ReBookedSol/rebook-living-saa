@@ -254,7 +254,7 @@ const Index = () => {
             </div>
           )}
 
-          <div className="text-center mt-8 md:hidden">
+          <div className="text-center mt-6 md:hidden">
             <Link to="/browse">
               <Button variant="outline" className="items-center gap-2 rounded-full">
                 View all listings
