@@ -265,20 +265,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA band using accent gradient */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 text-center" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))', padding: '3rem', borderRadius: '0.75rem' }}>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Want to collaborate or advertise with us?
-          </h2>
-          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            We're open to partnerships and thoughtful collaborations. Get in touch and let's discuss how we can work together.
-          </p>
-          <Link to="/contact">
-            <Button size="lg" variant="secondary" className="text-lg px-8 rounded-full">
-              Contact Us
-            </Button>
-          </Link>
+      {/* CTA band with modern design */}
+      <section className="py-16 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/90 via-primary/80 to-accent/70 px-6 md:px-12 py-12 md:py-16 border border-white/10">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
+            <div className="relative z-10 text-center max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Partner With Us
+              </h2>
+              <p className="text-base md:text-lg text-white/90 mb-8 leading-relaxed">
+                Connect with students looking for accommodation. Let's build something great together.
+              </p>
+              <Link to="/contact">
+                <Button size="lg" className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold">
+                  Get In Touch
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>
