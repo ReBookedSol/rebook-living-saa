@@ -15,6 +15,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Campus from "./pages/Campus";
+import ReBookedCampus from "./pages/ReBookedCampus";
 import LandlordDashboard from "./pages/landlord/Dashboard";
 import AddListing from "./pages/landlord/AddListing";
 import LandlordPayment from "./pages/landlord/Payment";
@@ -80,7 +81,8 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/campus" element={<Campus />} />
-            
+            <Route path="/campus-guide" element={<ReBookedCampus />} />
+
             {/* Payment Result Routes */}
             <Route path="/payment/success" element={<PaymentResult />} />
             <Route path="/payment/pending" element={<PaymentResult />} />
