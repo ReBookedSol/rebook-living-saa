@@ -84,7 +84,14 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
       );
 
       if (!response.ok) {
-        throw new Error("Failed to initialize payment");
+        let errorDetail = "Failed to initialize payment";
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.error || errorDetail;
+        } catch {
+          errorDetail = `Payment initialization failed (${response.status}: ${response.statusText})`;
+        }
+        throw new Error(errorDetail);
       }
 
       const data = await response.json();
