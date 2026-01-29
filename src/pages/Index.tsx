@@ -60,56 +60,54 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-primary/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20" />
 
         <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-          <div className="w-full max-w-4xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="max-w-3xl text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug md:leading-tight text-white">
-                Find Student Accommodation Near Your University
-              </h1>
-            </div>
-              <div className="flex flex-col items-start gap-6">
-                <p className="text-base md:text-lg text-white/90 max-w-md">
-                  Browse verified, NSFAS-accredited student rooms across South Africa. Compare prices, amenities, and locations to find your perfect home.
-                </p>
-                <div className="flex items-center gap-3">
-                  <Link to="/browse">
-                    <Button size="lg" className="rounded-full px-8 bg-white text-primary">
-                      Explore Listings
-                    </Button>
-                  </Link>
-                  <a href="#search" className="text-sm font-medium text-white/90 hover:underline">
-                    Advanced search
-                  </a>
-                </div>
-              </div>
+          <div className="w-full max-w-3xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
+              Your Perfect Student Home Awaits
+            </h1>
+            <p className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed">
+              Discover verified, NSFAS-accredited accommodation near South African universities. Safe, affordable, and perfect for student life.
+            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Link to="/browse">
+                <Button size="lg" className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold">
+                  Explore Listings
+                </Button>
+              </Link>
+              <a href="#search" className="text-base font-medium text-white hover:text-white/80 transition-colors">
+                Advanced search →
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Feature tiles - four up row using brand colors */}
-      <section className="py-12 md:py-16">
+      {/* Feature tiles - modern, minimal design */}
+      <section className="py-12 md:py-16 bg-gradient-to-b from-transparent via-white/30 to-transparent">
         <div className="container mx-auto px-4">
           <h2 className="sr-only">Why Choose ReBooked Living for Student Accommodation</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="rounded-2xl p-6 bg-secondary text-secondary-foreground">
-              <div className="text-2xl font-semibold">Browse</div>
-              <p className="text-sm mt-2 text-muted-foreground">Curated student listings</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">01</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">Browse Listings</div>
+              <p className="text-sm mt-2 text-muted-foreground">Curated student accommodation options</p>
             </div>
-            <div className="rounded-2xl p-6 bg-primary text-primary-foreground">
-              <div className="text-2xl font-semibold">NSFAS</div>
-              <p className="text-sm mt-2 opacity-90">Accredited options</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">02</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">NSFAS Accredited</div>
+              <p className="text-sm mt-2 text-muted-foreground">Verified options across SA</p>
             </div>
-            <div className="rounded-2xl p-6 bg-accent text-accent-foreground">
-              <div className="text-2xl font-semibold">Guides</div>
-              <p className="text-sm mt-2 opacity-90">Housing & budgeting</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">03</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">Smart Filters</div>
+              <p className="text-sm mt-2 text-muted-foreground">Find what matters to you</p>
             </div>
-            <div className="rounded-2xl p-6 bg-muted">
-              <div className="text-2xl font-semibold">Partners</div>
-              <p className="text-sm mt-2 text-muted-foreground">Work with Rebooked Living</p>
+            <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">04</div>
+              <div className="text-lg font-semibold mt-3 text-foreground">Easy Connection</div>
+              <p className="text-sm mt-2 text-muted-foreground">Connect directly with landlords</p>
             </div>
           </div>
         </div>
@@ -117,10 +115,12 @@ const Index = () => {
 
 
       {/* Accredited Universities carousel (continuous auto-scrolling marquee) */}
-      <section className="py-8">
+      <section className="py-12 md:py-16 bg-gradient-to-b from-white/30 to-white/10">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Accredited Accommodations From</h2>
-          <p className="text-sm text-muted-foreground mb-4">Explore accommodations accredited for these universities.</p>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Accredited Across South Africa</h2>
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">We partner with verified accommodations for top universities nationwide</p>
+          </div>
 
           <style>{`
             @keyframes marquee {
@@ -169,9 +169,9 @@ const Index = () => {
                 const track = items.concat(items);
 
                 return track.map((u, idx) => (
-                  <div key={`${u.name}-${idx}`} className="marquee-item flex flex-col items-center p-4 bg-card rounded-lg">
-                    <img src={u.logo} alt={u.name} className="w-full h-20 object-contain mb-2" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
-                    <div className="text-sm text-center">{u.name}</div>
+                  <div key={`${u.name}-${idx}`} className="marquee-item flex flex-col items-center justify-center p-5 bg-white/60 backdrop-blur rounded-xl border border-white/30 hover:border-primary/20 transition-all">
+                    <img src={u.logo} alt={u.name} className="w-full h-16 object-contain" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }} />
+                    <div className="text-xs text-center text-muted-foreground mt-3 line-clamp-2">{u.name}</div>
                   </div>
                 ));
               })()}
@@ -182,14 +182,18 @@ const Index = () => {
 
 
       {/* Search section extracted from hero to match layout */}
-      <section id="search" className="py-8">
+      <section id="search" className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Search Student Accommodation</h2>
-            <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Use our advanced filters to find NSFAS-accredited rooms, compare monthly costs, and discover accommodation near your university.
-            </p>
-            <SearchBar />
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">Find Your Home Now</h2>
+              <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+                Use smart filters to search by location, price, amenities, and NSFAS accreditation status
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-white/40 to-white/20 backdrop-blur border border-white/30 rounded-2xl p-6 md:p-8">
+              <SearchBar />
+            </div>
           </div>
         </div>
       </section>
@@ -197,25 +201,25 @@ const Index = () => {
       {/* Section header similar to "Workflow Templates" */}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 items-start">
+          <div className="grid md:grid-cols-2 gap-8 items-start mb-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Featured Student Rooms</h2>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Top Rated Rooms</h2>
             </div>
-            <p className="text-sm md:text-base text-muted-foreground max-w-prose">
-              Browse top-rated, NSFAS-approved accommodation near major universities. Safe, affordable options from R1500/month.
+            <p className="text-base text-muted-foreground max-w-prose leading-relaxed">
+              Discover verified, NSFAS-accredited student accommodation near major universities across South Africa. Affordable and safe.
             </p>
           </div>
         </div>
       </section>
 
       {/* Catalog-style grid for featured listings */}
-      <section className="pb-16">
+      <section className="pb-8">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-muted-foreground">Top rated NSFAS-accredited student accommodation</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <span className="text-base text-muted-foreground font-medium">Curated selections across South Africa</span>
             <Link to="/browse">
-              <Button variant="outline" className="items-center gap-2 rounded-full">
-                Browse All Listings
+              <Button variant="outline" className="items-center gap-2 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
+                View All
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -250,7 +254,7 @@ const Index = () => {
             </div>
           )}
 
-          <div className="text-center mt-8 md:hidden">
+          <div className="text-center mt-6 md:hidden">
             <Link to="/browse">
               <Button variant="outline" className="items-center gap-2 rounded-full">
                 View all listings
@@ -261,20 +265,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA band using accent gradient */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 text-center" style={{ background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))', padding: '3rem', borderRadius: '0.75rem' }}>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Want to collaborate or advertise with us?
-          </h2>
-          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            We're open to partnerships and thoughtful collaborations. Get in touch and let's discuss how we can work together.
-          </p>
-          <Link to="/contact">
-            <Button size="lg" variant="secondary" className="text-lg px-8 rounded-full">
-              Contact Us
-            </Button>
-          </Link>
+      {/* CTA with pricing offer */}
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl bg-white/80 backdrop-blur border border-white/40 px-6 md:px-12 py-12 md:py-16">
+              <div className="text-center">
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 leading-tight">
+                  Why waste <span className="text-primary">R1,500</span> when <span className="text-accent">R19</span> unlocks everything?
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+                  Get verified information, direct landlord access, and insider tips to find your perfect student home. Better safe than sorry.
+                </p>
+                <Link to="/browse">
+                  <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-semibold">
+                    Start Searching Now
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>

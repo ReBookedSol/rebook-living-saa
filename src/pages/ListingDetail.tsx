@@ -547,16 +547,26 @@ const ListingDetail = () => {
               {/* Photos Card */}
               <Card className="border-0 shadow-md overflow-hidden">
                 <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
                       <Image className="h-5 w-5 text-primary" />
                       <CardTitle className="text-lg">Gallery</CardTitle>
                     </div>
-                    {hasMorePhotos && (
-                      <Badge variant="secondary" className="text-xs">
-                        {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-3 ml-auto">
+                      {hasMorePhotos && (
+                        <UpgradePrompt
+                          type="photos"
+                          totalCount={totalPhotos}
+                          compact
+                          buttonText="Unlock More"
+                        />
+                      )}
+                      {hasMorePhotos && (
+                        <Badge variant="secondary" className="text-xs">
+                          {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -574,14 +584,70 @@ const ListingDetail = () => {
                           </button>
                         ))}
                       </div>
+
+                      {/* Blurred Locked Photos for Free Users */}
                       {hasMorePhotos && (
-                        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                          <UpgradePrompt 
-                            type="photos" 
-                            totalCount={totalPhotos} 
-                            compact 
-                          />
-                        </div>
+                        <>
+                          <div className="mt-8 pt-6 border-t">
+                            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">More photos locked</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                              {(() => {
+                                // Generate 10 different stock house images
+                                const lockedPhotoPlaceholders = [
+                                  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1570129477492-45ac003001a5?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1512917774080-9b41b6b27dab?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1600210491213-fd0ad51ff13d?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1552696921-15cfb49a72fd?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1505245550726-23ee32266a20?w=500&h=500&fit=crop',
+                                  'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=500&h=500&fit=crop',
+                                ];
+
+                                // Calculate how many locked photos to show
+                                const lockedCount = Math.min(4, totalPhotos - FREE_TIER_LIMITS.MAX_PHOTOS);
+                                // Use a seeded random for consistency per listing
+                                const seed = id?.charCodeAt(0) || 0;
+
+                                return Array.from({ length: lockedCount }).map((_, i) => {
+                                  const photoIndex = (seed + i) % lockedPhotoPlaceholders.length;
+                                  const photoUrl = lockedPhotoPlaceholders[photoIndex];
+
+                                  return (
+                                    <div
+                                      key={`locked-${i}`}
+                                      className="relative overflow-hidden rounded-lg aspect-square bg-muted group cursor-not-allowed"
+                                    >
+                                      <img
+                                        loading="lazy"
+                                        src={photoUrl}
+                                        alt={`Locked photo ${i+1}`}
+                                        className="w-full h-full object-cover blur-2xl"
+                                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.svg'; }}
+                                      />
+                                      <div className="absolute inset-0 bg-black/40" />
+                                      <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="text-center">
+                                          <Lock className="h-6 w-6 text-white mx-auto mb-2" />
+                                          <p className="text-xs font-medium text-white">Locked</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          </div>
+                          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                            <UpgradePrompt
+                              type="photos"
+                              totalCount={totalPhotos}
+                              compact
+                            />
+                          </div>
+                        </>
                       )}
                     </>
                   ) : (

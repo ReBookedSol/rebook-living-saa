@@ -13,6 +13,7 @@ interface UpgradePromptProps {
   totalCount?: number;
   className?: string;
   compact?: boolean;
+  buttonText?: string;
 }
 
 const promptContent = {
@@ -48,12 +49,13 @@ const promptContent = {
   },
 };
 
-export const UpgradePrompt = ({ type, totalCount, className = "", compact = false }: UpgradePromptProps) => {
+export const UpgradePrompt = ({ type, totalCount, className = "", compact = false, buttonText }: UpgradePromptProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<"weekly" | "monthly" | null>(null);
   const navigate = useNavigate();
   const content = promptContent[type];
   const Icon = content.icon;
+  const ctaText = buttonText || content.cta;
 
   const handleUpgrade = async (paymentType: "weekly" | "monthly") => {
     setIsLoading(paymentType);
@@ -120,7 +122,7 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         <DialogTrigger asChild>
           <Button variant="outline" size="sm" className={`gap-2 ${className}`}>
             <Lock className="w-3 h-3" />
-            {content.cta}
+            {ctaText}
             {totalCount && <Badge variant="secondary" className="ml-1">{totalCount}+</Badge>}
           </Button>
         </DialogTrigger>
