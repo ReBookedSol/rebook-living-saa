@@ -81,7 +81,8 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/campus" element={<Campus />} />
-            
+            <Route path="/campus-guide" element={<ReBookedCampus />} />
+
             {/* Payment Result Routes */}
             <Route path="/payment/success" element={<PaymentResult />} />
             <Route path="/payment/pending" element={<PaymentResult />} />
