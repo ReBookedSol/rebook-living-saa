@@ -328,11 +328,13 @@ const Checkout = () => {
                   </div>
 
                   {/* Payment Button */}
-                  <UpgradePrompt
-                    type="general"
-                    compact={true}
-                    className="w-full justify-center mt-6"
-                  />
+                  <Button
+                    onClick={handlePayment}
+                    disabled={isProcessing}
+                    className="w-full bg-primary text-white hover:bg-primary/90 mt-6"
+                  >
+                    {isProcessing ? "Processing..." : "Proceed to Payment"}
+                  </Button>
 
                   {/* Security Badge */}
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-4 border-t">
