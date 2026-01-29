@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowLeft, AlertCircle } from "lucide-react";
+import { Check, ArrowLeft, AlertCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 const Checkout = () => {
