@@ -67,25 +67,16 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         return;
       }
 
-      // Fetch BobPay URL from backend
-      const configResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/config/bobpay-url`,
-        {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${session.access_token}`,
-          },
-        }
-      );
-
-      if (!configResponse.ok) {
-        throw new Error("Failed to load payment configuration");
+      // Construct BobPay function URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error("Supabase configuration is missing");
       }
 
-      const { bobpay_url } = await configResponse.json();
+      const bobpayFunctionUrl = `${supabaseUrl}/functions/v1/bobpay`;
 
       const response = await fetch(
-        `${bobpay_url}/initialize`,
+        `${bobpayFunctionUrl}/initialize`,
         {
           method: "POST",
           headers: {
