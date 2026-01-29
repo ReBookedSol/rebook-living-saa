@@ -46,6 +46,8 @@ const AccommodationCard = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { accessLevel } = useAccessControl();
+  const isPaidUser = accessLevel === "paid";
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [animating, setAnimating] = useState(false);
