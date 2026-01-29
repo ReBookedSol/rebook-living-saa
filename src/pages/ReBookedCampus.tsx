@@ -285,40 +285,38 @@ const ReBookedCampus = () => {
         <div className="container mx-auto px-4 py-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Modern Tab Navigation */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 p-1">
-              <div className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
-                <TabsTrigger
-                  value="overview"
-                  className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                >
-                  <Info className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Overview</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="apps"
-                  className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                >
-                  <Calculator className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">APS</span>
-                  <span className="sm:hidden">APS</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="bursaries"
-                  className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                >
-                  <Coins className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Bursaries</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="universities"
-                  className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                >
-                  <Building2 className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Universities</span>
-                  <span className="sm:hidden">Unis</span>
-                </TabsTrigger>
-              </div>
-            </div>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 bg-white rounded-xl shadow-sm border border-gray-200 mb-8 p-1 h-auto">
+              <TabsTrigger
+                value="overview"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Info className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="apps"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Calculator className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">APS</span>
+                <span className="sm:hidden">APS</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="bursaries"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Coins className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Bursaries</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="universities"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+              >
+                <Building2 className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Universities</span>
+                <span className="sm:hidden">Unis</span>
+              </TabsTrigger>
+            </TabsList>
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-8">
