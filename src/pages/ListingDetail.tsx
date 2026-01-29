@@ -11,18 +11,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2 } from "lucide-react";
+import { MapPin, Star, Home, Users, Wifi, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
 import { ReviewForm } from "@/components/ReviewForm";
 import { ReviewsList } from "@/components/ReviewsList";
+import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const ListingDetail = () => {
   const { id } = useParams();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const returnPath = params.get('return') || '/browse';
+  
+  // Access control
+  const { accessLevel, hasActivePayment, isLoading: accessLoading } = useAccessControl();
+  const isPaidUser = accessLevel === "paid";
 
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -233,19 +239,29 @@ const ListingDetail = () => {
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const passedImages = (location.state as any)?.images as string[] | undefined;
 
-  const [reviews, setReviews] = useState<any[] | null>(null);
-  const [photos, setPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages : null);
+  const [allReviews, setAllReviews] = useState<any[] | null>(null);
+  const [allPhotos, setAllPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages : null);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
+
+  // Apply access control limits to photos and reviews
+  const photos = isPaidUser ? allPhotos : allPhotos?.slice(0, FREE_TIER_LIMITS.MAX_PHOTOS);
+  const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
+  const totalPhotos = allPhotos?.length || 0;
+  const totalReviews = allReviews?.length || 0;
+  const hasMorePhotos = !isPaidUser && totalPhotos > FREE_TIER_LIMITS.MAX_PHOTOS;
+  const hasMoreReviews = !isPaidUser && totalReviews > FREE_TIER_LIMITS.MAX_REVIEWS;
 
 
 
 
 
   useEffect(() => {
+    // Only load map for paid users to save API costs
+    if (!isPaidUser) return;
+    
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    const photoApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
     if (!apiKey) return;
 
     const existing = document.getElementById('google-maps-script');
@@ -306,12 +322,12 @@ const ListingDetail = () => {
                 // Simply request place details and use the photos directly; do NOT persist photos or reviews.
                 service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
                   if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
-                    if (detail.reviews) setReviews(detail.reviews.slice(0, 5));
+                    if (detail.reviews) setAllReviews(detail.reviews.slice(0, 10));
                     // Always fetch all photos from Google Places API for comprehensive gallery
                     if (detail.photos && detail.photos.length > 0) {
                       try {
                         const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                        setPhotos(urls);
+                        setAllPhotos(urls);
                       } catch (err) {
                         console.warn('Failed to extract photo urls', err);
                       }
@@ -331,7 +347,7 @@ const ListingDetail = () => {
 
     // cleanup not strictly necessary
     return () => {};
-  }, [listing]);
+  }, [listing, isPaidUser]);
 
   // Sync map type when changed
   useEffect(() => {
@@ -625,21 +641,41 @@ const ListingDetail = () => {
               <div>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Photos</CardTitle>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Photos</span>
+                      {hasMorePhotos && (
+                        <Badge variant="secondary" className="text-xs">
+                          {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
+                        </Badge>
+                      )}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {photos && photos.length > 0 ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {photos.map((src, i) => (
-                          <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full overflow-hidden rounded-lg shadow-sm">
-                            <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-36 md:h-44 transition-transform duration-200 hover:scale-105" />
-                          </button>
-                        ))}
-                      </div>
+                      <>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {photos.map((src, i) => (
+                            <button key={i} onClick={() => { setSelectedPhoto(i); setPhotoDialogOpen(true); }} className="w-full overflow-hidden rounded-lg shadow-sm">
+                              <img loading="lazy" src={src} alt={`Photo ${i+1}`} className="object-cover w-full h-36 md:h-44 transition-transform duration-200 hover:scale-105" />
+                            </button>
+                          ))}
+                        </div>
+                        {hasMorePhotos && (
+                          <div className="mt-4">
+                            <UpgradePrompt 
+                              type="photos" 
+                              totalCount={totalPhotos} 
+                              compact 
+                            />
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <div className="h-48 bg-muted rounded-lg flex items-center justify-center text-sm text-muted-foreground">No photos available</div>
                     )}
-                    {photos && photos.length > 1 && <div className="text-sm text-muted-foreground mt-2">Showing {photos.length} photos</div>}
+                    {isPaidUser && photos && photos.length > 1 && (
+                      <div className="text-sm text-muted-foreground mt-2">Showing all {photos.length} photos</div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -647,29 +683,49 @@ const ListingDetail = () => {
               <div>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Map</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <span>Map</span>
+                      {!isPaidUser && (
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>{mapType === 'roadmap' ? 'Satellite' : 'Map'}</Button>
-                        <Button size="sm" onClick={() => enterStreetView()}>Enter Street View</Button>
+                    {isPaidUser ? (
+                      <>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}>{mapType === 'roadmap' ? 'Satellite' : 'Map'}</Button>
+                            <Button size="sm" onClick={() => enterStreetView()}>Enter Street View</Button>
+                          </div>
+                          <div className="text-xs text-muted-foreground">Satellite & Street View available</div>
+                        </div>
+                        <div ref={mapRef} id="gmaps" className="h-64 w-full rounded-md overflow-hidden bg-muted" />
+                      </>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="h-48 bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/10" />
+                          <div className="relative z-10 text-center p-4">
+                            <Lock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Map view is locked</p>
+                          </div>
+                        </div>
+                        <UpgradePrompt type="map" />
                       </div>
-                      <div className="text-xs text-muted-foreground">Satellite & Street View available</div>
-                    </div>
-
-                    <div ref={mapRef} id="gmaps" className="h-64 w-full rounded-md overflow-hidden bg-muted" />
+                    )}
                   </CardContent>
                 </Card>
               </div>
             </div>
 
 
-            {/* Ad after photos and map */}
-            <div className="my-6">
-              <Ad density="compact" />
-            </div>
+            {/* Ad after photos and map - only for free users */}
+            {!isPaidUser && (
+              <div className="my-6">
+                <Ad density="compact" />
+              </div>
+            )}
 
             {/* Reviews Section */}
             <div>
@@ -729,36 +785,59 @@ const ListingDetail = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Google Reviews</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Google Reviews</span>
+                  {hasMoreReviews && (
+                    <Badge variant="secondary" className="text-xs">
+                      {FREE_TIER_LIMITS.MAX_REVIEWS} of {totalReviews}
+                    </Badge>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {reviews && reviews.length > 0 ? (
-                  <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                    {reviews.slice(0,3).map((r: any, idx: number) => (
-                      <div key={idx} className="p-2 border rounded">
-                        <div className="flex items-start gap-3">
-                          {r.profile_photo_url ? (
-                            <img src={r.profile_photo_url} alt={r.author_name} className="w-10 h-10 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-muted" />
-                          )}
+                  <>
+                    <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                      {reviews.map((r: any, idx: number) => (
+                        <div key={idx} className="p-2 border rounded">
+                          <div className="flex items-start gap-3">
+                            {r.profile_photo_url ? (
+                              <img src={r.profile_photo_url} alt={r.author_name} className="w-10 h-10 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-muted" />
+                            )}
 
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <div className="font-semibold">{r.author_name}</div>
-                              <div className="text-sm text-muted-foreground">{r.rating} ★</div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <div className="font-semibold">{r.author_name}</div>
+                                <div className="text-sm text-muted-foreground">{r.rating} ★</div>
+                              </div>
+                              <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description}</div>
+                              <p className="mt-2 text-sm">{r.text}</p>
                             </div>
-                            <div className="text-sm text-muted-foreground mt-1">{r.relative_time_description}</div>
-                            <p className="mt-2 text-sm">{r.text}</p>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                    {hasMoreReviews && (
+                      <div className="mt-4">
+                        <UpgradePrompt 
+                          type="reviews" 
+                          totalCount={totalReviews} 
+                          compact 
+                        />
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 ) : (
                   <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">No reviews available</div>
                 )}
-                <p className="mt-3 text-xs text-muted-foreground">Reviews are aggregated from Google Reviews. When connected, ratings and excerpts will appear here.</p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {isPaidUser 
+                    ? `Showing all ${reviews?.length || 0} Google reviews.`
+                    : "Reviews are aggregated from Google Reviews. Upgrade to see all reviews."
+                  }
+                </p>
               </CardContent>
             </Card>
 

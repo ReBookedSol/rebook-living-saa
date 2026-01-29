@@ -7,12 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, ShieldCheck } from "lucide-react";
+import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, ShieldCheck, Sparkles, Crown } from "lucide-react";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const SA_UNIVERSITIES = [
   "University of Cape Town",
@@ -52,7 +55,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [savedPage, setSavedPage] = useState(1);
   const SAVED_PER_PAGE = 5;
-
+  
+  // Access control status
+  const { accessLevel, hasActivePayment, paymentType, expiresAt, isLoading: accessLoading } = useAccessControl();
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -275,6 +280,38 @@ const Profile = () => {
                 <span className="sm:hidden">Logout</span>
               </Button>
             </div>
+          </div>
+        </Card>
+
+        {/* Subscription Status Card */}
+        <Card className="w-full p-3 sm:p-4 mb-4 rounded-2xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${hasActivePayment ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                {hasActivePayment ? <Crown className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm sm:text-base">
+                    {hasActivePayment ? "Premium Access" : "Free Account"}
+                  </h3>
+                  {hasActivePayment && (
+                    <Badge className="bg-primary text-primary-foreground capitalize">
+                      {paymentType}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {hasActivePayment && expiresAt
+                    ? `Expires ${new Date(expiresAt).toLocaleDateString("en-ZA", { month: "short", day: "numeric", year: "numeric" })}`
+                    : "Upgrade for unlimited photos, reviews & map access"}
+                </p>
+              </div>
+            </div>
+            
+            {!hasActivePayment && (
+              <UpgradePrompt type="general" compact className="w-full sm:w-auto" />
+            )}
           </div>
         </Card>
 
