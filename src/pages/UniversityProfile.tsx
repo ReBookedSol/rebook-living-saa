@@ -713,7 +713,7 @@ const UniversityProfile: React.FC = () => {
                                               </div>
                                             )}
                                           </div>
-                                          <div className="flex items-center gap-2 shrink-0">
+                                          <div className="flex flex-col items-center gap-2 shrink-0">
                                             <Badge
                                               className={
                                                 fromAPS && userAPS > 0
@@ -733,6 +733,22 @@ const UniversityProfile: React.FC = () => {
                                                 </span>
                                               )}
                                             </Badge>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-book-200 text-book-600 hover:bg-book-50 w-full sm:w-auto"
+                                              onClick={() => {
+                                                const programWithFacultyAndSubjects: Degree = {
+                                                  ...degree,
+                                                  faculty: faculty.name,
+                                                };
+                                                setSelectedProgram(programWithFacultyAndSubjects);
+                                                setIsProgramModalOpen(true);
+                                              }}
+                                            >
+                                              <Eye className="h-4 w-4 mr-1" />
+                                              View More
+                                            </Button>
                                           </div>
                                         </div>
                                       </div>
