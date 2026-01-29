@@ -35,6 +35,7 @@ import {
   Filter,
 } from "lucide-react";
 import Layout from "@/components/Layout";
+import ProgramDetailModal from "@/components/ProgramDetailModal";
 
 interface Faculty {
   name: string;
@@ -48,6 +49,9 @@ interface Degree {
   duration?: string;
   apsRequirement: number;
   universitySpecificAPS?: Record<string, number>;
+  faculty?: string;
+  careerProspects?: string[];
+  subjects?: Array<{ name: string; isRequired?: boolean; level?: number }>;
 }
 
 interface University {
@@ -90,6 +94,8 @@ const UniversityProfile: React.FC = () => {
   const [expandedFaculties, setExpandedFaculties] = useState<Set<number>>(
     new Set()
   );
+  const [selectedProgram, setSelectedProgram] = useState<Degree | null>(null);
+  const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
 
   // Get APS from URL parameters
   const fromAPS = searchParams.get("fromAPS") === "true";
@@ -322,9 +328,16 @@ const UniversityProfile: React.FC = () => {
                   <Button
                     size="lg"
                     className="bg-book-600 hover:bg-book-700 text-white w-full sm:w-auto"
+                    asChild
                   >
-                    <BookOpen className="h-5 w-5 mr-2" />
-                    Find Textbooks
+                    <a
+                      href="https://www.rebookedsolutions.co.za/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <BookOpen className="h-5 w-5 mr-2" />
+                      Find Textbooks
+                    </a>
                   </Button>
 
                   <Button
@@ -703,7 +716,7 @@ const UniversityProfile: React.FC = () => {
                                               </div>
                                             )}
                                           </div>
-                                          <div className="flex items-center gap-2 shrink-0">
+                                          <div className="flex flex-col items-center gap-2 shrink-0">
                                             <Badge
                                               className={
                                                 fromAPS && userAPS > 0
@@ -723,6 +736,22 @@ const UniversityProfile: React.FC = () => {
                                                 </span>
                                               )}
                                             </Badge>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-book-200 text-book-600 hover:bg-book-50 w-full sm:w-auto"
+                                              onClick={() => {
+                                                const programWithFacultyAndSubjects: Degree = {
+                                                  ...degree,
+                                                  faculty: faculty.name,
+                                                };
+                                                setSelectedProgram(programWithFacultyAndSubjects);
+                                                setIsProgramModalOpen(true);
+                                              }}
+                                            >
+                                              <Eye className="h-4 w-4 mr-1" />
+                                              View More
+                                            </Button>
                                           </div>
                                         </div>
                                       </div>
@@ -916,6 +945,13 @@ const UniversityProfile: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
+
+        <ProgramDetailModal
+          program={selectedProgram}
+          university={university}
+          isOpen={isProgramModalOpen}
+          onClose={() => setIsProgramModalOpen(false)}
+        />
       </div>
     </Layout>
   );
