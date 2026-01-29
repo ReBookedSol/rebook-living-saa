@@ -91,6 +91,8 @@ const UniversityProfile: React.FC = () => {
   const [expandedFaculties, setExpandedFaculties] = useState<Set<number>>(
     new Set()
   );
+  const [selectedProgram, setSelectedProgram] = useState<Degree | null>(null);
+  const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
 
   // Get APS from URL parameters
   const fromAPS = searchParams.get("fromAPS") === "true";
