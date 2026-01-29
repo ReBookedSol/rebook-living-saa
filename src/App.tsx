@@ -9,6 +9,7 @@ import Ad from "./pages/Ad";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
+import Checkout from "./pages/Checkout";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Dashboard from "./pages/admin/Dashboard";
