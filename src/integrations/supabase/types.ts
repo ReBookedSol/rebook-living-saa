@@ -967,6 +967,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_payments: {
+        Row: {
+          access_expires_at: string
+          amount: number
+          bobpay_payment_id: string | null
+          bobpay_uuid: string | null
+          created_at: string
+          custom_payment_id: string | null
+          id: string
+          paid_at: string
+          payment_method: string | null
+          payment_provider: string
+          payment_type: string
+          raw_payload: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_expires_at: string
+          amount: number
+          bobpay_payment_id?: string | null
+          bobpay_uuid?: string | null
+          created_at?: string
+          custom_payment_id?: string | null
+          id?: string
+          paid_at?: string
+          payment_method?: string | null
+          payment_provider?: string
+          payment_type: string
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_expires_at?: string
+          amount?: number
+          bobpay_payment_id?: string | null
+          bobpay_uuid?: string | null
+          created_at?: string
+          custom_payment_id?: string | null
+          id?: string
+          paid_at?: string
+          payment_method?: string | null
+          payment_provider?: string
+          payment_type?: string
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1022,10 +1076,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_accommodation_photos: {
+        Args: { p_accommodation_id: string; p_user_id?: string }
+        Returns: string[]
+      }
+      get_user_access_level: { Args: { p_user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      has_paid_access: { Args: { p_user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
