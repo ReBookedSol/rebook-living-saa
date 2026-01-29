@@ -271,10 +271,10 @@ const Index = () => {
           <div className="max-w-4xl mx-auto">
             <div className="rounded-2xl bg-white/80 backdrop-blur border border-white/40 px-6 md:px-12 py-12 md:py-16">
               <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 leading-tight">
                   Why waste <span className="text-primary">R1,500</span> when <span className="text-accent">R19</span> unlocks everything?
                 </h2>
-                <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
                   Get verified information, direct landlord access, and insider tips to find your perfect student home. Better safe than sorry.
                 </p>
                 <Link to="/browse">
