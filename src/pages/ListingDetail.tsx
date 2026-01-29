@@ -759,8 +759,8 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Unified Reviews Section - Mobile on main, sidebar on desktop */}
-              <Card className="border-0 shadow-md lg:col-span-full">
+              {/* Unified Reviews Section */}
+              <Card className="border-0 shadow-md">
                 <CardHeader className="border-b bg-muted/30 px-6 py-4">
                   <CardTitle className="text-lg">Reviews & Feedback</CardTitle>
                 </CardHeader>
