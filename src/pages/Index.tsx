@@ -174,7 +174,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 items-start mb-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Top Rated Rooms</h2>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Featured Listings</h2>
             </div>
             <p className="text-base text-muted-foreground max-w-prose leading-relaxed">
               Discover verified, NSFAS-accredited student accommodation near major universities across South Africa. Affordable and safe.
