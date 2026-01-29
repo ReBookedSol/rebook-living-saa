@@ -265,24 +265,24 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA band with modern design */}
-      <section className="py-16 md:py-20">
+      {/* CTA with pricing offer */}
+      <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/90 via-primary/80 to-accent/70 px-6 md:px-12 py-12 md:py-16 border border-white/10">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-            <div className="relative z-10 text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Partner With Us
-              </h2>
-              <p className="text-base md:text-lg text-white/90 mb-8 leading-relaxed">
-                Connect with students looking for accommodation. Let's build something great together.
-              </p>
-              <Link to="/contact">
-                <Button size="lg" className="rounded-full px-8 bg-white text-primary hover:bg-white/90 font-semibold">
-                  Get In Touch
-                </Button>
-              </Link>
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl bg-white/80 backdrop-blur border border-white/40 px-6 md:px-12 py-12 md:py-16">
+              <div className="text-center">
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
+                  Why waste <span className="text-primary">R1,500</span> when <span className="text-accent">R19</span> unlocks everything?
+                </h2>
+                <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+                  Get verified information, direct landlord access, and insider tips to find your perfect student home. Better safe than sorry.
+                </p>
+                <Link to="/browse">
+                  <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-semibold">
+                    Start Searching Now
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
