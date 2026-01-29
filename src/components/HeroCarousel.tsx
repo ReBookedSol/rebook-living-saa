@@ -59,15 +59,6 @@ export const HeroCarousel = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) =>
-      prev === 0 ? carouselSlides.length - 1 : prev - 1
-    );
-  };
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
