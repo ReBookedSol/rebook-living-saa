@@ -199,14 +199,14 @@ const Index = () => {
       </section>
 
       {/* Section header similar to "Workflow Templates" */}
-      <section className="py-12 md:py-16">
+      <section className="py-16 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 items-start">
+          <div className="grid md:grid-cols-2 gap-8 items-start mb-2">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Featured Student Rooms</h2>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Top Rated Rooms</h2>
             </div>
-            <p className="text-sm md:text-base text-muted-foreground max-w-prose">
-              Browse top-rated, NSFAS-approved accommodation near major universities. Safe, affordable options from R1500/month.
+            <p className="text-base text-muted-foreground max-w-prose leading-relaxed">
+              Discover verified, NSFAS-accredited student accommodation near major universities across South Africa. Affordable and safe.
             </p>
           </div>
         </div>
