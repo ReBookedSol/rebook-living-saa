@@ -215,11 +215,11 @@ const Index = () => {
       {/* Catalog-style grid for featured listings */}
       <section className="pb-16">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-muted-foreground">Top rated NSFAS-accredited student accommodation</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <span className="text-base text-muted-foreground font-medium">Curated selections across South Africa</span>
             <Link to="/browse">
-              <Button variant="outline" className="items-center gap-2 rounded-full">
-                Browse All Listings
+              <Button variant="outline" className="items-center gap-2 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
+                View All
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
