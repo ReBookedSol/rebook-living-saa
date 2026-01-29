@@ -67,15 +67,25 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         return;
       }
 
-      // Get BobPay function URL from environment
-      const bobpayFunctionUrl = import.meta.env.VITE_BOBPAY_FUNCTION_URL;
+      // Fetch BobPay URL from backend
+      const configResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/config/bobpay-url`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${session.access_token}`,
+          },
+        }
+      );
 
-      if (!bobpayFunctionUrl) {
-        throw new Error("Payment service is not configured. Please contact support.");
+      if (!configResponse.ok) {
+        throw new Error("Failed to load payment configuration");
       }
 
+      const { bobpay_url } = await configResponse.json();
+
       const response = await fetch(
-        `${bobpayFunctionUrl}/initialize`,
+        `${bobpay_url}/initialize`,
         {
           method: "POST",
           headers: {
