@@ -46,11 +46,67 @@ const Checkout = () => {
     checkSession();
   }, [navigate, passType]);
 
+  const handlePayment = async () => {
+    try {
+      setIsProcessing(true);
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.user) {
+        toast.error("Please sign in to proceed");
+        navigate("/auth");
+        return;
+      }
+
+      // Construct BobPay function URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error("Supabase configuration is missing");
+      }
+
+      const bobpayFunctionUrl = `${supabaseUrl}/functions/v1/bobpay`;
+
+      const response = await fetch(
+        `${bobpayFunctionUrl}/initialize`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            payment_type: passType,
+            email: session.user.email,
+            user_id: session.user.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        let errorDetail = "Failed to initialize payment";
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.error || errorDetail;
+        } catch {
+          errorDetail = `Payment initialization failed (${response.status}: ${response.statusText})`;
+        }
+        throw new Error(errorDetail);
+      }
+
+      const data = await response.json();
+      window.location.href = data.payment_url;
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to start payment. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const applyPromoCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setPromoError("");
     setDiscount(0);
-    
+
     if (!promoCode.trim()) {
       setPromoError("Please enter a promo code");
       return;
