@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, ArrowLeft, AlertCircle } from "lucide-react";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 
 const Checkout = () => {
@@ -18,6 +17,7 @@ const Checkout = () => {
   const [promoError, setPromoError] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const passType = searchParams.get("type") as "weekly" | "monthly" || "weekly";
   
