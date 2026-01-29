@@ -86,7 +86,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   Browse
                 </Link>
                 <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4">
-                  Campus Guide
+                  ReBooked Campus
                 </Link>
                 <Link to="/about" className="text-base font-medium hover:underline underline-offset-4">
                   About
