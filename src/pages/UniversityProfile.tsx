@@ -762,9 +762,6 @@ const UniversityProfile: React.FC = () => {
                                     </div>
                                   )}
                               </div>
-                              <div className="pt-6">
-                                <GoogleAd />
-                              </div>
                             </CardContent>
                           )}
                         </Card>
