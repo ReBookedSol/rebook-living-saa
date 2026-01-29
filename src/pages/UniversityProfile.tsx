@@ -325,9 +325,16 @@ const UniversityProfile: React.FC = () => {
                   <Button
                     size="lg"
                     className="bg-book-600 hover:bg-book-700 text-white w-full sm:w-auto"
+                    asChild
                   >
-                    <BookOpen className="h-5 w-5 mr-2" />
-                    Find Textbooks
+                    <a
+                      href="https://www.rebookedsolutions.co.za/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <BookOpen className="h-5 w-5 mr-2" />
+                      Find Textbooks
+                    </a>
                   </Button>
 
                   <Button
