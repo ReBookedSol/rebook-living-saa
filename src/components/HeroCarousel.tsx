@@ -82,7 +82,7 @@ export const HeroCarousel = () => {
 
       {/* Carousel content */}
       <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-        <div className="w-full max-w-3xl transition-opacity duration-700" key={currentSlide}>
+        <div className="w-full max-w-3xl" style={{ animation: "fadeIn 0.8s ease-in-out" }}>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-white mb-6">
             {currentSlideData.headline}
           </h1>
