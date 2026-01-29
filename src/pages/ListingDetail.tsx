@@ -547,16 +547,26 @@ const ListingDetail = () => {
               {/* Photos Card */}
               <Card className="border-0 shadow-md overflow-hidden">
                 <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
                       <Image className="h-5 w-5 text-primary" />
                       <CardTitle className="text-lg">Gallery</CardTitle>
                     </div>
-                    {hasMorePhotos && (
-                      <Badge variant="secondary" className="text-xs">
-                        {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-3 ml-auto">
+                      {hasMorePhotos && (
+                        <UpgradePrompt
+                          type="photos"
+                          totalCount={totalPhotos}
+                          compact
+                          buttonText="Unlock More"
+                        />
+                      )}
+                      {hasMorePhotos && (
+                        <Badge variant="secondary" className="text-xs">
+                          {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
