@@ -245,7 +245,7 @@ const AccommodationCard = ({
     };
 
     loadGoogleMapsAndFetchPhoto();
-  }, [id, address]);
+  }, [id, address, isPaidUser]);
 
 
   // Apply image limit for free users
