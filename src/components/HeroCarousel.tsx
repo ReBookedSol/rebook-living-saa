@@ -11,8 +11,8 @@ interface CarouselSlide {
 
 const carouselSlides: CarouselSlide[] = [
   {
-    image: "https://images.pexels.com/photos/4907201/pexels-photo-4907201.jpeg",
-    alt: "Modern student accommodation with spacious living areas and study rooms",
+    image: "https://images.pexels.com/photos/26571207/pexels-photo-26571207.jpeg",
+    alt: "Spacious modern living room with kitchen area overlooking city balcony view",
     headline: "Your Perfect Student Home Awaits",
     description:
       "Discover verified, NSFAS-accredited accommodation near South African universities. Safe, affordable, and perfect for student life.",
