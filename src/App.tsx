@@ -2,6 +2,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Maintenance from "./pages/Maintenance";
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import ListingDetail from "./pages/ListingDetail";
@@ -67,7 +68,7 @@ const App = () => {
         <BrowserRouter>
           <AuthRedirector />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Maintenance />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/listing/:id" element={<ListingDetail />} />
             <Route path="/ad" element={<Ad />} />
