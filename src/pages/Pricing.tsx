@@ -82,7 +82,7 @@ const Pricing = () => {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Monthly Pass</CardTitle>
+                    <CardTitle className="text-3xl font-bold text-primary">Monthly Pass</CardTitle>
                     <CardDescription className="text-base mt-1">Best for regular access</CardDescription>
                   </div>
                 </div>
