@@ -15,8 +15,8 @@ const Pricing = () => {
   ];
 
   const freeFeatures = [
-    { name: "Accommodation photos hidden", included: false },
-    { name: "Limited search features", included: false },
+    { name: "Preview photos hidden on browse cards", included: false },
+    { name: "Maximum 3 photos in listing gallery", included: true },
     { name: "Basic listing information only", included: false },
     { name: "No interactive map view", included: false },
     { name: "No satellite imagery", included: false },
