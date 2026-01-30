@@ -1,9 +1,9 @@
-import Layout from "@/components/Layout";
+import MaintenanceLayout from "@/components/MaintenanceLayout";
 import { Mail, Wrench } from 'lucide-react';
 
 const Maintenance = () => {
   return (
-    <Layout>
+    <MaintenanceLayout>
       <div className="container mx-auto px-4 py-16 flex-1 flex items-center justify-center">
         <div className="text-center max-w-2xl w-full">
           {/* Icon */}
@@ -78,7 +78,7 @@ const Maintenance = () => {
           </p>
         </div>
       </div>
-    </Layout>
+    </MaintenanceLayout>
   );
 };
 
