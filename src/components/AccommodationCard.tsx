@@ -156,7 +156,10 @@ const AccommodationCard = ({
   };
 
   // Fetch Google Places photo if no local images (with caching by address prefix)
+  // Only fetch for paid users - free users won't see preview photos on browse anyway
   useEffect(() => {
+    if (!isPaidUser) return; // Skip fetching for free users
+
     if (localImages && localImages.length > 0) return; // Already have images
 
     // Check cache first
