@@ -6,7 +6,8 @@ import Layout from "@/components/Layout";
 
 const Pricing = () => {
   const premiumFeatures = [
-    "View all accommodation photos",
+    "See preview photos on browse cards",
+    "Unlimited photos in property galleries",
     "Complete property information",
     "Interactive map view",
     "Satellite imagery",
