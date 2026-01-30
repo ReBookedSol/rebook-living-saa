@@ -76,12 +76,12 @@ const APSCalculator = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-book-50 to-book-100 border border-book-200 rounded-xl p-6">
-        <h3 className="font-semibold text-book-900 mb-2 flex items-center gap-2">
-          <Calculator className="w-5 h-5" />
+      <div className="bg-gradient-to-r from-slate-50 to-gray-100 border border-slate-200 rounded-xl p-6">
+        <h3 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
+          <Calculator className="w-5 h-5 text-primary" />
           APS Score Calculator
         </h3>
-        <p className="text-sm text-book-700">
+        <p className="text-sm text-slate-600">
           Enter your matric marks to calculate your APS score and discover which programs you qualify for.
         </p>
       </div>
@@ -103,17 +103,17 @@ const APSCalculator = () => {
         ))}
       </div>
 
-      <Button onClick={calculateAPS} size="lg" className="w-full bg-book-600 hover:bg-book-700 text-white">
+      <Button onClick={calculateAPS} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
         <Calculator className="h-5 w-5 mr-2" />
         Calculate APS Score
       </Button>
 
       {apsScore !== null && (
-        <Card className="border-2 border-book-300 bg-gradient-to-br from-book-50 to-white shadow-lg">
+        <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-white shadow-lg">
           <CardContent className="pt-6">
-            <p className="text-sm text-book-600 font-medium mb-2">Your APS Score</p>
-            <p className="text-5xl font-bold text-book-600 mb-3">{apsScore}</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-primary font-medium mb-2">Your APS Score</p>
+            <p className="text-5xl font-bold text-primary mb-3">{apsScore}</p>
+            <p className="text-sm text-muted-foreground">
               Use this score to check program requirements at universities. Click on a university to see which programs you qualify for.
             </p>
           </CardContent>
@@ -127,15 +127,15 @@ const APSCalculator = () => {
 const UniversityCard = ({ university }: { university: any }) => {
   return (
     <Link to={`/university/${university.id}`}>
-      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border-0 shadow-md h-full">
+      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border border-slate-200 shadow-sm h-full bg-white">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 flex-1">
-              <div className="w-12 h-12 bg-gradient-to-br from-book-500 to-book-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center flex-shrink-0">
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-base group-hover:text-book-600 transition-colors line-clamp-2">
+                <CardTitle className="text-base group-hover:text-primary transition-colors line-clamp-2">
                   {university.name}
                 </CardTitle>
                 <CardDescription className="flex items-center gap-1 mt-1 text-xs">
@@ -144,34 +144,34 @@ const UniversityCard = ({ university }: { university: any }) => {
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="secondary" className="flex-shrink-0 text-xs">
+            <Badge variant="secondary" className="flex-shrink-0 text-xs bg-slate-100 text-slate-700">
               {university.type || "University"}
             </Badge>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600 line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2">
             {university.overview || "Learn more about this university"}
           </p>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
             {university.student_population && (
-              <div className="p-2 bg-book-50 rounded-lg">
+              <div className="p-2 bg-slate-50 rounded-lg">
                 <div className="flex items-center gap-1 mb-1">
-                  <Users className="w-3 h-3 text-book-600" />
-                  <span className="font-semibold text-book-900">{(university.student_population / 1000).toFixed(0)}K</span>
+                  <Users className="w-3 h-3 text-slate-600" />
+                  <span className="font-semibold text-slate-900">{(university.student_population / 1000).toFixed(0)}K</span>
                 </div>
-                <span className="text-gray-600">Students</span>
+                <span className="text-muted-foreground">Students</span>
               </div>
             )}
             {university.established_year && (
-              <div className="p-2 bg-book-50 rounded-lg">
+              <div className="p-2 bg-slate-50 rounded-lg">
                 <div className="flex items-center gap-1 mb-1">
-                  <Calendar className="w-3 h-3 text-book-600" />
-                  <span className="font-semibold text-book-900">{university.established_year}</span>
+                  <Calendar className="w-3 h-3 text-slate-600" />
+                  <span className="font-semibold text-slate-900">{university.established_year}</span>
                 </div>
-                <span className="text-gray-600">Founded</span>
+                <span className="text-muted-foreground">Founded</span>
               </div>
             )}
           </div>
@@ -182,7 +182,7 @@ const UniversityCard = ({ university }: { university: any }) => {
                 href={university.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-book-600 hover:text-book-700 font-medium text-sm"
+                className="inline-flex items-center gap-1 text-primary hover:text-primary/80 font-medium text-sm"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Globe className="w-4 h-4" />
@@ -231,14 +231,14 @@ const ReBookedCampus = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-book-50">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-gray-50">
         {/* Modern Hero Section */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-book-50 via-white to-gray-50">
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div
               className={
-                'absolute inset-0 bg-[url(\'data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2344ab83" fill-opacity="0.3"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\')]'
+                'absolute inset-0 bg-[url(\'data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23334155" fill-opacity="0.3"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\')]'
               }
             />
           </div>
@@ -247,15 +247,15 @@ const ReBookedCampus = () => {
             <div className="text-center space-y-8">
               {/* Main Heading */}
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 bg-book-100 text-book-800 px-4 py-2 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
                   <GraduationCap className="w-4 h-4" />
                   Complete University Guide
                 </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   ReBooked
-                  <span className="block text-book-600">Campus Guide</span>
+                  <span className="block text-primary">Campus Guide</span>
                 </h1>
-                <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                   Your all-in-one platform for exploring South African universities, calculating your APS score, discovering bursaries, and finding the perfect student accommodation.
                 </p>
               </div>
@@ -264,7 +264,7 @@ const ReBookedCampus = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button
                   onClick={() => setActiveTab("apps")}
-                  className="bg-book-600 hover:bg-book-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   <Calculator className="w-4 h-4 mr-2" />
                   Calculate APS Score
@@ -272,7 +272,7 @@ const ReBookedCampus = () => {
                 <Button
                   onClick={() => setActiveTab("bursaries")}
                   variant="outline"
-                  className="border-book-300 text-book-700 hover:bg-book-50 px-6 py-3 rounded-lg font-semibold transition-colors"
+                  className="border-slate-300 text-foreground hover:bg-slate-50 px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   <DollarSign className="w-4 h-4 mr-2" />
                   Find Bursaries
@@ -286,17 +286,17 @@ const ReBookedCampus = () => {
         <div className="container mx-auto px-4 py-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Modern Tab Navigation */}
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 bg-white rounded-xl shadow-sm border border-gray-200 mb-8 p-1 h-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 bg-white rounded-xl shadow-sm border border-slate-200 mb-8 p-1 h-auto">
               <TabsTrigger
                 value="overview"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
               >
                 <Info className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
               <TabsTrigger
                 value="apps"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
               >
                 <Calculator className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">APS</span>
@@ -304,14 +304,14 @@ const ReBookedCampus = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="bursaries"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
               >
                 <Coins className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
                 value="universities"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
               >
                 <Building2 className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Universities</span>
@@ -323,76 +323,76 @@ const ReBookedCampus = () => {
             <TabsContent value="overview" className="space-y-8">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to ReBooked Campus</h2>
-                  <p className="text-gray-600">Your complete guide to South African higher education</p>
+                  <h2 className="text-3xl font-bold text-foreground mb-2">Welcome to ReBooked Campus</h2>
+                  <p className="text-muted-foreground">Your complete guide to South African higher education</p>
                 </div>
 
-                <Card className="border-0 shadow-lg bg-white">
-                  <CardHeader className="bg-gradient-to-r from-book-50 to-white">
+                <Card className="border border-slate-200 shadow-lg bg-white">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
                     <CardTitle className="flex items-center gap-2">
-                      <Info className="h-5 w-5 text-book-600" />
+                      <Info className="h-5 w-5 text-primary" />
                       About ReBooked Campus
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-4">
-                    <p className="text-gray-700">
+                    <p className="text-muted-foreground">
                       ReBooked Campus is your one-stop platform for everything related to student life in South Africa. Whether you're exploring universities, calculating your APS score, searching for bursaries, or looking for student accommodation, we've got you covered.
                     </p>
-                    <p className="text-gray-700">
+                    <p className="text-muted-foreground">
                       Our mission is to make it easier for students to access verified, NSFAS-accredited accommodation while providing essential information about applying to and studying at South African institutions.
                     </p>
                   </CardContent>
                 </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 shadow-md" onClick={() => setActiveTab("universities")}>
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-slate-200 shadow-sm" onClick={() => setActiveTab("universities")}>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Building2 className="w-5 h-5 text-book-600" />
+                        <Building2 className="w-5 h-5 text-primary" />
                         Explore Universities
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600 mb-4">
+                      <p className="text-sm text-muted-foreground mb-4">
                         Browse profiles of all South African universities with detailed information about programs, facilities, and admissions.
                       </p>
-                      <Button variant="outline" size="sm" className="w-full border-book-200 text-book-600 hover:bg-book-50">
+                      <Button variant="outline" size="sm" className="w-full">
                         View Universities
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
                   </Card>
 
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 shadow-md" onClick={() => setActiveTab("apps")}>
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-slate-200 shadow-sm" onClick={() => setActiveTab("apps")}>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Calculator className="w-5 h-5 text-book-600" />
+                        <Calculator className="w-5 h-5 text-primary" />
                         Calculate APS
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600 mb-4">
+                      <p className="text-sm text-muted-foreground mb-4">
                         Enter your matric marks to calculate your APS score and see which programs you qualify for.
                       </p>
-                      <Button variant="outline" size="sm" className="w-full border-book-200 text-book-600 hover:bg-book-50">
+                      <Button variant="outline" size="sm" className="w-full">
                         Calculate Now
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
                   </Card>
 
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 shadow-md" onClick={() => setActiveTab("bursaries")}>
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-slate-200 shadow-sm" onClick={() => setActiveTab("bursaries")}>
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-book-600" />
+                        <DollarSign className="w-5 h-5 text-primary" />
                         Find Funding
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600 mb-4">
+                      <p className="text-sm text-muted-foreground mb-4">
                         Discover bursaries, scholarships, and financial aid programs available to South African students.
                       </p>
-                      <Button variant="outline" size="sm" className="w-full border-book-200 text-book-600 hover:bg-book-50">
+                      <Button variant="outline" size="sm" className="w-full">
                         Explore Bursaries
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
@@ -405,8 +405,8 @@ const ReBookedCampus = () => {
             {/* Apps & APS Tab */}
             <TabsContent value="apps" className="space-y-6">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">APS Score Calculator</h2>
-                <p className="text-gray-600">Calculate your Admission Point Score from your matric marks</p>
+                <h2 className="text-3xl font-bold text-foreground mb-2">APS Score Calculator</h2>
+                <p className="text-muted-foreground">Calculate your Admission Point Score from your matric marks</p>
               </div>
               <div className="max-w-2xl mx-auto">
                 <APSCalculator />
@@ -416,14 +416,14 @@ const ReBookedCampus = () => {
             {/* Bursaries Tab */}
             <TabsContent value="bursaries" className="space-y-6">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Student Bursaries & Financial Aid</h2>
-                <p className="text-gray-600">Discover funding opportunities for your studies</p>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Student Bursaries & Financial Aid</h2>
+                <p className="text-muted-foreground">Discover funding opportunities for your studies</p>
               </div>
 
-              <Card className="border-0 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-book-50 to-white">
+              <Card className="border border-slate-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
                   <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-book-600" />
+                    <DollarSign className="w-5 h-5 text-primary" />
                     Available Funding Options
                   </CardTitle>
                 </CardHeader>
@@ -469,12 +469,12 @@ const ReBookedCampus = () => {
                     ].map((item, idx) => {
                       const Icon = item.icon;
                       return (
-                        <div key={idx} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div key={idx} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                           <div className="flex items-start gap-3">
-                            <Icon className="w-5 h-5 text-book-600 mt-1 flex-shrink-0" />
+                            <Icon className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                             <div>
-                              <h5 className="font-semibold text-gray-900 mb-1">{item.title}</h5>
-                              <p className="text-sm text-gray-600">{item.description}</p>
+                              <h5 className="font-semibold text-foreground mb-1">{item.title}</h5>
+                              <p className="text-sm text-muted-foreground">{item.description}</p>
                             </div>
                           </div>
                         </div>
@@ -494,13 +494,13 @@ const ReBookedCampus = () => {
             {/* Universities Tab */}
             <TabsContent value="universities" className="space-y-6">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">South African Universities</h2>
-                <p className="text-gray-600">Explore all universities and their programs</p>
+                <h2 className="text-3xl font-bold text-foreground mb-2">South African Universities</h2>
+                <p className="text-muted-foreground">Explore all universities and their programs</p>
               </div>
 
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                 <Input
                   placeholder="Search universities by name or location..."
                   value={searchQuery}
@@ -529,7 +529,7 @@ const ReBookedCampus = () => {
                     <div className="text-center pt-8">
                       <Button
                         onClick={() => setShowAllUniversities(!showAllUniversities)}
-                        className="bg-book-600 hover:bg-book-700 text-white px-8 py-3"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3"
                         size="lg"
                       >
                         {showAllUniversities ? (

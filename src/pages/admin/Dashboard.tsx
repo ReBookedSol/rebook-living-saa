@@ -15,6 +15,7 @@ import ReviewsTab from "@/components/admin/ReviewsTab";
 import UniversityMergeTab from "@/components/admin/UniversityMergeTab";
 import LandlordSubmissionsTab from "@/components/admin/LandlordSubmissionsTab";
 import PaymentsTab from "@/components/admin/PaymentsTab";
+import ProgramsTab from "@/components/admin/ProgramsTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -136,13 +137,14 @@ Example Output:
         </div>
 
         <Tabs defaultValue="stats" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-12 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-13 gap-1 h-auto p-1">
             <TabsTrigger value="stats" className="text-xs sm:text-sm">Stats</TabsTrigger>
             <TabsTrigger value="accommodations" className="text-xs sm:text-sm">Listings</TabsTrigger>
             <TabsTrigger value="landlords" className="text-xs sm:text-sm">Landlords</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
             <TabsTrigger value="add" className="text-xs sm:text-sm">Add</TabsTrigger>
             <TabsTrigger value="university" className="text-xs sm:text-sm">Universities</TabsTrigger>
+            <TabsTrigger value="programs" className="text-xs sm:text-sm">Programs</TabsTrigger>
             <TabsTrigger value="bursaries" className="text-xs sm:text-sm">Bursaries</TabsTrigger>
             <TabsTrigger value="ai-settings" className="text-xs sm:text-sm">AI Settings</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs sm:text-sm">Messages</TabsTrigger>
@@ -173,6 +175,10 @@ Example Output:
 
           <TabsContent value="university">
             <UniversityMergeTab />
+          </TabsContent>
+
+          <TabsContent value="programs">
+            <ProgramsTab />
           </TabsContent>
 
           <TabsContent value="messages">
