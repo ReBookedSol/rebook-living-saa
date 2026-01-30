@@ -257,18 +257,29 @@ const AccommodationCard = ({
       <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border border-primary/20 h-full flex flex-col">
         {/* Image Section with Overlay */}
         <div className="relative w-full h-56 overflow-hidden bg-muted group-hover:brightness-95 transition-all duration-300">
-          {localImages && localImages.length > 0 ? (
-            <img
-              loading="lazy"
-              decoding="async"
-              referrerPolicy="no-referrer"
-              src={localImages[0]}
-              alt={propertyName}
-              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-              onError={handleImgError(0)}
-            />
+          {isPaidUser ? (
+            <>
+              {localImages && localImages.length > 0 ? (
+                <img
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                  src={localImages[0]}
+                  alt={propertyName}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                  onError={handleImgError(0)}
+                />
+              ) : (
+                <img loading="lazy" decoding="async" referrerPolicy="no-referrer" src={thumb} alt={propertyName} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" onError={handleImgError()} />
+              )}
+            </>
           ) : (
-            <img loading="lazy" decoding="async" referrerPolicy="no-referrer" src={thumb} alt={propertyName} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" onError={handleImgError()} />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
+              <div className="text-center">
+                <Lock className="w-10 h-10 text-primary mx-auto mb-2 opacity-60" />
+                <p className="text-xs font-semibold text-muted-foreground">Upgrade to see photos</p>
+              </div>
+            </div>
           )}
 
           {/* Badges Overlay */}
