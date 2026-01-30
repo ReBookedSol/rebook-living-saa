@@ -177,9 +177,9 @@ const UniversityProfile: React.FC = () => {
     if (!userAPS || userAPS === 0) return true;
     const uniId = university?.id || "";
     let requiredAPS =
-      program.universitySpecificAPS && uniId
+      program.universitySpecificAPS && uniId && program.universitySpecificAPS[uniId]
         ? program.universitySpecificAPS[uniId]
-        : undefined ?? program.apsRequirement;
+        : program.apsRequirement;
     requiredAPS = normalizeRequirement(requiredAPS);
     return userAPS >= requiredAPS;
   };

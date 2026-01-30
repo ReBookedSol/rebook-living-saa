@@ -723,6 +723,63 @@ export type Database = {
         }
         Relationships: []
       }
+      programs: {
+        Row: {
+          application_details: Json | null
+          aps_requirement: number | null
+          career_prospects: Json | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          employment_rate: number | null
+          faculty_name: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          salary_range: string | null
+          skills_developed: Json | null
+          subjects: Json | null
+          university_id: string
+          updated_at: string
+        }
+        Insert: {
+          application_details?: Json | null
+          aps_requirement?: number | null
+          career_prospects?: Json | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          employment_rate?: number | null
+          faculty_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          salary_range?: string | null
+          skills_developed?: Json | null
+          subjects?: Json | null
+          university_id: string
+          updated_at?: string
+        }
+        Update: {
+          application_details?: Json | null
+          aps_requirement?: number | null
+          career_prospects?: Json | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          employment_rate?: number | null
+          faculty_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          salary_range?: string | null
+          skills_developed?: Json | null
+          subjects?: Json | null
+          university_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           accommodation_id: string | null
