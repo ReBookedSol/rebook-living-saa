@@ -68,32 +68,8 @@ const App = () => {
         <BrowserRouter>
           <AuthRedirector />
           <Routes>
-            <Route path="/" element={<Maintenance />} />
-            <Route path="/browse" element={<Browse />} />
-            <Route path="/listing/:id" element={<ListingDetail />} />
-            <Route path="/ad" element={<Ad />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/campus" element={<Campus />} />
-            
-            {/* Payment Result Routes */}
-            <Route path="/payment/success" element={<PaymentResult />} />
-            <Route path="/payment/pending" element={<PaymentResult />} />
-            <Route path="/payment/cancel" element={<PaymentResult />} />
-            
-            {/* Landlord Routes */}
-            <Route path="/landlord" element={<ProtectedLandlordRoute><LandlordDashboard /></ProtectedLandlordRoute>} />
-            <Route path="/landlord/add-listing" element={<ProtectedLandlordRoute><AddListing /></ProtectedLandlordRoute>} />
-            <Route path="/landlord/pay/:listingId" element={<ProtectedLandlordRoute><LandlordPayment /></ProtectedLandlordRoute>} />
-            
-            {/* Admin Routes */}
-            <Route path="/panel" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            {/* Maintenance Mode - All routes redirect to maintenance page */}
+            <Route path="*" element={<Maintenance />} />
           </Routes>
           {AnalyticsComponent ? <AnalyticsComponent /> : null}
         </BrowserRouter>
