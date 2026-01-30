@@ -6,20 +6,22 @@ import Layout from "@/components/Layout";
 
 const Pricing = () => {
   const premiumFeatures = [
-    "All accommodation photos",
-    "All Google reviews",
+    "See preview photos on browse cards",
+    "Unlimited photos in property galleries",
+    "Complete property information",
     "Interactive map view",
     "Satellite imagery",
+    "Advanced search filters",
     "No advertisements",
   ];
 
   const freeFeatures = [
-    { name: "Limited to 3 photos per listing", included: false },
-    { name: "Only 5 most recent reviews visible", included: false },
-    { name: "Basic map view only", included: false },
+    { name: "Preview photos hidden on browse cards", included: false },
+    { name: "Maximum 3 photos in listing gallery", included: true },
+    { name: "Basic listing information only", included: false },
+    { name: "No interactive map view", included: false },
     { name: "No satellite imagery", included: false },
     { name: "Advertisements displayed", included: false },
-    { name: "Limited search filters", included: false },
   ];
 
   return (
@@ -30,7 +32,7 @@ const Pricing = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight mb-4">Simple, Transparent Pricing</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Get unlimited access to all photos, reviews, and premium features with a ReBooked Premium Pass
+              Unlock full property galleries and premium features with a ReBooked Premium Pass. View all accommodation photos in listings and access more features.
             </p>
           </div>
 
@@ -71,6 +73,40 @@ const Pricing = () => {
               </CardContent>
             </Card>
 
+            {/* Monthly Pass - Featured */}
+            <Card className="relative overflow-hidden border-2 border-primary shadow-xl hover:shadow-2xl transition-all transform md:scale-105">
+              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-bold">Best Value</Badge>
+              </div>
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-3xl font-bold text-primary">Monthly Pass</CardTitle>
+                    <CardDescription className="text-base mt-1">Best for regular access</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-4">
+                  <div className="text-5xl font-bold text-primary">R59</div>
+                  <p className="text-sm text-muted-foreground mt-2">one-time payment • 30 days access</p>
+                  <p className="text-xs text-primary font-semibold mt-3">3x longer than Weekly Pass</p>
+                </div>
+
+                <div className="space-y-3">
+                  {premiumFeatures.map((feature) => (
+                    <div key={feature} className="flex items-center gap-3">
+                      <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span className="text-sm font-medium">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <UpgradePrompt type="general" compact={true} className="w-full justify-center" />
+              </CardContent>
+            </Card>
+
             {/* Weekly Pass */}
             <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -85,38 +121,6 @@ const Pricing = () => {
                 <div>
                   <div className="text-4xl font-bold">R19</div>
                   <p className="text-sm text-muted-foreground">one-time payment • 7 days access</p>
-                </div>
-
-                <div className="space-y-3">
-                  {premiumFeatures.map((feature) => (
-                    <div key={feature} className="flex items-center gap-3">
-                      <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <UpgradePrompt type="general" compact={true} className="w-full justify-center" />
-              </CardContent>
-            </Card>
-
-            {/* Monthly Pass */}
-            <Card className="relative overflow-hidden border-primary/50 bg-primary/5 hover:shadow-lg transition-shadow">
-              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
-                <Badge className="bg-green-500 rounded-full">Best Value</Badge>
-              </div>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">Monthly Pass</CardTitle>
-                    <CardDescription>Best for regular access</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="text-4xl font-bold">R59</div>
-                  <p className="text-sm text-muted-foreground">one-time payment • 30 days access</p>
                 </div>
 
                 <div className="space-y-3">
