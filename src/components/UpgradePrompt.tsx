@@ -13,6 +13,7 @@ interface UpgradePromptProps {
   totalCount?: number;
   className?: string;
   compact?: boolean;
+  buttonText?: string;
 }
 
 const promptContent = {
@@ -48,27 +49,36 @@ const promptContent = {
   },
 };
 
-export const UpgradePrompt = ({ type, totalCount, className = "", compact = false }: UpgradePromptProps) => {
+export const UpgradePrompt = ({ type, totalCount, className = "", compact = false, buttonText }: UpgradePromptProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<"weekly" | "monthly" | null>(null);
   const navigate = useNavigate();
   const content = promptContent[type];
   const Icon = content.icon;
+  const ctaText = buttonText || content.cta;
 
   const handleUpgrade = async (paymentType: "weekly" | "monthly") => {
     setIsLoading(paymentType);
-    
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session?.user) {
         toast.error("Please sign in to upgrade");
         navigate("/auth");
         return;
       }
 
+      // Construct BobPay function URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error("Supabase configuration is missing");
+      }
+
+      const bobpayFunctionUrl = `${supabaseUrl}/functions/v1/bobpay`;
+
       const response = await fetch(
-        `https://gzihagvdpdjcoyjpvyvs.supabase.co/functions/v1/bobpay/initialize`,
+        `${bobpayFunctionUrl}/initialize`,
         {
           method: "POST",
           headers: {
@@ -84,7 +94,14 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
       );
 
       if (!response.ok) {
-        throw new Error("Failed to initialize payment");
+        let errorDetail = "Failed to initialize payment";
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.error || errorDetail;
+        } catch {
+          errorDetail = `Payment initialization failed (${response.status}: ${response.statusText})`;
+        }
+        throw new Error(errorDetail);
       }
 
       const data = await response.json();
@@ -105,7 +122,7 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         <DialogTrigger asChild>
           <Button variant="outline" size="sm" className={`gap-2 ${className}`}>
             <Lock className="w-3 h-3" />
-            {content.cta}
+            {ctaText}
             {totalCount && <Badge variant="secondary" className="ml-1">{totalCount}+</Badge>}
           </Button>
         </DialogTrigger>
@@ -203,7 +220,7 @@ const UpgradeDialog = ({ isLoading, onUpgrade, type, totalCount }: UpgradeDialog
                 <p className="text-sm text-muted-foreground">7 days of premium access</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">R20</p>
+                <p className="text-2xl font-bold">R19</p>
                 <p className="text-xs text-muted-foreground">one-time</p>
               </div>
             </CardContent>
@@ -222,7 +239,7 @@ const UpgradeDialog = ({ isLoading, onUpgrade, type, totalCount }: UpgradeDialog
                 <p className="text-sm text-muted-foreground">30 days of premium access</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">R60</p>
+                <p className="text-2xl font-bold">R59</p>
                 <p className="text-xs text-muted-foreground">one-time</p>
               </div>
             </CardContent>
