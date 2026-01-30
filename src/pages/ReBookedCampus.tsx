@@ -24,6 +24,7 @@ import {
   TrendingUp,
   DollarSign,
   ChevronDown,
+  ChevronUp,
   ExternalLink,
 } from "lucide-react";
 import { Link } from "react-router-dom";
