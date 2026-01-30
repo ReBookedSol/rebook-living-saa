@@ -14,12 +14,12 @@ const Pricing = () => {
   ];
 
   const freeFeatures = [
-    { name: "Limited to 3 photos per listing", included: false },
-    { name: "Only 5 most recent reviews visible", included: false },
-    { name: "Basic map view only", included: false },
+    { name: "Accommodation photos hidden", included: false },
+    { name: "Limited search features", included: false },
+    { name: "Basic listing information only", included: false },
+    { name: "No interactive map view", included: false },
     { name: "No satellite imagery", included: false },
     { name: "Advertisements displayed", included: false },
-    { name: "Limited search filters", included: false },
   ];
 
   return (
