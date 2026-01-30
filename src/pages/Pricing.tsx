@@ -6,10 +6,11 @@ import Layout from "@/components/Layout";
 
 const Pricing = () => {
   const premiumFeatures = [
-    "All accommodation photos",
-    "All Google reviews",
+    "View all accommodation photos",
+    "Complete property information",
     "Interactive map view",
     "Satellite imagery",
+    "Advanced search filters",
     "No advertisements",
   ];
 
