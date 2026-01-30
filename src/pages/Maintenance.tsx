@@ -37,7 +37,7 @@ const Maintenance = () => {
 
             <div className="flex justify-center gap-4 flex-wrap">
               <a
-                href="https://www.instagram.com/rebookd.living/"
+                href="https://www.instagram.com/rebooked.living/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
@@ -48,7 +48,7 @@ const Maintenance = () => {
                 Instagram
               </a>
               <a
-                href="https://facebook.com/rebookedliving"
+                href="https://www.facebook.com/profile.php?id=61585625007986"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
@@ -65,11 +65,11 @@ const Maintenance = () => {
           <div className="bg-accent/10 border border-accent rounded-lg p-6 mb-8">
             <p className="text-muted-foreground mb-3">Have questions? Contact us:</p>
             <a
-              href="mailto:support@rebookedliving.com"
+              href="mailto:info@rebookedsolutions.co.za"
               className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
             >
               <Mail size={20} />
-              support@rebookedliving.com
+              info@rebookedsolutions.co.za
             </a>
           </div>
 
