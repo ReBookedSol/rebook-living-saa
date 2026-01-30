@@ -126,9 +126,12 @@ async function handleInitialize(req: Request, supabase: any) {
     throw new Error("BobPay credentials not configured");
   }
 
-  // Get the origin for callback URLs
-  const origin = req.headers.get("origin") || "https://gzihagvdpdjcoyjpvyvs.supabase.co";
-  const baseUrl = origin.includes("localhost") ? origin : "https://id-preview--cc657c9d-b252-47df-bc38-2acfb954546c.lovable.app";
+  // Use the callback base URL from secrets - this is the most reliable approach
+  const callbackBaseUrl = Deno.env.get("BOBPAY_CALLBACK_BASE_URL");
+  if (!callbackBaseUrl) {
+    throw new Error("BOBPAY_CALLBACK_BASE_URL not configured");
+  }
+  const baseUrl = callbackBaseUrl;
 
   // Create payment link with BobPay
   const paymentResponse = await fetch(`${BOBPAY_API_URL}/payments/intents/link`, {
