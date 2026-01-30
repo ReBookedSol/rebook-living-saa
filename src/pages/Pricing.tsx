@@ -31,7 +31,7 @@ const Pricing = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tight mb-4">Simple, Transparent Pricing</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Unlock property photos and access premium features with a ReBooked Premium Pass. View all accommodation images, reviews, and more.
+              Unlock full property galleries and premium features with a ReBooked Premium Pass. View all accommodation photos in listings and access more features.
             </p>
           </div>
 
