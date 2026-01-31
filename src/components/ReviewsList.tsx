@@ -20,11 +20,12 @@ export const ReviewsList = ({
   isAdmin = false,
   filterFlagged = false,
   onReviewsUpdated,
+  maxReviews,
 }: ReviewsListProps) => {
   const queryClient = useQueryClient();
 
   const { data: reviews, isLoading, error } = useQuery({
-    queryKey: ["reviews", accommodationId, filterFlagged],
+    queryKey: ["reviews", accommodationId, filterFlagged, maxReviews],
     queryFn: async () => {
       let query = supabase
         .from("reviews")
@@ -47,6 +48,11 @@ export const ReviewsList = ({
 
       if (accommodationId) {
         query = query.eq("accommodation_id", accommodationId);
+      }
+
+      // Apply tier-based limit at database level
+      if (maxReviews && maxReviews > 0) {
+        query = query.limit(maxReviews);
       }
 
       const { data, error } = await query.order("created_at", {
