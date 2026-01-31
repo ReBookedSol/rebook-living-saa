@@ -898,26 +898,30 @@ const ListingDetail = () => {
 
         {/* Photo Dialog */}
         <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-          <DialogContent className="max-w-4xl w-[95vw] p-2">
+          <DialogContent className="max-w-4xl w-[95vw] p-2 md:p-4">
             <div>
-              <div className="flex items-center justify-between mb-4 px-2">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))} 
+              <div className="flex items-center justify-between mb-3 md:mb-4 px-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))}
                   disabled={selectedPhoto === 0}
+                  className="text-xs md:text-sm"
                 >
                   ← Prev
                 </Button>
-                <p className="text-sm font-medium">{selectedPhoto + 1} / {photos?.length || 0}</p>
-                <Button 
+                <p className="text-xs md:text-sm font-medium">{selectedPhoto + 1} / {photos?.length || 0}</p>
+                <Button
                   variant="ghost"
-                  onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))} 
+                  size="sm"
+                  onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))}
                   disabled={photos && selectedPhoto >= photos.length - 1}
+                  className="text-xs md:text-sm"
                 >
                   Next →
                 </Button>
               </div>
-              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[65vh] object-contain rounded" />
+              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[50vh] md:h-[65vh] object-contain rounded" />
             </div>
           </DialogContent>
         </Dialog>
