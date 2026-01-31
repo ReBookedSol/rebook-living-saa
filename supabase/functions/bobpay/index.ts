@@ -7,11 +7,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const BOBPAY_API_URL = Deno.env.get("BOBPAY_SANDBOX") === "true" 
+// BobPay API configuration - check if using sandbox or production
+const BOBPAY_SANDBOX = Deno.env.get("BOBPAY_SANDBOX") === "true";
+const BOBPAY_API_URL = BOBPAY_SANDBOX 
   ? "https://api.sandbox.bobpay.co.za/v2"
   : "https://api.bobpay.co.za/v2";
 
-const BOBPAY_PAYMENT_URL = Deno.env.get("BOBPAY_SANDBOX") === "true"
+const BOBPAY_PAYMENT_URL = BOBPAY_SANDBOX
   ? "https://sandbox.bobpay.co.za"
   : "https://my.bobpay.co.za";
 
@@ -105,7 +107,7 @@ async function handleInitialize(req: Request, supabase: any) {
 
   if (!payment_type || !email || !user_id) {
     return new Response(
-      JSON.stringify({ error: "Missing required fields" }),
+      JSON.stringify({ error: "Missing required fields: payment_type, email, user_id" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
@@ -119,19 +121,53 @@ async function handleInitialize(req: Request, supabase: any) {
   // Generate unique payment ID
   const custom_payment_id = `RB-${user_id.slice(0, 8)}-${Date.now()}`;
 
+  // Get BobPay credentials
   const bobpayToken = Deno.env.get("BOBPAY_API_TOKEN");
   const accountCode = Deno.env.get("BOBPAY_ACCOUNT_CODE");
   
-  if (!bobpayToken || !accountCode) {
-    throw new Error("BobPay credentials not configured");
+  // Validate credentials
+  if (!bobpayToken) {
+    console.error("BOBPAY_API_TOKEN not configured");
+    throw new Error("BobPay API token not configured. Please check Supabase secrets.");
+  }
+  
+  if (!accountCode) {
+    console.error("BOBPAY_ACCOUNT_CODE not configured");
+    throw new Error("BobPay account code not configured. Please check Supabase secrets.");
   }
 
-  // Use the callback base URL from secrets - this is the most reliable approach
+  // Use the callback base URL from secrets
   const callbackBaseUrl = Deno.env.get("BOBPAY_CALLBACK_BASE_URL");
   if (!callbackBaseUrl) {
-    throw new Error("BOBPAY_CALLBACK_BASE_URL not configured");
+    console.error("BOBPAY_CALLBACK_BASE_URL not configured");
+    throw new Error("BobPay callback URL not configured. Please check Supabase secrets.");
   }
-  const baseUrl = callbackBaseUrl;
+
+  console.log("BobPay initialization:", {
+    api_url: BOBPAY_API_URL,
+    sandbox_mode: BOBPAY_SANDBOX,
+    account_code: accountCode,
+    amount,
+    payment_type,
+    custom_payment_id,
+  });
+
+  // Prepare request body matching Postman structure
+  const requestBody = {
+    recipient_account_code: accountCode,
+    custom_payment_id,
+    email,
+    amount,
+    item_name,
+    item_description,
+    notify_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/bobpay/webhook`,
+    success_url: `${callbackBaseUrl}/payment/success?payment_id=${custom_payment_id}`,
+    pending_url: `${callbackBaseUrl}/payment/pending?payment_id=${custom_payment_id}`,
+    cancel_url: `${callbackBaseUrl}/payment/cancel?payment_id=${custom_payment_id}`,
+    short_url: true,
+  };
+
+  console.log("BobPay request body:", JSON.stringify(requestBody, null, 2));
 
   // Create payment link with BobPay
   const paymentResponse = await fetch(`${BOBPAY_API_URL}/payments/intents/link`, {
@@ -140,28 +176,48 @@ async function handleInitialize(req: Request, supabase: any) {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${bobpayToken}`,
     },
-    body: JSON.stringify({
-      recipient_account_code: accountCode,
-      custom_payment_id,
-      email,
-      amount,
-      item_name,
-      item_description,
-      notify_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/bobpay/webhook`,
-      success_url: `${baseUrl}/payment/success?payment_id=${custom_payment_id}`,
-      pending_url: `${baseUrl}/payment/pending?payment_id=${custom_payment_id}`,
-      cancel_url: `${baseUrl}/payment/cancel?payment_id=${custom_payment_id}`,
-      short_url: true,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
+  // Handle response defensively
+  const contentType = paymentResponse.headers.get("content-type");
+  
   if (!paymentResponse.ok) {
-    const errorText = await paymentResponse.text();
-    console.error("BobPay API error:", errorText);
-    throw new Error(`BobPay API error: ${paymentResponse.status}`);
+    let errorDetail = `BobPay API error: ${paymentResponse.status}`;
+    
+    // Try to parse error response
+    if (contentType?.includes("application/json")) {
+      try {
+        const errorData = await paymentResponse.json();
+        console.error("BobPay API error response:", JSON.stringify(errorData));
+        errorDetail = errorData.message || errorData.error || errorDetail;
+      } catch (parseError) {
+        console.error("Failed to parse BobPay error response");
+      }
+    } else {
+      const textResponse = await paymentResponse.text();
+      console.error("BobPay API non-JSON error:", textResponse.substring(0, 500));
+    }
+    
+    // Provide helpful error messages
+    if (paymentResponse.status === 401) {
+      throw new Error("BobPay authentication failed. Please verify your API token in Supabase secrets.");
+    } else if (paymentResponse.status === 403) {
+      throw new Error("BobPay access denied. Please verify your account code and permissions.");
+    } else {
+      throw new Error(errorDetail);
+    }
+  }
+
+  // Parse successful response
+  if (!contentType?.includes("application/json")) {
+    const textResponse = await paymentResponse.text();
+    console.error("BobPay returned non-JSON success response:", textResponse.substring(0, 200));
+    throw new Error("BobPay API returned invalid response format");
   }
 
   const paymentData = await paymentResponse.json();
+  console.log("BobPay success response:", JSON.stringify(paymentData, null, 2));
 
   // Store pending payment record
   const expiresAt = new Date();
@@ -173,11 +229,13 @@ async function handleInitialize(req: Request, supabase: any) {
     amount: amount * 100, // Store in cents
     status: "pending",
     custom_payment_id,
+    payment_provider: "bobpay",
     access_expires_at: expiresAt.toISOString(),
   });
 
   if (insertError) {
     console.error("Failed to store payment record:", insertError);
+    // Don't fail the request - payment link was created successfully
   }
 
   return new Response(
@@ -196,7 +254,9 @@ async function handleWebhook(req: Request, supabase: any) {
                    req.headers.get("cf-connecting-ip") ||
                    req.headers.get("x-real-ip");
   
-  // Note: In sandbox mode, we might skip IP verification
+  console.log("Webhook received from IP:", clientIp);
+  
+  // Note: In sandbox mode, we skip IP verification
   // if (clientIp && !ALLOWED_IPS.includes(clientIp)) {
   //   console.warn("Webhook from unauthorized IP:", clientIp);
   //   return new Response("Forbidden", { status: 403 });
@@ -213,6 +273,9 @@ async function handleWebhook(req: Request, supabase: any) {
       console.error("Invalid webhook signature");
       return new Response("Invalid signature", { status: 400 });
     }
+    console.log("Webhook signature verified");
+  } else {
+    console.warn("BOBPAY_PASSPHRASE not configured - skipping signature verification");
   }
 
   // Only process paid status

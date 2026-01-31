@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   useParams,
-  Navigate,
   useSearchParams,
   useNavigate,
+  Link,
 } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -33,25 +32,55 @@ import {
   CheckCircle,
   XCircle,
   Filter,
+  Home,
+  ChevronRight,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProgramDetailModal from "@/components/ProgramDetailModal";
 
-interface Faculty {
-  name: string;
-  description?: string;
-  degrees?: Degree[];
-}
+// University logos mapping
+const UNIVERSITY_LOGOS: Record<string, string> = {
+  "cput": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Cape_Peninsula_University_of_Technology_logo.svg/800px-Cape_Peninsula_University_of_Technology_logo.svg.png",
+  "cut": "https://upload.wikimedia.org/wikipedia/en/thumb/5/55/Central_University_of_Technology_logo.svg/800px-Central_University_of_Technology_logo.svg.png",
+  "dut": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5a/Durban_University_of_Technology_logo.svg/800px-Durban_University_of_Technology_logo.svg.png",
+  "mut": "https://upload.wikimedia.org/wikipedia/en/d/d7/Mangosuthu_University_of_Technology_logo.png",
+  "nmu": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a3/Nelson_Mandela_University_logo.svg/800px-Nelson_Mandela_University_logo.svg.png",
+  "nwu": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3f/NWU_Logo.svg/800px-NWU_Logo.svg.png",
+  "ru": "https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Rhodes_University_logo.svg/800px-Rhodes_University_logo.svg.png",
+  "smu": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e5/Sefako_Makgatho_Health_Sciences_University_logo.svg/800px-Sefako_Makgatho_Health_Sciences_University_logo.svg.png",
+  "spu": "https://upload.wikimedia.org/wikipedia/en/thumb/9/99/Sol_Plaatje_University_logo.svg/800px-Sol_Plaatje_University_logo.svg.png",
+  "su": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Stellenbosch_University_logo.svg/800px-Stellenbosch_University_logo.svg.png",
+  "tut": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e7/Tshwane_University_of_Technology_logo.svg/800px-Tshwane_University_of_Technology_logo.svg.png",
+  "uct": "https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Cape_Town_logo.svg/800px-University_of_Cape_Town_logo.svg.png",
+  "ufh": "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/University_of_Fort_Hare_logo.svg/800px-University_of_Fort_Hare_logo.svg.png",
+  "ufs": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/University_of_the_Free_State_logo.svg/800px-University_of_the_Free_State_logo.svg.png",
+  "uj": "https://upload.wikimedia.org/wikipedia/en/thumb/0/01/University_of_Johannesburg_logo.svg/800px-University_of_Johannesburg_logo.svg.png",
+  "ukzn": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e9/University_of_KwaZulu-Natal_logo.svg/800px-University_of_KwaZulu-Natal_logo.svg.png",
+  "ul": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/University_of_Limpopo_logo.svg/800px-University_of_Limpopo_logo.svg.png",
+  "unisa": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/Unisa_logo.svg/800px-Unisa_logo.svg.png",
+  "ump": "https://upload.wikimedia.org/wikipedia/en/1/14/University_of_Mpumalanga_logo.png",
+  "up": "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/University_of_Pretoria_logo.svg/800px-University_of_Pretoria_logo.svg.png",
+  "univen": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/University_of_Venda_logo.svg/800px-University_of_Venda_logo.svg.png",
+  "uwc": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/University_of_the_Western_Cape_logo.svg/800px-University_of_the_Western_Cape_logo.svg.png",
+  "wsu": "https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Walter_Sisulu_University_logo.svg/800px-Walter_Sisulu_University_logo.svg.png",
+  "wits": "https://upload.wikimedia.org/wikipedia/en/thumb/2/26/Wits_University_logo.svg/800px-Wits_University_logo.svg.png",
+  "unizulu": "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/University_of_Zululand_logo.svg/800px-University_of_Zululand_logo.svg.png",
+  "vut": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Vaal_University_of_Technology_logo.svg/800px-Vaal_University_of_Technology_logo.svg.png",
+};
 
-interface Degree {
+interface Program {
+  id: string;
   name: string;
   description?: string;
   duration?: string;
-  apsRequirement: number;
-  universitySpecificAPS?: Record<string, number>;
-  faculty?: string;
-  careerProspects?: string[];
-  subjects?: Array<{ name: string; isRequired?: boolean; level?: number }>;
+  aps_requirement?: number;
+  faculty_name?: string;
+  career_prospects?: any;
+  subjects?: any;
+  skills_developed?: any;
+  salary_range?: string;
+  employment_rate?: number;
+  application_details?: any;
 }
 
 interface University {
@@ -70,31 +99,17 @@ interface University {
   student_population?: number;
   establishedYear?: number;
   established_year?: number;
-  faculties?: Faculty[];
-  admissionsContact?: string;
-  studentPortal?: string;
-  applicationInfo?: {
-    openingDate: string;
-    closingDate: string;
-    academicYear: string;
-    applicationFee?: string;
-    applicationMethod: string;
-  };
+  faculties?: any[];
 }
 
-/**
- * University Profile Component - Complete modern redesign
- */
 const UniversityProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("programs");
   const [showEligibleOnly, setShowEligibleOnly] = useState(false);
-  const [expandedFaculties, setExpandedFaculties] = useState<Set<number>>(
-    new Set()
-  );
-  const [selectedProgram, setSelectedProgram] = useState<Degree | null>(null);
+  const [expandedFaculties, setExpandedFaculties] = useState<Set<string>>(new Set());
+  const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
 
   // Get APS from URL parameters
@@ -102,7 +117,7 @@ const UniversityProfile: React.FC = () => {
   const userAPS = parseInt(searchParams.get("aps") || "0");
 
   // Fetch university data
-  const { data: university, isLoading, error } = useQuery({
+  const { data: university, isLoading: universityLoading, error: universityError } = useQuery({
     queryKey: ["university", id],
     queryFn: async () => {
       const { data, error: dbError } = await supabase
@@ -113,25 +128,79 @@ const UniversityProfile: React.FC = () => {
 
       if (dbError) throw dbError;
 
-      // Transform database field names to component field names
-      const transformed: University = {
-        ...data,
+      // Transform to our University interface
+      return {
+        id: data.id,
+        name: data.name,
         fullName: data.full_name || data.name,
+        full_name: data.full_name,
+        abbreviation: data.abbreviation,
+        location: data.location || "",
+        province: data.province || "",
+        logo: data.logo,
+        overview: data.overview,
+        type: data.type,
+        website: data.website,
         studentPopulation: data.student_population,
+        student_population: data.student_population,
         establishedYear: data.established_year,
-        faculties: data.faculties ? (Array.isArray(data.faculties) ? data.faculties : Object.values(data.faculties)) : [],
-      };
-
-      return transformed;
+        established_year: data.established_year,
+      } as University;
     },
   });
+
+  // Fetch programs from programs table
+  const { data: programs = [], isLoading: programsLoading } = useQuery({
+    queryKey: ["programs", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("programs")
+        .select("*")
+        .eq("university_id", id)
+        .eq("is_active", true)
+        .order("faculty_name", { ascending: true })
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+      return (data || []) as Program[];
+    },
+    enabled: !!id,
+  });
+
+  // Fetch related accommodations
+  const { data: accommodations = [] } = useQuery({
+    queryKey: ["university-accommodations", university?.name],
+    queryFn: async () => {
+      if (!university?.name) return [];
+      
+      const { data, error } = await supabase
+        .from("accommodations")
+        .select("id, property_name, address, city, monthly_cost, rating, image_urls, nsfas_accredited")
+        .or(`university.ilike.%${university.name}%,city.ilike.%${university.location}%`)
+        .eq("status", "active")
+        .limit(3);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!university?.name,
+  });
+
+  // Group programs by faculty
+  const programsByFaculty = programs.reduce((acc, program) => {
+    const faculty = program.faculty_name || "Other Programs";
+    if (!acc[faculty]) acc[faculty] = [];
+    acc[faculty].push(program);
+    return acc;
+  }, {} as Record<string, Program[]>);
+
+  const facultyNames = Object.keys(programsByFaculty).sort();
 
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  // Tab change handler with URL persistence
   const handleTabChange = useCallback(
     (value: string) => {
       setActiveTab(value);
@@ -143,22 +212,19 @@ const UniversityProfile: React.FC = () => {
   );
 
   useEffect(() => {
-    // Scroll to top when component mounts or university changes
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // If coming from APS calculator, show eligible programs by default
     if (fromAPS && userAPS > 0) {
       setShowEligibleOnly(true);
     }
   }, [id, fromAPS, userAPS]);
 
-  const toggleFacultyExpansion = (facultyIndex: number) => {
+  const toggleFacultyExpansion = (faculty: string) => {
     setExpandedFaculties((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(facultyIndex)) {
-        newSet.delete(facultyIndex);
+      if (newSet.has(faculty)) {
+        newSet.delete(faculty);
       } else {
-        newSet.add(facultyIndex);
+        newSet.add(faculty);
       }
       return newSet;
     });
@@ -168,56 +234,41 @@ const UniversityProfile: React.FC = () => {
     navigate("/campus-guide?tab=apps");
   };
 
-  // Normalize weird data where some requirements are stored as 10x (e.g., 450 -> 45)
-  const normalizeRequirement = (val: number) =>
-    val > 100 ? Math.round(val / 10) : val;
-
-  // Helper function to check if user is eligible for a program
-  const isEligibleForProgram = (program: Degree): boolean => {
+  const isEligibleForProgram = (program: Program): boolean => {
     if (!userAPS || userAPS === 0) return true;
-    const uniId = university?.id || "";
-    let requiredAPS =
-      program.universitySpecificAPS && uniId && program.universitySpecificAPS[uniId]
-        ? program.universitySpecificAPS[uniId]
-        : program.apsRequirement;
-    requiredAPS = normalizeRequirement(requiredAPS);
+    const requiredAPS = program.aps_requirement || 0;
     return userAPS >= requiredAPS;
   };
 
-  // Helper function to filter programs based on eligibility
-  const filterPrograms = (programs: Degree[]): Degree[] => {
-    if (!showEligibleOnly || !userAPS) return programs;
-    return programs.filter(isEligibleForProgram);
+  const filterPrograms = (progs: Program[]): Program[] => {
+    if (!showEligibleOnly || !userAPS) return progs;
+    return progs.filter(isEligibleForProgram);
   };
 
-  if (isLoading) {
+  // Get logo URL
+  const logoUrl = university?.logo || (id ? UNIVERSITY_LOGOS[id.toLowerCase()] : undefined);
+
+  if (universityLoading) {
     return (
       <Layout>
-        <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="bg-background min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-book-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading university profile...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading university profile...</p>
           </div>
         </div>
       </Layout>
     );
   }
 
-  if (error || !university) {
+  if (universityError || !university) {
     return (
       <Layout>
-        <div className="bg-white min-h-screen">
+        <div className="bg-background min-h-screen">
           <div className="container mx-auto px-6 py-16 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              University Not Found
-            </h1>
-            <p className="text-gray-600 mb-8">
-              The university you're looking for could not be found.
-            </p>
-            <Button
-              onClick={() => navigate("/campus-guide?tab=universities")}
-              className="bg-book-600 hover:bg-book-700 text-white"
-            >
+            <h1 className="text-2xl font-bold text-foreground mb-4">University Not Found</h1>
+            <p className="text-muted-foreground mb-8">The university you're looking for could not be found.</p>
+            <Button onClick={() => navigate("/campus-guide?tab=universities")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Back to Universities
             </Button>
           </div>
@@ -226,12 +277,7 @@ const UniversityProfile: React.FC = () => {
     );
   }
 
-  // Calculate stats
-  const totalPrograms =
-    university.faculties?.reduce((total, faculty) => {
-      return total + (faculty.degrees?.length || 0);
-    }, 0) || 0;
-
+  const totalPrograms = programs.length;
   const studentCount = university.studentPopulation
     ? university.studentPopulation > 1000
       ? `${Math.round(university.studentPopulation / 1000)}k+`
@@ -240,132 +286,90 @@ const UniversityProfile: React.FC = () => {
 
   return (
     <Layout>
-      <div className="bg-white min-h-screen">
-        {/* Clean Header */}
-        <div className="bg-gradient-to-b from-book-100 via-book-50 to-white border-b border-book-200">
+      <div className="bg-background min-h-screen">
+        {/* Header - Reduced green, using neutral/slate tones */}
+        <div className="bg-gradient-to-b from-slate-100 via-slate-50 to-background border-b border-border">
           <div className="container mx-auto px-6 py-8">
             {/* Back Navigation */}
             <div className="mb-8">
               <button
                 type="button"
-                aria-label="Back to Universities"
                 onClick={() => navigate("/campus-guide?tab=universities")}
-                className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors group"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors group"
               >
                 <ArrowLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
                 <span className="text-sm font-medium">Back to Universities</span>
               </button>
             </div>
 
-            {/* University Header - Mobile Optimized */}
+            {/* University Header */}
             <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
-              {/* Main Info */}
               <div className="lg:col-span-3">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 mb-6 sm:mb-8">
                   {/* Logo */}
                   <div className="relative mx-auto sm:mx-0 flex-shrink-0">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white border-4 border-book-200 rounded-2xl flex items-center justify-center shadow-lg">
-                      {university.logo ? (
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-slate-200 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+                      {logoUrl ? (
                         <img
-                          src={university.logo}
+                          src={logoUrl}
                           alt={`${university.name} logo`}
                           className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
                           onError={(e) => {
-                            // Hide the failed image and show fallback
                             const img = e.currentTarget;
                             img.style.display = "none";
-                            const fallback =
-                              img.nextElementSibling as HTMLElement;
-                            if (fallback) {
-                              fallback.style.display = "flex";
-                            }
+                            const fallback = img.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = "flex";
                           }}
                         />
                       ) : null}
                       <span
-                        className={`w-12 h-12 sm:w-16 sm:h-16 ${
-                          university.logo ? "hidden" : "flex"
-                        } items-center justify-center text-lg sm:text-2xl font-bold text-gray-700 bg-gradient-to-br from-book-500 to-book-600 text-white rounded-lg`}
+                        className={`w-12 h-12 sm:w-16 sm:h-16 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-lg sm:text-2xl font-bold bg-gradient-to-br from-slate-600 to-slate-800 text-white rounded-lg`}
                       >
-                        {university.abbreviation ||
-                          university.name.substring(0, 3).toUpperCase()}
+                        {university.abbreviation || university.name.substring(0, 3).toUpperCase()}
                       </span>
                     </div>
-                    <div className="absolute -bottom-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 bg-book-500 rounded-full flex items-center justify-center">
-                      <Award className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
+                    <div className="absolute -bottom-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 bg-primary rounded-full flex items-center justify-center">
+                      <Award className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary-foreground" />
                     </div>
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 space-y-3 sm:space-y-4 text-center sm:text-left">
                     <div>
-                      <Badge
-                        variant="secondary"
-                        className="mb-3 bg-book-50 text-book-700 border-book-200"
-                      >
+                      <Badge variant="secondary" className="mb-3 bg-slate-100 text-slate-700 border-slate-200">
                         {university.type || "University"}
                       </Badge>
-                      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 leading-tight">
+                      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3 leading-tight">
                         {university.fullName || university.name}
                       </h1>
-                      <div className="flex items-center justify-center sm:justify-start text-gray-600 mb-3 sm:mb-4">
-                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-gray-400" />
-                        <span className="text-base sm:text-lg">
-                          {university.location}, {university.province}
-                        </span>
+                      <div className="flex items-center justify-center sm:justify-start text-muted-foreground mb-3 sm:mb-4">
+                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        <span className="text-base sm:text-lg">{university.location}, {university.province}</span>
                       </div>
                     </div>
-
-                    <p className="text-gray-700 leading-relaxed text-sm sm:text-base lg:text-lg max-w-3xl">
-                      {university.overview ||
-                        "A prestigious South African institution dedicated to academic excellence, research innovation, and developing leaders who shape the future."}
+                    <p className="text-muted-foreground leading-relaxed text-sm sm:text-base lg:text-lg max-w-3xl">
+                      {university.overview || "A prestigious South African institution dedicated to academic excellence, research innovation, and developing leaders who shape the future."}
                     </p>
                   </div>
                 </div>
 
-                {/* Action Buttons - Mobile Optimized */}
+                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                  <Button
-                    size="lg"
-                    className="bg-book-600 hover:bg-book-700 text-white w-full sm:w-auto"
-                    asChild
-                  >
-                    <a
-                      href="https://www.rebookedsolutions.co.za/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto" asChild>
+                    <a href="https://www.rebookedsolutions.co.za/" target="_blank" rel="noopener noreferrer">
                       <BookOpen className="h-5 w-5 mr-2" />
                       Find Textbooks
                     </a>
                   </Button>
-
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-blue-200 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
-                    onClick={handleAPSCalculator}
-                  >
+                  <Button size="lg" variant="outline" className="border-2 border-amber-200 text-amber-700 hover:bg-amber-50 w-full sm:w-auto" onClick={handleAPSCalculator}>
                     <Calculator className="h-5 w-5 mr-2" />
                     APS Calculator
                   </Button>
-
                   {university.website && (
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-2 hover:border-book-500 hover:text-book-600 w-full sm:w-auto"
-                      asChild
-                    >
-                      <a
-                        href={university.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                    <Button size="lg" variant="outline" className="border-2 hover:border-primary hover:text-primary w-full sm:w-auto" asChild>
+                      <a href={university.website} target="_blank" rel="noopener noreferrer">
                         <Globe className="h-5 w-5 mr-2" />
-                        <span className="hidden sm:inline">
-                          Official Website
-                        </span>
+                        <span className="hidden sm:inline">Official Website</span>
                         <span className="sm:hidden">Website</span>
                       </a>
                     </Button>
@@ -375,61 +379,42 @@ const UniversityProfile: React.FC = () => {
 
               {/* Quick Stats */}
               <div className="lg:col-span-1">
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-book-50 border-book-200">
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50 border-slate-200">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-lg flex items-center text-gray-800">
-                      <BarChart3 className="h-5 w-5 mr-2 text-book-500" />
+                    <CardTitle className="text-lg flex items-center text-foreground">
+                      <BarChart3 className="h-5 w-5 mr-2 text-primary" />
                       Quick Stats
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600 font-medium">
-                        Students
-                      </span>
+                      <span className="text-muted-foreground font-medium">Students</span>
                       <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-1 text-book-500" />
-                        <span className="font-bold text-gray-900">
-                          {studentCount}
-                        </span>
+                        <Users className="h-4 w-4 mr-1 text-primary" />
+                        <span className="font-bold text-foreground">{studentCount}</span>
                       </div>
                     </div>
-
                     {university.establishedYear && (
                       <div className="flex justify-between items-center py-2">
-                        <span className="text-gray-600 font-medium">
-                          Founded
-                        </span>
+                        <span className="text-muted-foreground font-medium">Founded</span>
                         <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-1 text-book-500" />
-                          <span className="font-bold text-gray-900">
-                            {university.establishedYear}
-                          </span>
+                          <Calendar className="h-4 w-4 mr-1 text-primary" />
+                          <span className="font-bold text-foreground">{university.establishedYear}</span>
                         </div>
                       </div>
                     )}
-
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600 font-medium">
-                        Faculties
-                      </span>
+                      <span className="text-muted-foreground font-medium">Faculties</span>
                       <div className="flex items-center">
-                        <Building2 className="h-4 w-4 mr-1 text-book-500" />
-                        <span className="font-bold text-gray-900">
-                          {university.faculties?.length || 0}
-                        </span>
+                        <Building2 className="h-4 w-4 mr-1 text-primary" />
+                        <span className="font-bold text-foreground">{facultyNames.length || 0}</span>
                       </div>
                     </div>
-
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-gray-600 font-medium">
-                        Programs
-                      </span>
+                      <span className="text-muted-foreground font-medium">Programs</span>
                       <div className="flex items-center">
-                        <GraduationCap className="h-4 w-4 mr-1 text-book-500" />
-                        <span className="font-bold text-gray-900">
-                          {totalPrograms}
-                        </span>
+                        <GraduationCap className="h-4 w-4 mr-1 text-primary" />
+                        <span className="font-bold text-foreground">{totalPrograms}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -441,32 +426,19 @@ const UniversityProfile: React.FC = () => {
 
         {/* APS Status Banner */}
         {fromAPS && userAPS > 0 && (
-          <div className="bg-book-100 border-b border-book-200">
+          <div className="bg-amber-50 border-b border-amber-200">
             <div className="container mx-auto px-6 py-4">
-              <Alert className="border-book-300 bg-book-50">
-                <Calculator className="h-5 w-5 text-book-600" />
-                <AlertDescription className="text-book-800">
+              <Alert className="border-amber-300 bg-amber-50">
+                <Calculator className="h-5 w-5 text-amber-600" />
+                <AlertDescription className="text-amber-800">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                      <strong>Your APS Score: {userAPS}</strong> -
+                      <strong>Your APS Score: {userAPS}</strong> - 
                       {(() => {
-                        const eligibleCount = (
-                          university.faculties || []
-                        ).reduce((total, faculty) => {
-                          const count = (faculty.degrees || []).filter(
-                            isEligibleForProgram
-                          ).length;
-                          return total + count;
-                        }, 0);
-                        const totalPrograms = (
-                          university.faculties || []
-                        ).reduce((total, faculty) => {
-                          return total + (faculty.degrees?.length || 0);
-                        }, 0);
+                        const eligibleCount = programs.filter(isEligibleForProgram).length;
                         return (
                           <span className="ml-2">
-                            You qualify for <strong>{eligibleCount}</strong> out
-                            of <strong>{totalPrograms}</strong> programs
+                            You qualify for <strong>{eligibleCount}</strong> out of <strong>{totalPrograms}</strong> programs
                           </span>
                         );
                       })()}
@@ -476,32 +448,10 @@ const UniversityProfile: React.FC = () => {
                         size="sm"
                         variant={showEligibleOnly ? "default" : "outline"}
                         onClick={() => setShowEligibleOnly(!showEligibleOnly)}
-                        className="bg-book-600 hover:bg-book-700 text-white"
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
                       >
                         <Filter className="h-4 w-4 mr-2" />
-                        {showEligibleOnly
-                          ? "Show All Programs"
-                          : "Show Eligible Only"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={handleAPSCalculator}
-                        className="border-book-200 text-book-600 hover:bg-book-50"
-                      >
-                        <Calculator className="h-4 w-4 mr-2" />
-                        Back to APS Calculator
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          navigate(`/university/${id}`, { replace: true });
-                        }}
-                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Clear APS Profile
+                        {showEligibleOnly ? "Show All Programs" : "Show Eligible Only"}
                       </Button>
                     </div>
                   </div>
@@ -514,73 +464,47 @@ const UniversityProfile: React.FC = () => {
         {/* Main Content */}
         <div className="container mx-auto px-6 py-8">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            {/* Modern Tab Navigation - Mobile Optimized */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-              {/* Mobile: Vertical Stack */}
+            {/* Tab Navigation */}
+            <div className="bg-card rounded-xl shadow-sm border border-border mb-8">
               <div className="block md:hidden">
                 <TabsList className="bg-transparent p-2 h-auto w-full flex flex-col space-y-2 rounded-xl">
-                  <TabsTrigger
-                    value="programs"
-                    className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all justify-start"
-                  >
+                  <TabsTrigger value="programs" className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all justify-start">
                     <GraduationCap className="h-5 w-5 mr-3" />
                     Academic Programs
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="admissions"
-                    className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all justify-start"
-                  >
+                  <TabsTrigger value="admissions" className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all justify-start">
                     <Calendar className="h-5 w-5 mr-3" />
                     Admissions
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="student-life"
-                    className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all justify-start"
-                  >
+                  <TabsTrigger value="student-life" className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all justify-start">
                     <Heart className="h-5 w-5 mr-3" />
                     Campus Life
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="resources"
-                    className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all justify-start"
-                  >
+                  <TabsTrigger value="resources" className="w-full rounded-lg py-3 px-4 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all justify-start">
                     <Info className="h-5 w-5 mr-3" />
                     Resources
                   </TabsTrigger>
                 </TabsList>
               </div>
 
-              {/* Desktop: Horizontal Grid */}
               <div className="hidden md:block">
                 <TabsList className="bg-transparent p-1 h-auto w-full grid grid-cols-4 rounded-xl">
-                  <TabsTrigger
-                    value="programs"
-                    className="rounded-lg py-4 px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                  >
+                  <TabsTrigger value="programs" className="rounded-lg py-4 px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all">
                     <GraduationCap className="h-5 w-5 mr-2" />
                     <span className="hidden lg:inline">Academic Programs</span>
                     <span className="lg:hidden">Programs</span>
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="admissions"
-                    className="rounded-lg py-4 px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                  >
+                  <TabsTrigger value="admissions" className="rounded-lg py-4 px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all">
                     <Calendar className="h-5 w-5 mr-2" />
                     <span className="hidden lg:inline">Admissions</span>
                     <span className="lg:hidden">Apply</span>
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="student-life"
-                    className="rounded-lg py-4 px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                  >
+                  <TabsTrigger value="student-life" className="rounded-lg py-4 px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all">
                     <Heart className="h-5 w-5 mr-2" />
                     <span className="hidden lg:inline">Campus Life</span>
                     <span className="lg:hidden">Life</span>
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="resources"
-                    className="rounded-lg py-4 px-6 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 data-[state=active]:shadow-sm font-medium transition-all"
-                  >
+                  <TabsTrigger value="resources" className="rounded-lg py-4 px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-foreground data-[state=active]:shadow-sm font-medium transition-all">
                     <Info className="h-5 w-5 mr-2" />
                     <span className="hidden lg:inline">Resources</span>
                     <span className="lg:hidden">Info</span>
@@ -589,163 +513,128 @@ const UniversityProfile: React.FC = () => {
               </div>
             </div>
 
-            {/* Tab Content */}
+            {/* Programs Tab */}
             <TabsContent value="programs" className="mt-0">
               <div className="space-y-8">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                      Academic Programs
-                    </h2>
-                    <p className="text-gray-600">
-                      Explore {totalPrograms} programs across{" "}
-                      {university.faculties?.length || 0} faculties
+                    <h2 className="text-3xl font-bold text-foreground mb-2">Academic Programs</h2>
+                    <p className="text-muted-foreground">
+                      Explore {totalPrograms} programs across {facultyNames.length} faculties
                     </p>
                   </div>
-                  <Button
-                    className="bg-book-600 hover:bg-book-700 text-white shadow-lg"
-                    onClick={handleAPSCalculator}
-                  >
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg" onClick={handleAPSCalculator}>
                     <Calculator className="h-5 w-5 mr-2" />
                     Calculate Your APS
                   </Button>
                 </div>
 
-                {university.faculties && university.faculties.length > 0 ? (
+                {programsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : facultyNames.length > 0 ? (
                   <div className="grid gap-8">
-                    {university.faculties.map((faculty, index) => {
-                      const facultyPrograms = faculty.degrees || [];
+                    {facultyNames.map((facultyName) => {
+                      const facultyPrograms = programsByFaculty[facultyName];
                       const filteredPrograms = filterPrograms(facultyPrograms);
 
-                      // Skip faculty if no programs match the filter
-                      if (
-                        showEligibleOnly &&
-                        filteredPrograms.length === 0
-                      ) {
-                        return null;
-                      }
+                      if (showEligibleOnly && filteredPrograms.length === 0) return null;
 
                       return (
-                        <Card key={index} className="border-0 shadow-lg">
-                          <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
-                            <CardTitle className="text-xl flex items-center justify-between text-gray-900">
+                        <Card key={facultyName} className="border-0 shadow-lg">
+                          <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                            <CardTitle className="text-xl flex items-center justify-between text-foreground">
                               <div className="flex items-center">
-                                <Building2 className="h-6 w-6 mr-3 text-book-500" />
-                                {faculty.name}
+                                <Building2 className="h-6 w-6 mr-3 text-primary" />
+                                {facultyName}
                               </div>
+                              <Badge variant="secondary">{filteredPrograms.length} programs</Badge>
                             </CardTitle>
-                            {faculty.description && (
-                              <p className="text-gray-600 mt-2">
-                                {faculty.description}
-                              </p>
-                            )}
                           </CardHeader>
 
                           {filteredPrograms.length > 0 && (
                             <CardContent className="pt-6">
                               <div className="grid gap-4">
                                 {filteredPrograms
-                                  .slice(
-                                    0,
-                                    showEligibleOnly ||
-                                      expandedFaculties.has(index)
-                                      ? filteredPrograms.length
-                                      : 3
-                                  )
-                                  .map((degree, degreeIndex) => {
-                                    const isEligible =
-                                      isEligibleForProgram(degree);
+                                  .slice(0, showEligibleOnly || expandedFaculties.has(facultyName) ? filteredPrograms.length : 3)
+                                  .map((program) => {
+                                    const isEligible = isEligibleForProgram(program);
                                     return (
                                       <div
-                                        key={degreeIndex}
-                                        className={`group bg-white border rounded-xl p-5 hover:shadow-md transition-all duration-200 ${
+                                        key={program.id}
+                                        className={`group bg-card border rounded-xl p-5 hover:shadow-md transition-all duration-200 ${
                                           fromAPS && userAPS > 0
                                             ? isEligible
                                               ? "border-green-300 bg-green-50 hover:border-green-400"
                                               : "border-red-300 bg-red-50 hover:border-red-400"
-                                            : "border-gray-200 hover:border-book-200"
+                                            : "border-border hover:border-primary/30"
                                         }`}
                                       >
                                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                                           <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                              {fromAPS &&
-                                                userAPS > 0 &&
-                                                (isEligible ? (
+                                              {fromAPS && userAPS > 0 && (
+                                                isEligible ? (
                                                   <CheckCircle className="h-5 w-5 text-green-600" />
                                                 ) : (
                                                   <XCircle className="h-5 w-5 text-red-600" />
-                                                ))}
-                                              <h5
-                                                className={`font-semibold mb-0 group-hover:text-book-700 transition-colors ${
-                                                  fromAPS && userAPS > 0
-                                                    ? isEligible
-                                                      ? "text-green-900"
-                                                      : "text-red-900"
-                                                    : "text-gray-900"
-                                                }`}
-                                              >
-                                                {degree.name}
+                                                )
+                                              )}
+                                              <h5 className={`font-semibold mb-0 group-hover:text-primary transition-colors ${
+                                                fromAPS && userAPS > 0
+                                                  ? isEligible ? "text-green-900" : "text-red-900"
+                                                  : "text-foreground"
+                                              }`}>
+                                                {program.name}
                                               </h5>
                                             </div>
-                                            {degree.description && (
-                                              <p
-                                                className={`text-sm leading-relaxed mb-3 ${
-                                                  fromAPS && userAPS > 0
-                                                    ? isEligible
-                                                      ? "text-green-700"
-                                                      : "text-red-700"
-                                                    : "text-gray-600"
-                                                }`}
-                                              >
-                                                {degree.description}
+                                            {program.description && (
+                                              <p className={`text-sm leading-relaxed mb-3 ${
+                                                fromAPS && userAPS > 0
+                                                  ? isEligible ? "text-green-700" : "text-red-700"
+                                                  : "text-muted-foreground"
+                                              }`}>
+                                                {program.description}
                                               </p>
                                             )}
-                                            {degree.duration && (
-                                              <div
-                                                className={`flex items-center text-sm ${
-                                                  fromAPS && userAPS > 0
-                                                    ? isEligible
-                                                      ? "text-green-600"
-                                                      : "text-red-600"
-                                                    : "text-gray-500"
-                                                }`}
-                                              >
+                                            {program.duration && (
+                                              <div className={`flex items-center text-sm ${
+                                                fromAPS && userAPS > 0
+                                                  ? isEligible ? "text-green-600" : "text-red-600"
+                                                  : "text-muted-foreground"
+                                              }`}>
                                                 <Calendar className="h-4 w-4 mr-1" />
-                                                {degree.duration}
+                                                {program.duration}
                                               </div>
                                             )}
                                           </div>
                                           <div className="flex flex-col items-center gap-2 shrink-0">
-                                            <Badge
-                                              className={
-                                                fromAPS && userAPS > 0
-                                                  ? isEligible
-                                                    ? "bg-green-100 text-green-800 border-green-300"
-                                                    : "bg-red-100 text-red-800 border-red-300"
-                                                  : "bg-book-100 text-book-700 border-book-200"
-                                              }
-                                            >
-                                              APS:{" "}
-                                              {normalizeRequirement(
-                                                degree.apsRequirement
-                                              )}
+                                            <Badge className={
+                                              fromAPS && userAPS > 0
+                                                ? isEligible
+                                                  ? "bg-green-100 text-green-800 border-green-300"
+                                                  : "bg-red-100 text-red-800 border-red-300"
+                                                : "bg-primary/10 text-primary border-primary/20"
+                                            }>
+                                              APS: {program.aps_requirement || "N/A"}
                                               {fromAPS && userAPS > 0 && (
-                                                <span className="ml-1">
-                                                  {isEligible ? "✓" : "✗"}
-                                                </span>
+                                                <span className="ml-1">{isEligible ? "✓" : "✗"}</span>
                                               )}
                                             </Badge>
                                             <Button
                                               size="sm"
                                               variant="outline"
-                                              className="border-book-200 text-book-600 hover:bg-book-50 w-full sm:w-auto"
+                                              className="border-primary/30 text-primary hover:bg-primary/5 w-full sm:w-auto"
                                               onClick={() => {
-                                                const programWithFacultyAndSubjects: Degree = {
-                                                  ...degree,
-                                                  faculty: faculty.name,
-                                                };
-                                                setSelectedProgram(programWithFacultyAndSubjects);
+                                                setSelectedProgram({
+                                                  ...program,
+                                                  name: program.name,
+                                                  apsRequirement: program.aps_requirement,
+                                                  faculty: program.faculty_name,
+                                                  careerProspects: program.career_prospects,
+                                                  subjects: program.subjects,
+                                                });
                                                 setIsProgramModalOpen(true);
                                               }}
                                             >
@@ -757,39 +646,30 @@ const UniversityProfile: React.FC = () => {
                                       </div>
                                     );
                                   })}
-                                {!showEligibleOnly &&
-                                  filteredPrograms.length > 3 &&
-                                  !expandedFaculties.has(index) && (
-                                    <div className="text-center py-4">
-                                      <Button
-                                        variant="outline"
-                                        className="border-book-200 text-book-600 hover:bg-book-50"
-                                        onClick={() =>
-                                          toggleFacultyExpansion(index)
-                                        }
-                                      >
-                                        <TrendingUp className="h-4 w-4 mr-2" />
-                                        View {filteredPrograms.length - 3} more
-                                        programs
-                                      </Button>
-                                    </div>
-                                  )}
-                                {!showEligibleOnly &&
-                                  filteredPrograms.length > 3 &&
-                                  expandedFaculties.has(index) && (
-                                    <div className="text-center py-4">
-                                      <Button
-                                        variant="outline"
-                                        className="border-book-200 text-book-600 hover:bg-book-50"
-                                        onClick={() =>
-                                          toggleFacultyExpansion(index)
-                                        }
-                                      >
-                                        <TrendingUp className="h-4 w-4 mr-2 rotate-180" />
-                                        Show Less
-                                      </Button>
-                                    </div>
-                                  )}
+                                {!showEligibleOnly && filteredPrograms.length > 3 && !expandedFaculties.has(facultyName) && (
+                                  <div className="text-center py-4">
+                                    <Button
+                                      variant="outline"
+                                      className="border-primary/30 text-primary hover:bg-primary/5"
+                                      onClick={() => toggleFacultyExpansion(facultyName)}
+                                    >
+                                      <TrendingUp className="h-4 w-4 mr-2" />
+                                      View {filteredPrograms.length - 3} more programs
+                                    </Button>
+                                  </div>
+                                )}
+                                {!showEligibleOnly && filteredPrograms.length > 3 && expandedFaculties.has(facultyName) && (
+                                  <div className="text-center py-4">
+                                    <Button
+                                      variant="outline"
+                                      className="border-primary/30 text-primary hover:bg-primary/5"
+                                      onClick={() => toggleFacultyExpansion(facultyName)}
+                                    >
+                                      <TrendingUp className="h-4 w-4 mr-2 rotate-180" />
+                                      Show Less
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </CardContent>
                           )}
@@ -800,14 +680,10 @@ const UniversityProfile: React.FC = () => {
                 ) : (
                   <Card className="border-0 shadow-lg">
                     <CardContent className="text-center py-16">
-                      <GraduationCap className="h-20 w-20 mx-auto text-gray-300 mb-6" />
-                      <h3 className="text-xl font-semibold text-gray-700 mb-3">
-                        No Programs Available
-                      </h3>
-                      <p className="text-gray-500 max-w-md mx-auto">
-                        Program information for this university is not yet
-                        available. Please check back later or contact the
-                        university directly.
+                      <GraduationCap className="h-20 w-20 mx-auto text-muted-foreground/30 mb-6" />
+                      <h3 className="text-xl font-semibold text-muted-foreground mb-3">No Programs Available</h3>
+                      <p className="text-muted-foreground max-w-md mx-auto">
+                        Program information for this university is not yet available. Please check back later or contact the university directly.
                       </p>
                     </CardContent>
                   </Card>
@@ -815,32 +691,26 @@ const UniversityProfile: React.FC = () => {
               </div>
             </TabsContent>
 
+            {/* Admissions Tab */}
             <TabsContent value="admissions" className="mt-0">
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    Admissions Information
-                  </h2>
-                  <p className="text-gray-600">
-                    Everything you need to know about applying to{" "}
-                    {university.name}
-                  </p>
+                  <h2 className="text-3xl font-bold text-foreground mb-2">Admissions Information</h2>
+                  <p className="text-muted-foreground">Everything you need to know about applying to {university.name}</p>
                 </div>
 
                 <Card className="border-0 shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-book-50 to-white">
-                    <CardTitle className="text-xl flex items-center text-gray-900">
-                      <Calendar className="h-6 w-6 mr-3 text-book-500" />
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                      <Calendar className="h-6 w-6 mr-3 text-primary" />
                       Admissions Contact
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
-                      <div className="p-4 bg-book-50 rounded-lg">
-                        <h4 className="font-semibold text-book-900 mb-2">
-                          Get Help With Your Application
-                        </h4>
-                        <p className="text-sm text-book-700 mb-4">
+                      <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                        <h4 className="font-semibold text-amber-900 mb-2">Get Help With Your Application</h4>
+                        <p className="text-sm text-amber-800 mb-4">
                           Contact the university directly for admissions information and support.
                         </p>
                         {university.website && (
@@ -848,7 +718,7 @@ const UniversityProfile: React.FC = () => {
                             href={university.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-book-600 hover:text-book-700 font-medium"
+                            className="inline-flex items-center gap-2 text-amber-700 hover:text-amber-900 font-medium"
                           >
                             Visit University Website
                             <ExternalLink className="h-4 w-4" />
@@ -861,26 +731,23 @@ const UniversityProfile: React.FC = () => {
               </div>
             </TabsContent>
 
+            {/* Campus Life Tab - With Accommodations */}
             <TabsContent value="student-life" className="mt-0">
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    Campus Life at {university.name}
-                  </h2>
-                  <p className="text-gray-600">
-                    Discover what makes student life vibrant and engaging
-                  </p>
+                  <h2 className="text-3xl font-bold text-foreground mb-2">Campus Life at {university.name}</h2>
+                  <p className="text-muted-foreground">Discover what makes student life vibrant and engaging</p>
                 </div>
 
                 <Card className="border-0 shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-book-50 to-white">
-                    <CardTitle className="text-xl flex items-center text-gray-900">
-                      <Building2 className="h-6 w-6 mr-3 text-book-500" />
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                      <Building2 className="h-6 w-6 mr-3 text-primary" />
                       Campus Facilities
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-muted-foreground mb-4">
                       Explore the various facilities and student services available on campus.
                     </p>
                     {university.website && (
@@ -888,7 +755,7 @@ const UniversityProfile: React.FC = () => {
                         href={university.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-book-600 hover:text-book-700 font-medium"
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
                       >
                         Learn More About Campus Life
                         <ExternalLink className="h-4 w-4" />
@@ -896,34 +763,100 @@ const UniversityProfile: React.FC = () => {
                     )}
                   </CardContent>
                 </Card>
+
+                {/* Student Accommodation Section */}
+                <Card className="border-0 shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-amber-50 to-white">
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                      <Home className="h-6 w-6 mr-3 text-amber-600" />
+                      Student Accommodation
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    {accommodations.length > 0 ? (
+                      <>
+                        <p className="text-muted-foreground mb-6">
+                          Find verified, NSFAS-accredited accommodation near {university.name}.
+                        </p>
+                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                          {accommodations.map((acc: any) => (
+                            <Link key={acc.id} to={`/listing/${acc.id}`}>
+                              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                                <div className="relative h-32 overflow-hidden rounded-t-lg">
+                                  <img
+                                    src={acc.image_urls?.[0] || "/placeholder.svg"}
+                                    alt={acc.property_name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+                                    }}
+                                  />
+                                  {acc.nsfas_accredited && (
+                                    <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs">
+                                      NSFAS
+                                    </Badge>
+                                  )}
+                                </div>
+                                <CardContent className="p-3">
+                                  <h5 className="font-semibold text-sm line-clamp-1">{acc.property_name}</h5>
+                                  <p className="text-xs text-muted-foreground line-clamp-1">{acc.address}</p>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className="text-primary font-bold text-sm">
+                                      {acc.monthly_cost ? `R${acc.monthly_cost.toLocaleString()}` : "Contact"}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">★ {(acc.rating || 0).toFixed(1)}</span>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </Link>
+                          ))}
+                        </div>
+                        <Link to={`/browse?university=${encodeURIComponent(university.name)}`}>
+                          <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white">
+                            <Home className="h-4 w-4 mr-2" />
+                            Explore More Accommodation
+                            <ChevronRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Home className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+                        <p className="text-muted-foreground mb-4">
+                          No accommodation listings found near {university.name} yet.
+                        </p>
+                        <Link to="/browse">
+                          <Button variant="outline">
+                            Browse All Accommodation
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
 
+            {/* Resources Tab */}
             <TabsContent value="resources" className="mt-0">
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    University Resources
-                  </h2>
-                  <p className="text-gray-600">
-                    Essential resources and support services at {university.name}
-                  </p>
+                  <h2 className="text-3xl font-bold text-foreground mb-2">University Resources</h2>
+                  <p className="text-muted-foreground">Essential resources and support services at {university.name}</p>
                 </div>
 
                 <Card className="border-0 shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-book-50 to-white">
-                    <CardTitle className="text-xl flex items-center text-gray-900">
-                      <Info className="h-6 w-6 mr-3 text-book-500" />
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                      <Info className="h-6 w-6 mr-3 text-primary" />
                       Contact & Support
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
-                      <div className="p-4 bg-book-50 rounded-lg">
-                        <h4 className="font-semibold text-book-900 mb-2">
-                          Get More Information
-                        </h4>
-                        <p className="text-sm text-book-700 mb-4">
+                      <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <h4 className="font-semibold text-foreground mb-2">Get More Information</h4>
+                        <p className="text-sm text-muted-foreground mb-4">
                           Visit the university's official website for detailed information about resources, facilities, and student support services.
                         </p>
                         {university.website && (
@@ -931,7 +864,7 @@ const UniversityProfile: React.FC = () => {
                             href={university.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-book-600 hover:text-book-700 font-medium"
+                            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
                           >
                             Visit Official Website
                             <ExternalLink className="h-4 w-4" />
