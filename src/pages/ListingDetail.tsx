@@ -981,7 +981,7 @@ const ListingDetail = () => {
 
         {/* Photo Dialog */}
         <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-          <DialogContent className="max-w-4xl w-[95vw] p-2 md:p-4">
+          <DialogContent className="max-w-2xl md:max-w-4xl w-[90vw] md:w-[95vw] p-2 md:p-4 rounded-2xl">
             <div>
               <div className="flex items-center justify-between mb-3 md:mb-4 px-2">
                 <Button
@@ -1004,7 +1004,7 @@ const ListingDetail = () => {
                   Next →
                 </Button>
               </div>
-              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[50vh] md:h-[65vh] object-contain rounded" />
+              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[40vh] md:h-[65vh] object-contain rounded-xl" />
             </div>
           </DialogContent>
         </Dialog>
