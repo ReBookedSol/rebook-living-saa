@@ -550,30 +550,22 @@ const ListingDetail = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Photos Card */}
               <Card className="border-0 shadow-md overflow-hidden">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <div className="flex items-center justify-between gap-4">
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <Image className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-lg">Gallery</CardTitle>
+                      <Image className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                      <CardTitle className="text-base md:text-lg">Gallery</CardTitle>
                     </div>
-                    <div className="flex items-center gap-3 ml-auto">
-                      {hasMorePhotos && (
-                        <UpgradePrompt
-                          type="photos"
-                          totalCount={totalPhotos}
-                          compact
-                          buttonText="Unlock More"
-                        />
-                      )}
-                      {hasMorePhotos && (
+                    {hasMorePhotos && (
+                      <div className="flex items-center gap-2 ml-auto">
                         <Badge variant="secondary" className="text-xs">
                           {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
                         </Badge>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   {photos && photos.length > 0 ? (
                     <>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
