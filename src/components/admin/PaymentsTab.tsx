@@ -123,18 +123,14 @@ const PaymentsTab = () => {
 
       const { error } = await supabase.from("user_payments").insert({
         user_id: profile.id,
-        payment_type: "one_time",
-        subscription_plan: data.paymentType,
-        amount: data.paymentType === "weekly" ? 19 : 59,
-        currency: "ZAR",
-        status: "successful",
-        description: `Admin grant for ${data.paymentType} access`,
-        transaction_reference: `ADMIN-GRANT-${Date.now()}`,
+        payment_provider: "admin",
+        payment_type: data.paymentType,
+        amount: data.paymentType === "weekly" ? 1900 : 5900,
+        status: "active",
+        custom_payment_id: `ADMIN-GRANT-${Date.now()}`,
         payment_method: "admin_grant",
-        metadata: {
-          duration_days: data.days,
-          admin_granted: true,
-        },
+        access_expires_at: expiresAt.toISOString(),
+        paid_at: new Date().toISOString(),
       });
 
       if (error) throw error;

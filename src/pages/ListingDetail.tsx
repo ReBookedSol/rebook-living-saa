@@ -19,6 +19,8 @@ import { ReviewForm } from "@/components/ReviewForm";
 import { ReviewsList } from "@/components/ReviewsList";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { getPlaceData, getUserTier } from "@/lib/placeCache";
+import type { GoogleReview } from "@/types/place-cache";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -250,19 +252,44 @@ const ListingDetail = () => {
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const passedImages = (location.state as any)?.images as string[] | undefined;
 
-  const [allReviews, setAllReviews] = useState<any[] | null>(null);
-  const [allPhotos, setAllPhotos] = useState<string[] | null>(passedImages && passedImages.length > 0 ? passedImages : null);
+  const [googleReviews, setGoogleReviews] = useState<GoogleReview[]>([]);
+  const [googlePhotos, setGooglePhotos] = useState<string[]>([]);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
-  // Use server-side tiered photos if available, otherwise use passed/fetched images
-  const photos = tieredPhotos !== undefined ? tieredPhotos : allPhotos;
+  // Fetch place data from cache/API
+  const { data: placeCache, isLoading: placeCacheLoading } = useQuery({
+    queryKey: ["place-cache", listing?.property_name, listing?.address, accessLevel],
+    queryFn: async () => {
+      if (!listing) return null;
+      const tier = getUserTier(accessLevel);
+      return getPlaceData({
+        property_name: listing.property_name,
+        address: listing.address,
+        city: listing.city || undefined,
+        user_tier: tier,
+        action: "listing",
+      });
+    },
+    enabled: !!listing,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Use cached photos/reviews if available, otherwise fall back to Google Maps API
+  const allPhotos = placeCache?.photos?.length ? placeCache.photos : 
+                    (passedImages && passedImages.length > 0 ? passedImages : googlePhotos);
+  
+  // Use server-side tiered photos if available, otherwise use cached/fetched images
+  const photos = tieredPhotos !== undefined && tieredPhotos !== null ? tieredPhotos : allPhotos;
+  const allReviews = placeCache?.reviews?.length ? placeCache.reviews : googleReviews;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
-  const totalPhotos = allPhotos?.length || 0;
-  const totalReviews = allReviews?.length || 0;
+  const totalPhotos = placeCache?.photo_count || allPhotos?.length || 0;
+  const totalReviews = placeCache?.review_count || allReviews?.length || 0;
   const hasMorePhotos = !isPaidUser && totalPhotos > FREE_TIER_LIMITS.MAX_PHOTOS;
   const hasMoreReviews = !isPaidUser && totalReviews > FREE_TIER_LIMITS.MAX_REVIEWS;
+  const cacheHit = placeCache?.cached || false;
+  const cacheAttributions = placeCache?.attributions;
 
   useEffect(() => {
     if (!isPaidUser) return;
@@ -325,15 +352,27 @@ const ListingDetail = () => {
 
             service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
               if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
+                // Only set Google reviews/photos as fallback if cache didn't have data
                 // Limit reviews based on tier (paid users get up to 10, free users get up to 1)
                 const maxGoogleReviews = isPaidUser ? 10 : 1;
-                if (detail.reviews) setAllReviews(detail.reviews.slice(0, maxGoogleReviews));
+                if (detail.reviews) {
+                  const formattedReviews = detail.reviews.slice(0, maxGoogleReviews).map((r: any) => ({
+                    author_name: r.author_name,
+                    author_url: r.author_url,
+                    profile_photo_url: r.profile_photo_url,
+                    rating: r.rating,
+                    relative_time_description: r.relative_time_description,
+                    text: r.text,
+                    time: r.time,
+                  }));
+                  setGoogleReviews(formattedReviews);
+                }
                 // Limit photos: paid users get up to 10, free users get up to 3
                 if (detail.photos && detail.photos.length > 0) {
                   try {
                     const maxGooglePhotos = isPaidUser ? 10 : 3;
                     const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
-                    setAllPhotos(photoUrls);
+                    setGooglePhotos(photoUrls);
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }

@@ -5,10 +5,12 @@ import { MapPin, Star, Users, CheckCircle, Info, Heart, Share, Building2, Lock }
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
+import { getPlaceData } from "@/lib/placeCache";
 
 interface AccommodationCardProps {
   id: string;
@@ -169,14 +171,41 @@ const AccommodationCard = ({
     }
   };
 
-  // Fetch Google Places photo if no local images (with caching by address prefix)
-  // Only fetch for paid users - free users won't see preview photos on browse anyway
+  // Use place cache for browse page photos - always fetch with "free" tier for browse
+  const { data: placeCache } = useQuery({
+    queryKey: ["place-cache-browse", address, propertyName],
+    queryFn: async () => {
+      return getPlaceData({
+        property_name: propertyName,
+        address: address,
+        city: city,
+        user_tier: "free", // Browse always uses free tier display limits
+        action: "browse",
+      });
+    },
+    enabled: !(localImages && localImages.length > 0), // Only fetch if no local images
+    staleTime: 1000 * 60 * 30, // 30 minutes - browse cards don't need frequent updates
+  });
+
+  // Set photos from cache if available
   useEffect(() => {
-    if (!isPaidUser) return; // Skip fetching for free users
+    if (placeCache?.photos && placeCache.photos.length > 0 && !(localImages && localImages.length > 0)) {
+      setLocalImages(placeCache.photos);
+      // Also update the local address cache
+      if (placeCache.photos[0]) {
+        setCachedPhoto(address, placeCache.photos[0]);
+      }
+    }
+  }, [placeCache, address, localImages]);
 
+  // Fallback: Fetch Google Places photo if cache fails and no local images
+  // Only for paid users as a backup
+  useEffect(() => {
+    if (!isPaidUser) return; // Skip for free users
     if (localImages && localImages.length > 0) return; // Already have images
+    if (placeCache?.photos && placeCache.photos.length > 0) return; // Cache has photos
 
-    // Check cache first
+    // Check local cache first
     const cachedPhoto = getCachedPhoto(address);
     if (cachedPhoto) {
       setLocalImages([cachedPhoto]);
@@ -259,7 +288,7 @@ const AccommodationCard = ({
     };
 
     loadGoogleMapsAndFetchPhoto();
-  }, [id, address, isPaidUser]);
+  }, [id, address, isPaidUser, placeCache]);
 
 
   // Apply image limit for free users

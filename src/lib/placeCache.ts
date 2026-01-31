@@ -1,0 +1,96 @@
+import { supabase } from "@/integrations/supabase/client";
+import type { PlaceCacheData, PlaceCacheRequest } from "@/types/place-cache";
+
+const SUPABASE_URL = "https://gzihagvdpdjcoyjpvyvs.supabase.co";
+
+/**
+ * Fetch place data from cache or Google Places API
+ */
+export async function getPlaceData(
+  params: Omit<PlaceCacheRequest, "user_tier" | "action"> & {
+    user_tier?: "free" | "pro";
+    action?: "browse" | "listing";
+  }
+): Promise<PlaceCacheData> {
+  const { place_id, address, property_name, city, user_tier = "free", action = "listing" } = params;
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/place-cache`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: session ? `Bearer ${session.access_token}` : "",
+        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6aWhhZ3ZkcGRqY295anB2eXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NzM2NzQsImV4cCI6MjA3NzE0OTY3NH0.2y2vuzaq9dKDrJIyjbAfcNAgrxVEpxeYwS5xNHSrqYw",
+      },
+      body: JSON.stringify({
+        place_id,
+        address,
+        property_name,
+        city,
+        user_tier,
+        action,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Place cache API error:", response.status);
+      return {
+        success: false,
+        cached: false,
+        photos: [],
+        reviews: [],
+        photo_count: 0,
+        review_count: 0,
+        error: `API error: ${response.status}`,
+      };
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Place cache fetch error:", error);
+    return {
+      success: false,
+      cached: false,
+      photos: [],
+      reviews: [],
+      photo_count: 0,
+      review_count: 0,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Determine user tier based on access level
+ */
+export function getUserTier(accessLevel: string): "free" | "pro" {
+  return accessLevel === "paid" ? "pro" : "free";
+}
+
+/**
+ * Get cache statistics from the database
+ */
+export async function getCacheStats(): Promise<{
+  total_places: number;
+  pro_tier_count: number;
+}> {
+  try {
+    const [totalResult, proResult] = await Promise.all([
+      supabase.from("place_cache").select("*", { count: "exact", head: true }),
+      supabase
+        .from("place_cache")
+        .select("*", { count: "exact", head: true })
+        .eq("cached_tier", "pro"),
+    ]);
+
+    return {
+      total_places: totalResult.count || 0,
+      pro_tier_count: proResult.count || 0,
+    };
+  } catch (error) {
+    console.error("Failed to get cache stats:", error);
+    return { total_places: 0, pro_tier_count: 0 };
+  }
+}
