@@ -76,8 +76,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
+    <>
+      <DeveloperModeBanner />
+      <div className="min-h-screen flex flex-col">
+        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
@@ -190,7 +192,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 };
 
