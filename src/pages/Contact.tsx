@@ -136,16 +136,30 @@ const Contact = () => {
                     <CardTitle className="text-base">Support</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="flex items-start gap-3">
                         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <Mail className="w-4 h-4 text-primary" />
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Email</p>
-                          <a href="mailto:info@rebookedsolutions.co.za" className="text-sm font-medium hover:text-primary transition-colors">
-                            info@rebookedsolutions.co.za
+                          <a href="mailto:support@rebookedsolutions.co.za" className="text-sm font-medium hover:text-primary transition-colors">
+                            support@rebookedsolutions.co.za
                           </a>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Working Hours</p>
+                          <div className="space-y-1 text-sm">
+                            <p className="font-medium text-foreground">Monday–Friday</p>
+                            <p className="text-muted-foreground">09:00–17:00</p>
+                            <p className="font-medium text-foreground mt-2">Saturday–Sunday</p>
+                            <p className="text-muted-foreground">Closed</p>
+                          </div>
                         </div>
                       </div>
                     </div>
