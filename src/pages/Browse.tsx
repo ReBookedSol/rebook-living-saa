@@ -7,9 +7,12 @@ import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import React, { useState, useCallback } from "react";
-import { Info } from "lucide-react";
+import { Info, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
+import { AIAccommodationAssistant } from "@/components/AIAccommodationAssistant";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -165,11 +168,28 @@ const Browse = () => {
   };
 
   const [showFilters, setShowFilters] = useState(true);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <SearchBar />
+
+        {/* AI Assistant Toggle */}
+        <Collapsible open={showAIAssistant} onOpenChange={setShowAIAssistant} className="mt-4">
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                AI Accommodation Assistant
+              </span>
+              {showAIAssistant ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <AIAccommodationAssistant />
+          </CollapsibleContent>
+        </Collapsible>
 
         <Alert className="mt-4 mb-8 bg-muted/50 border-muted">
           <Info className="h-4 w-4 flex-shrink-0" />

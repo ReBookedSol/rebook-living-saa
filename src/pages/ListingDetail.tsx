@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock, Image } from "lucide-react";
+import { MapPin, Star, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock, Image, Car, Footprints } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
@@ -258,6 +258,10 @@ const ListingDetail = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
   const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set());
+  const [travelInfo, setTravelInfo] = useState<{
+    driving: { distance: string; duration: string } | null;
+    walking: { distance: string; duration: string } | null;
+  }>({ driving: null, walking: null });
 
   // Fetch place data from cache/API
   const { data: placeCache, isLoading: placeCacheLoading } = useQuery({
@@ -347,6 +351,65 @@ const ListingDetail = () => {
               map.setCenter(place.geometry.location);
               map.setZoom(17);
               markerRef.current = new google.maps.Marker({ map, position: place.geometry.location, title: place.name });
+
+              // Calculate distance to university if available
+              if (isPaidUser && listing?.university) {
+                const universityQuery = `${listing.university}, South Africa`;
+                const geocoder = new google.maps.Geocoder();
+                
+                geocoder.geocode({ address: universityQuery }, (uniResults: any, uniStatus: any) => {
+                  if (uniStatus === google.maps.GeocoderStatus.OK && uniResults[0]) {
+                    const universityLocation = uniResults[0].geometry.location;
+                    
+                    // Add university marker
+                    new google.maps.Marker({
+                      map,
+                      position: universityLocation,
+                      title: listing.university,
+                      icon: { url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" },
+                    });
+
+                    // Fit bounds to show both markers
+                    const bounds = new google.maps.LatLngBounds();
+                    bounds.extend(place.geometry.location);
+                    bounds.extend(universityLocation);
+                    map.fitBounds(bounds);
+
+                    // Calculate travel times
+                    const directionsService = new google.maps.DirectionsService();
+                    
+                    // Driving
+                    directionsService.route({
+                      origin: place.geometry.location,
+                      destination: universityLocation,
+                      travelMode: google.maps.TravelMode.DRIVING,
+                    }, (result: any, dStatus: any) => {
+                      if (dStatus === google.maps.DirectionsStatus.OK) {
+                        const route = result.routes[0].legs[0];
+                        setTravelInfo(prev => ({
+                          ...prev,
+                          driving: { distance: route.distance.text, duration: route.duration.text },
+                        }));
+                      }
+                    });
+
+                    // Walking
+                    directionsService.route({
+                      origin: place.geometry.location,
+                      destination: universityLocation,
+                      travelMode: google.maps.TravelMode.WALKING,
+                    }, (result: any, wStatus: any) => {
+                      if (wStatus === google.maps.DirectionsStatus.OK) {
+                        const route = result.routes[0].legs[0];
+                        setTravelInfo(prev => ({
+                          ...prev,
+                          walking: { distance: route.distance.text, duration: route.duration.text },
+                        }));
+                      }
+                    });
+                  }
+                });
+              }
             }
 
             service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
@@ -813,7 +876,7 @@ const ListingDetail = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6">
+                <CardContent className="p-4 md:p-6 space-y-4">
                   {isPaidUser && (
                     <div className="flex gap-2 mb-3">
                       <Button
@@ -830,6 +893,45 @@ const ListingDetail = () => {
                     </div>
                   )}
                   <div ref={mapRef} id="gmaps" className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
+                  
+                  {/* Travel Times - Pro users only */}
+                  {isPaidUser && listing.university && (travelInfo.driving || travelInfo.walking) && (
+                    <div className="pt-4 border-t">
+                      <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-primary" />
+                        Distance to {listing.university}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {travelInfo.driving && (
+                          <div className="p-3 rounded-lg bg-muted/50">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Car className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs font-medium">Driving</span>
+                            </div>
+                            <p className="text-sm font-semibold">{travelInfo.driving.duration}</p>
+                            <p className="text-xs text-muted-foreground">{travelInfo.driving.distance}</p>
+                          </div>
+                        )}
+                        {travelInfo.walking && (
+                          <div className="p-3 rounded-lg bg-muted/50">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Footprints className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs font-medium">Walking</span>
+                            </div>
+                            <p className="text-sm font-semibold">{travelInfo.walking.duration}</p>
+                            <p className="text-xs text-muted-foreground">{travelInfo.walking.distance}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Upgrade prompt for free users */}
+                  {!isPaidUser && (
+                    <div className="pt-3 border-t">
+                      <UpgradePrompt type="map" compact buttonText="Unlock travel times & satellite view" />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
