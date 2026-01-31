@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Database, Image, MessageSquare, Clock, CheckCircle2 } from "lucide-react";
+import { Database, Image, MessageSquare, Clock, CheckCircle2, Trash2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 interface PlaceCacheRow {
   place_id: string;
@@ -16,6 +18,8 @@ interface PlaceCacheRow {
 }
 
 const PlaceCacheTab = () => {
+  const queryClient = useQueryClient();
+
   const { data: cacheStats, isLoading: statsLoading } = useQuery({
     queryKey: ["place-cache-stats"],
     queryFn: async () => {
@@ -24,7 +28,6 @@ const PlaceCacheTab = () => {
         supabase.from("place_cache").select("*", { count: "exact", head: true }).eq("cached_tier", "pro"),
       ]);
 
-      // Get total photos and reviews
       const { data: aggregates } = await supabase
         .from("place_cache")
         .select("photo_count, review_count");
@@ -52,6 +55,63 @@ const PlaceCacheTab = () => {
 
       if (error) throw error;
       return data as PlaceCacheRow[];
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (placeId: string) => {
+      const { error } = await supabase
+        .from("place_cache")
+        .delete()
+        .eq("place_id", placeId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["place-cache-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["place-cache-recent"] });
+      toast.success("Cache entry deleted");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete: " + error.message);
+    },
+  });
+
+  const refreshMutation = useMutation({
+    mutationFn: async (placeId: string) => {
+      // Mark as expired by setting cached_at to old date, next view will refresh
+      const { error } = await supabase
+        .from("place_cache")
+        .update({ 
+          cached_at: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString() 
+        })
+        .eq("place_id", placeId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["place-cache-recent"] });
+      toast.success("Cache marked for refresh - will update on next view");
+    },
+    onError: (error) => {
+      toast.error("Failed to mark for refresh: " + error.message);
+    },
+  });
+
+  const clearAllExpiredMutation = useMutation({
+    mutationFn: async () => {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { error } = await supabase
+        .from("place_cache")
+        .delete()
+        .lt("cached_at", thirtyDaysAgo);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["place-cache-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["place-cache-recent"] });
+      toast.success("Expired cache entries cleared");
+    },
+    onError: (error) => {
+      toast.error("Failed to clear: " + error.message);
     },
   });
 
@@ -109,11 +169,20 @@ const PlaceCacheTab = () => {
 
       {/* Cache Info */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
             Cache Policy
           </CardTitle>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => clearAllExpiredMutation.mutate()}
+            disabled={clearAllExpiredMutation.isPending}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Clear All Expired
+          </Button>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>• <strong>Cache Duration:</strong> 30 days from last fetch</p>
@@ -139,18 +208,19 @@ const PlaceCacheTab = () => {
                 <TableHead>Tier</TableHead>
                 <TableHead>Cached At</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {cachesLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Loading cache entries...
                   </TableCell>
                 </TableRow>
               ) : recentCaches?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No cached places yet
                   </TableCell>
                 </TableRow>
@@ -188,6 +258,28 @@ const PlaceCacheTab = () => {
                       ) : (
                         <Badge className="bg-green-500">Valid</Badge>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => refreshMutation.mutate(cache.place_id)}
+                          disabled={refreshMutation.isPending}
+                          title="Mark for refresh"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteMutation.mutate(cache.place_id)}
+                          disabled={deleteMutation.isPending}
+                          title="Delete cache entry"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
