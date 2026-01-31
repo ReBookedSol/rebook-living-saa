@@ -396,6 +396,10 @@ const ListingDetail = () => {
   }, [mapType, isPaidUser]);
 
   const enterStreetView = () => {
+    if (!isPaidUser) {
+      toast.error('Street View is available with a premium pass');
+      return;
+    }
     try {
       const google = (window as any).google;
       if (!google || !mapInstanceRef.current) return;
