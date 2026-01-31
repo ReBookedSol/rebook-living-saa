@@ -399,12 +399,12 @@ const ListingDetail = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-8">
           {/* Back Button */}
-          <Link to={returnPath} className="inline-block mb-6">
-            <Button variant="ghost" className="gap-2 hover:bg-muted">
+          <Link to={returnPath} className="inline-block mb-4">
+            <Button variant="ghost" size="sm" className="gap-2 hover:bg-muted text-sm">
               <ArrowLeft className="h-4 w-4" />
-              Back to browse
+              Back
             </Button>
           </Link>
 
