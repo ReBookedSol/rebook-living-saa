@@ -124,24 +124,25 @@ async function handleInitialize(req: Request, supabase: any) {
   // Get BobPay credentials
   const bobpayToken = Deno.env.get("BOBPAY_API_TOKEN");
   const accountCode = Deno.env.get("BOBPAY_ACCOUNT_CODE");
-  
+
   // Validate credentials
   if (!bobpayToken) {
     console.error("BOBPAY_API_TOKEN not configured");
     throw new Error("BobPay API token not configured. Please check Supabase secrets.");
   }
-  
+
   if (!accountCode) {
     console.error("BOBPAY_ACCOUNT_CODE not configured");
     throw new Error("BobPay account code not configured. Please check Supabase secrets.");
   }
 
-  // Use the callback base URL from secrets
-  const callbackBaseUrl = Deno.env.get("BOBPAY_CALLBACK_BASE_URL");
-  if (!callbackBaseUrl) {
-    console.error("BOBPAY_CALLBACK_BASE_URL not configured");
-    throw new Error("BobPay callback URL not configured. Please check Supabase secrets.");
+  // Extract callback base URL dynamically from request origin
+  const origin = req.headers.get("origin") || req.headers.get("referer")?.split("/").slice(0, 3).join("/");
+  if (!origin) {
+    console.error("Unable to determine request origin");
+    throw new Error("Cannot determine callback URL. Please try again.");
   }
+  const callbackBaseUrl = origin;
 
   console.log("BobPay initialization:", {
     api_url: BOBPAY_API_URL,
