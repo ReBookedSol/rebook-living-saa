@@ -49,12 +49,12 @@ const Browse = () => {
   const ITEMS_PER_PAGE = isLargeScreen ? 15 : 9;
 
   // Helper to update URL with page and preserve other params
-  const setPageInUrl = (newPage: number) => {
+  const setPageInUrl = useCallback((newPage: number) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set("page", newPage.toString());
     setSearchParams(newParams);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [searchParams, setSearchParams]);
 
   // Reset to page 1 when filters change (but not when page param changes)
   React.useEffect(() => {
