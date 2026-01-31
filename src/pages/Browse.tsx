@@ -66,7 +66,7 @@ const Browse = () => {
   }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy, setSearchParams]);
 
   const { data: pageResult, isLoading } = useQuery({
-    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, pageParam],
+    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, pageParam, isLargeScreen],
     queryFn: async () => {
       const from = (pageParam - 1) * ITEMS_PER_PAGE;
       const to = pageParam * ITEMS_PER_PAGE - 1;
