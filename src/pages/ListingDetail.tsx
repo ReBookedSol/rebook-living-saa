@@ -698,11 +698,11 @@ const ListingDetail = () => {
 
                   {listing.certified_universities && listing.certified_universities.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">Accredited For</h3>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Accredited For</h3>
                       <div className="space-y-1">
                         {listing.certified_universities.map((uni: string) => (
-                          <div key={uni} className="flex items-center gap-2 text-foreground">
-                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <div key={uni} className="flex items-center gap-2 text-foreground text-sm">
+                            <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500 flex-shrink-0" />
                             <span>{uni}</span>
                           </div>
                         ))}
@@ -711,9 +711,9 @@ const ListingDetail = () => {
                   )}
 
                   {listing.website && (
-                    <div className="pt-2 border-t">
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Website</h3>
-                      <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-sm">
+                    <div className="pt-3 border-t">
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">Website</h3>
+                      <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-xs md:text-sm">
                         {listing.website}
                       </a>
                     </div>
