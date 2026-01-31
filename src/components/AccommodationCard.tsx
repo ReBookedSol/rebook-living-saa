@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
+import "./AccommodationCard.css";
 
 interface AccommodationCardProps {
   id: string;
