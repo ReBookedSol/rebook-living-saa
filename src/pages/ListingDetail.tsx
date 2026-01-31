@@ -257,6 +257,7 @@ const ListingDetail = () => {
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
+  const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set());
 
   // Fetch place data from cache/API
   const { data: placeCache, isLoading: placeCacheLoading } = useQuery({
