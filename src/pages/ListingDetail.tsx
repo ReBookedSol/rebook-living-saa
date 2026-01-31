@@ -292,8 +292,6 @@ const ListingDetail = () => {
   const cacheAttributions = placeCache?.attributions;
 
   useEffect(() => {
-    if (!isPaidUser) return;
-    
     const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
     if (!apiKey) return;
 
@@ -325,12 +323,12 @@ const ListingDetail = () => {
           center: { lat: -33.9249, lng: 18.4241 },
           zoom: 15,
           mapTypeId: 'roadmap',
-          mapTypeControl: true,
-          mapTypeControlOptions: {
+          mapTypeControl: isPaidUser,
+          mapTypeControlOptions: isPaidUser ? {
             style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
             mapTypeIds: ['roadmap', 'satellite'],
-          },
-          streetViewControl: true,
+          } : undefined,
+          streetViewControl: isPaidUser,
         });
 
         mapInstanceRef.current = map;
