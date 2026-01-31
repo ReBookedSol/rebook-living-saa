@@ -325,11 +325,15 @@ const ListingDetail = () => {
 
             service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
               if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
-                if (detail.reviews) setAllReviews(detail.reviews.slice(0, 10));
+                // Limit reviews based on tier (paid users get up to 10, free users get up to 1)
+                const maxGoogleReviews = isPaidUser ? 10 : 1;
+                if (detail.reviews) setAllReviews(detail.reviews.slice(0, maxGoogleReviews));
+                // Limit photos: paid users get up to 10, free users get up to 3
                 if (detail.photos && detail.photos.length > 0) {
                   try {
-                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                    setAllPhotos(urls);
+                    const maxGooglePhotos = isPaidUser ? 10 : 3;
+                    const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
+                    setAllPhotos(photoUrls);
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }
