@@ -99,6 +99,19 @@ const AccommodationCard = ({
     prompt('Copy this link', url);
   };
 
+  // Check for premium animation flag and clear it after animation
+  useEffect(() => {
+    if (isPaidUser && sessionStorage.getItem("justPaid") === "true") {
+      setShowPremiumBorderAnimation(true);
+      // Clear the flag and animation after 2.5 seconds (duration of animation)
+      const timer = setTimeout(() => {
+        setShowPremiumBorderAnimation(false);
+        sessionStorage.removeItem("justPaid");
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isPaidUser]);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
