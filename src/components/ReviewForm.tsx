@@ -98,6 +98,8 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
       setComment("");
       setHasSubmitted(true);
       setModerationWarning("");
+      // Invalidate the reviews cache so the new review appears immediately
+      queryClient.invalidateQueries({ queryKey: ["reviews", accommodationId] });
       onReviewSubmitted?.();
       setTimeout(() => setHasSubmitted(false), 3000);
     },
