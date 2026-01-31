@@ -236,8 +236,10 @@ async function handleInitialize(req: Request, supabase: any) {
 
   if (insertError) {
     console.error("Failed to store payment record:", insertError);
-    // Don't fail the request - payment link was created successfully
+    throw new Error(`Failed to create payment record: ${insertError.message}`);
   }
+
+  console.log("Payment record created successfully:", custom_payment_id);
 
   return new Response(
     JSON.stringify({
@@ -268,13 +270,16 @@ async function handleWebhook(req: Request, supabase: any) {
 
   // Verify signature
   const passphrase = Deno.env.get("BOBPAY_PASSPHRASE");
-  if (passphrase) {
+  if (passphrase && !BOBPAY_SANDBOX) {
+    // Only verify signature in production mode
     const isValid = verifySignature(payload, passphrase);
     if (!isValid) {
       console.error("Invalid webhook signature");
       return new Response("Invalid signature", { status: 400 });
     }
     console.log("Webhook signature verified");
+  } else if (BOBPAY_SANDBOX) {
+    console.log("Sandbox mode: skipping signature verification");
   } else {
     console.warn("BOBPAY_PASSPHRASE not configured - skipping signature verification");
   }

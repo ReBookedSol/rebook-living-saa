@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Clock, Home } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Home, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const PaymentResult = () => {
@@ -14,48 +14,72 @@ const PaymentResult = () => {
     type?: string;
     expiresAt?: string;
   }>({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const paymentId = searchParams.get("payment_id");
 
-  useEffect(() => {
-    const verifyPayment = async () => {
-      if (!paymentId) {
-        setStatus("failed");
+  const verifyPayment = async () => {
+    if (!paymentId) {
+      setStatus("failed");
+      return;
+    }
+
+    try {
+      // Check payment status in database
+      const { data: payment, error } = await supabase
+        .from("user_payments")
+        .select("*")
+        .eq("custom_payment_id", paymentId)
+        .single();
+
+      if (error || !payment) {
+        setStatus("pending");
         return;
       }
 
-      try {
-        // Check payment status in database
-        const { data: payment, error } = await supabase
-          .from("user_payments")
-          .select("*")
-          .eq("custom_payment_id", paymentId)
-          .single();
-
-        if (error || !payment) {
-          setStatus("pending");
-          return;
-        }
-
-        if (payment.status === "active") {
-          setStatus("success");
-          setPaymentDetails({
-            type: payment.payment_type,
-            expiresAt: payment.access_expires_at,
-          });
-        } else if (payment.status === "pending") {
-          setStatus("pending");
-        } else {
-          setStatus("failed");
-        }
-      } catch (err) {
-        console.error("Payment verification error:", err);
+      if (payment.status === "active") {
+        setStatus("success");
+        setPaymentDetails({
+          type: payment.payment_type,
+          expiresAt: payment.access_expires_at,
+        });
+      } else if (payment.status === "pending") {
         setStatus("pending");
+      } else {
+        setStatus("failed");
       }
-    };
+    } catch (err) {
+      console.error("Payment verification error:", err);
+      setStatus("pending");
+    }
+  };
 
+  useEffect(() => {
     verifyPayment();
+
+    // Poll for status updates every 2 seconds
+    const pollInterval = setInterval(() => {
+      verifyPayment();
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
   }, [paymentId]);
+
+  // Auto-redirect to browse page after 5 seconds if payment is successful
+  useEffect(() => {
+    if (status === "success") {
+      const redirectTimer = setTimeout(() => {
+        navigate("/browse");
+      }, 5000);
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [status, navigate]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await verifyPayment();
+    setIsRefreshing(false);
+  };
 
   const resultContent = {
     loading: {
@@ -73,7 +97,7 @@ const PaymentResult = () => {
     pending: {
       icon: <Clock className="w-16 h-16 text-yellow-500" />,
       title: "Payment Processing",
-      description: "Your payment is being processed. This may take a few moments. You'll have full access once confirmed.",
+      description: "Your payment is being confirmed. We're checking the status and will activate your access shortly. This usually takes 5-10 seconds.",
       bgColor: "bg-yellow-50 dark:bg-yellow-950",
     },
     failed: {
@@ -114,10 +138,32 @@ const PaymentResult = () => {
             )}
 
             <div className="flex flex-col gap-2">
-              <Button onClick={() => navigate("/browse")} className="w-full">
-                <Home className="w-4 h-4 mr-2" />
-                Browse Accommodations
-              </Button>
+              {status === "success" && (
+                <Button onClick={() => navigate("/browse")} className="w-full">
+                  <Home className="w-4 h-4 mr-2" />
+                  Browse Accommodations (auto-redirect in 5s)
+                </Button>
+              )}
+              {status === "pending" && (
+                <>
+                  <Button
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    className="w-full"
+                  >
+                    <RotateCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+                    {isRefreshing ? "Checking..." : "Check Status"}
+                  </Button>
+                  <Button
+                    onClick={() => navigate("/browse")}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Home className="w-4 h-4 mr-2" />
+                    Continue to Browse
+                  </Button>
+                </>
+              )}
               {status === "failed" && (
                 <Button variant="outline" onClick={() => navigate("/profile")}>
                   Try Again
