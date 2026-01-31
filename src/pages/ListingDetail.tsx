@@ -870,6 +870,7 @@ const ListingDetail = () => {
                         <ReviewsList
                           accommodationId={id}
                           onReviewsUpdated={() => setReviewsRefreshTrigger(prev => prev + 1)}
+                          maxReviews={isPaidUser ? undefined : FREE_TIER_LIMITS.MAX_REVIEWS}
                         />
 
                         {/* Google Reviews */}
