@@ -97,7 +97,7 @@ const PaymentResult = () => {
     pending: {
       icon: <Clock className="w-16 h-16 text-yellow-500" />,
       title: "Payment Processing",
-      description: "Your payment is being processed. This may take a few moments. You'll have full access once confirmed.",
+      description: "Your payment is being confirmed. We're checking the status and will activate your access shortly. This usually takes 5-10 seconds.",
       bgColor: "bg-yellow-50 dark:bg-yellow-950",
     },
     failed: {
@@ -138,10 +138,32 @@ const PaymentResult = () => {
             )}
 
             <div className="flex flex-col gap-2">
-              <Button onClick={() => navigate("/browse")} className="w-full">
-                <Home className="w-4 h-4 mr-2" />
-                Browse Accommodations
-              </Button>
+              {status === "success" && (
+                <Button onClick={() => navigate("/browse")} className="w-full">
+                  <Home className="w-4 h-4 mr-2" />
+                  Browse Accommodations (auto-redirect in 5s)
+                </Button>
+              )}
+              {status === "pending" && (
+                <>
+                  <Button
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    className="w-full"
+                  >
+                    <RotateCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+                    {isRefreshing ? "Checking..." : "Check Status"}
+                  </Button>
+                  <Button
+                    onClick={() => navigate("/browse")}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Home className="w-4 h-4 mr-2" />
+                    Continue to Browse
+                  </Button>
+                </>
+              )}
               {status === "failed" && (
                 <Button variant="outline" onClick={() => navigate("/profile")}>
                   Try Again
