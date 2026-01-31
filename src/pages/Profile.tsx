@@ -254,7 +254,7 @@ const Profile = () => {
                   <h1 className="text-lg sm:text-2xl md:text-3xl font-bold">{firstName || lastName ? `${firstName} ${lastName}` : user.email}</h1>
                   {hasActivePayment && (
                     <div title="Premium Member">
-                      <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-500 fill-yellow-500" />
+                      <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                     </div>
                   )}
                 </div>
