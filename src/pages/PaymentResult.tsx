@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, Home, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAccessControl } from "@/hooks/useAccessControl";
 
 const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refresh: refreshAccessControl } = useAccessControl();
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed">("loading");
   const [paymentDetails, setPaymentDetails] = useState<{
     type?: string;
