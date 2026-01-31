@@ -584,9 +584,9 @@ const ListingDetail = () => {
                       {/* Blurred Locked Photos for Free Users */}
                       {hasMorePhotos && (
                         <>
-                          <div className="mt-8 pt-6 border-t">
-                            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">More photos locked</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                          <div className="mt-6 pt-4 md:mt-8 md:pt-6 border-t">
+                            <h4 className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">More photos locked</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                               {(() => {
                                 // Generate 10 different stock house images
                                 const lockedPhotoPlaceholders = [
