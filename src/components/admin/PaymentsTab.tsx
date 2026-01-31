@@ -48,7 +48,7 @@ const PaymentsTab = () => {
     queryKey: ["admin-payments", statusFilter],
     queryFn: async () => {
       let query = supabase
-        .from("user_payments")
+        .from("payments")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -82,17 +82,17 @@ const PaymentsTab = () => {
       
       const [activeResult, totalResult, revenueResult] = await Promise.all([
         supabase
-          .from("user_payments")
+          .from("payments")
           .select("id", { count: "exact" })
-          .eq("status", "active")
-          .gt("access_expires_at", now),
+          .eq("status", "successful")
+          .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
         supabase
-          .from("user_payments")
+          .from("payments")
           .select("id", { count: "exact" }),
         supabase
-          .from("user_payments")
+          .from("payments")
           .select("amount")
-          .eq("status", "active"),
+          .eq("status", "successful"),
       ]);
 
       const totalRevenue = revenueResult.data?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
@@ -100,7 +100,7 @@ const PaymentsTab = () => {
       return {
         activeUsers: activeResult.count || 0,
         totalPayments: totalResult.count || 0,
-        totalRevenue: totalRevenue / 100, // Convert from cents
+        totalRevenue: totalRevenue,
       };
     },
   });
@@ -121,15 +121,20 @@ const PaymentsTab = () => {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + data.days);
 
-      const { error } = await supabase.from("user_payments").insert({
+      const { error } = await supabase.from("payments").insert({
         user_id: profile.id,
-        payment_type: data.paymentType,
-        amount: data.paymentType === "weekly" ? 2000 : 6000,
-        status: "active",
-        paid_at: new Date().toISOString(),
-        access_expires_at: expiresAt.toISOString(),
-        custom_payment_id: `ADMIN-GRANT-${Date.now()}`,
+        payment_type: "one_time",
+        subscription_plan: data.paymentType,
+        amount: data.paymentType === "weekly" ? 19 : 59,
+        currency: "ZAR",
+        status: "successful",
+        description: `Admin grant for ${data.paymentType} access`,
+        transaction_reference: `ADMIN-GRANT-${Date.now()}`,
         payment_method: "admin_grant",
+        metadata: {
+          duration_days: data.days,
+          admin_granted: true,
+        },
       });
 
       if (error) throw error;
@@ -149,7 +154,7 @@ const PaymentsTab = () => {
   const updatePaymentMutation = useMutation({
     mutationFn: async (data: { id: string; status?: string; access_expires_at?: string }) => {
       const { error } = await supabase
-        .from("user_payments")
+        .from("payments")
         .update(data)
         .eq("id", data.id);
 

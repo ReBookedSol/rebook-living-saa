@@ -27,9 +27,9 @@ const PaymentResult = () => {
     try {
       // Check payment status in database
       const { data: payment, error } = await supabase
-        .from("user_payments")
+        .from("payments")
         .select("*")
-        .eq("custom_payment_id", paymentId)
+        .eq("transaction_reference", paymentId)
         .single();
 
       if (error || !payment) {
@@ -37,11 +37,16 @@ const PaymentResult = () => {
         return;
       }
 
-      if (payment.status === "active") {
+      if (payment.status === "successful") {
+        // Calculate expiry date based on created_at and duration_days in metadata
+        const duration_days = payment.metadata?.duration_days || 30;
+        const createdAt = new Date(payment.created_at);
+        const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+
         setStatus("success");
         setPaymentDetails({
-          type: payment.payment_type,
-          expiresAt: payment.access_expires_at,
+          type: payment.subscription_plan,
+          expiresAt: expiresAt.toISOString(),
         });
       } else if (payment.status === "pending") {
         setStatus("pending");

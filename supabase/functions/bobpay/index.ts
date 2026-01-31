@@ -4,7 +4,7 @@ import { createHash } from "https://deno.land/std@0.177.0/node/crypto.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 // BobPay API configuration - check if using sandbox or production
@@ -12,10 +12,6 @@ const BOBPAY_SANDBOX = Deno.env.get("BOBPAY_SANDBOX") === "true";
 const BOBPAY_API_URL = BOBPAY_SANDBOX 
   ? "https://api.sandbox.bobpay.co.za/v2"
   : "https://api.bobpay.co.za/v2";
-
-const BOBPAY_PAYMENT_URL = BOBPAY_SANDBOX
-  ? "https://sandbox.bobpay.co.za"
-  : "https://my.bobpay.co.za";
 
 // Allowed IPs for webhook verification
 const ALLOWED_IPS = ["13.246.115.225", "13.246.100.25"];
@@ -61,10 +57,13 @@ interface WebhookPayload {
   cancel_url: string;
 }
 
+// deno-lint-ignore no-explicit-any
+type SupabaseClientType = any;
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -74,8 +73,9 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const action = url.pathname.split("/").pop();
 
+  console.log("BobPay function called with action:", action);
+
   try {
-    // Handle different actions
     switch (action) {
       case "initialize":
         return await handleInitialize(req, supabase);
@@ -101,9 +101,11 @@ Deno.serve(async (req) => {
   }
 });
 
-async function handleInitialize(req: Request, supabase: any) {
+async function handleInitialize(req: Request, supabase: SupabaseClientType) {
   const body: PaymentRequest = await req.json();
   const { payment_type, email, user_id } = body;
+
+  console.log("Initialize payment request:", { payment_type, email, user_id });
 
   if (!payment_type || !email || !user_id) {
     return new Response(
@@ -118,14 +120,13 @@ async function handleInitialize(req: Request, supabase: any) {
   const item_name = payment_type === "weekly" ? "Weekly Access Pass" : "Monthly Access Pass";
   const item_description = `ReBooked ${payment_type === "weekly" ? "7-day" : "30-day"} premium access - all photos, reviews, maps & no ads`;
 
-  // Generate unique payment ID
+  // Generate unique payment ID (used as transaction_reference)
   const custom_payment_id = `RB-${user_id.slice(0, 8)}-${Date.now()}`;
 
   // Get BobPay credentials
   const bobpayToken = Deno.env.get("BOBPAY_API_TOKEN");
   const accountCode = Deno.env.get("BOBPAY_ACCOUNT_CODE");
 
-  // Validate credentials
   if (!bobpayToken) {
     console.error("BOBPAY_API_TOKEN not configured");
     throw new Error("BobPay API token not configured. Please check Supabase secrets.");
@@ -153,7 +154,7 @@ async function handleInitialize(req: Request, supabase: any) {
     custom_payment_id,
   });
 
-  // Prepare request body matching Postman structure
+  // Prepare request body for BobPay API
   const requestBody = {
     recipient_account_code: accountCode,
     custom_payment_id,
@@ -180,13 +181,11 @@ async function handleInitialize(req: Request, supabase: any) {
     body: JSON.stringify(requestBody),
   });
 
-  // Handle response defensively
   const contentType = paymentResponse.headers.get("content-type");
   
   if (!paymentResponse.ok) {
     let errorDetail = `BobPay API error: ${paymentResponse.status}`;
     
-    // Try to parse error response
     if (contentType?.includes("application/json")) {
       try {
         const errorData = await paymentResponse.json();
@@ -200,7 +199,6 @@ async function handleInitialize(req: Request, supabase: any) {
       console.error("BobPay API non-JSON error:", textResponse.substring(0, 500));
     }
     
-    // Provide helpful error messages
     if (paymentResponse.status === 401) {
       throw new Error("BobPay authentication failed. Please verify your API token in Supabase secrets.");
     } else if (paymentResponse.status === 403) {
@@ -210,7 +208,6 @@ async function handleInitialize(req: Request, supabase: any) {
     }
   }
 
-  // Parse successful response
   if (!contentType?.includes("application/json")) {
     const textResponse = await paymentResponse.text();
     console.error("BobPay returned non-JSON success response:", textResponse.substring(0, 200));
@@ -220,18 +217,25 @@ async function handleInitialize(req: Request, supabase: any) {
   const paymentData = await paymentResponse.json();
   console.log("BobPay success response:", JSON.stringify(paymentData, null, 2));
 
-  // Store pending payment record
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + duration_days);
-
-  const { error: insertError } = await supabase.from("user_payments").insert({
+  // Store pending payment record in the existing "payments" table
+  // Using correct values that match the CHECK constraints:
+  // - payment_type must be: 'subscription', 'one_time', 'tutoring', 'refund'
+  // - status must be: 'pending', 'successful', 'failed', 'refunded'
+  const { error: insertError } = await supabase.from("payments").insert({
     user_id,
-    payment_type,
-    amount: amount * 100, // Store in cents
+    payment_type: "one_time", // One-time payment for access passes
+    amount: amount, // Store in Rands (not cents)
+    currency: "ZAR",
     status: "pending",
-    custom_payment_id,
-    payment_provider: "bobpay",
-    access_expires_at: expiresAt.toISOString(),
+    payment_method: "bobpay",
+    subscription_plan: payment_type, // Store "weekly" or "monthly" here
+    description: item_description,
+    transaction_reference: custom_payment_id,
+    metadata: {
+      duration_days,
+      item_name,
+      bobpay_sandbox: BOBPAY_SANDBOX,
+    },
   });
 
   if (insertError) {
@@ -251,27 +255,19 @@ async function handleInitialize(req: Request, supabase: any) {
   );
 }
 
-async function handleWebhook(req: Request, supabase: any) {
-  // Verify source IP (in production)
+async function handleWebhook(req: Request, supabase: SupabaseClientType) {
   const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || 
                    req.headers.get("cf-connecting-ip") ||
                    req.headers.get("x-real-ip");
   
   console.log("Webhook received from IP:", clientIp);
-  
-  // Note: In sandbox mode, we skip IP verification
-  // if (clientIp && !ALLOWED_IPS.includes(clientIp)) {
-  //   console.warn("Webhook from unauthorized IP:", clientIp);
-  //   return new Response("Forbidden", { status: 403 });
-  // }
 
   const payload: WebhookPayload = await req.json();
   console.log("BobPay webhook received:", JSON.stringify(payload, null, 2));
 
-  // Verify signature
+  // Verify signature in production mode
   const passphrase = Deno.env.get("BOBPAY_PASSPHRASE");
   if (passphrase && !BOBPAY_SANDBOX) {
-    // Only verify signature in production mode
     const isValid = verifySignature(payload, passphrase);
     if (!isValid) {
       console.error("Invalid webhook signature");
@@ -290,47 +286,44 @@ async function handleWebhook(req: Request, supabase: any) {
     return new Response("OK", { status: 200 });
   }
 
-  // Find and update the payment record
+  // Find the payment record by transaction_reference
   const { data: existingPayment, error: findError } = await supabase
-    .from("user_payments")
+    .from("payments")
     .select("*")
-    .eq("custom_payment_id", payload.custom_payment_id)
+    .eq("transaction_reference", payload.custom_payment_id)
     .single();
 
   if (findError || !existingPayment) {
-    console.error("Payment record not found:", payload.custom_payment_id);
-    // Still return 200 to acknowledge receipt
+    console.error("Payment record not found:", payload.custom_payment_id, findError);
     return new Response("OK", { status: 200 });
   }
 
-  // Calculate new expiry date from now
-  const duration_days = existingPayment.payment_type === "weekly" ? 7 : 30;
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + duration_days);
-
-  // Update payment to active
+  // Update payment to successful
   const { error: updateError } = await supabase
-    .from("user_payments")
+    .from("payments")
     .update({
-      status: "active",
-      paid_at: new Date().toISOString(),
-      access_expires_at: expiresAt.toISOString(),
-      bobpay_payment_id: payload.payment_id?.toString(),
-      bobpay_uuid: payload.uuid,
-      payment_method: payload.payment_method,
-      raw_payload: payload,
+      status: "successful",
+      payment_method: payload.payment_method || "bobpay",
+      metadata: {
+        ...existingPayment.metadata,
+        paid_at: new Date().toISOString(),
+        bobpay_payment_id: payload.payment_id?.toString(),
+        bobpay_uuid: payload.uuid,
+        raw_webhook: payload,
+      },
+      updated_at: new Date().toISOString(),
     })
-    .eq("custom_payment_id", payload.custom_payment_id);
+    .eq("transaction_reference", payload.custom_payment_id);
 
   if (updateError) {
     console.error("Failed to update payment:", updateError);
   }
 
-  console.log("Payment activated for:", payload.custom_payment_id);
+  console.log("Payment marked as successful:", payload.custom_payment_id);
   return new Response("OK", { status: 200 });
 }
 
-async function handleVerify(req: Request, supabase: any) {
+async function handleVerify(req: Request, supabase: SupabaseClientType) {
   const { custom_payment_id } = await req.json();
 
   if (!custom_payment_id) {
@@ -341,9 +334,9 @@ async function handleVerify(req: Request, supabase: any) {
   }
 
   const { data: payment, error } = await supabase
-    .from("user_payments")
+    .from("payments")
     .select("*")
-    .eq("custom_payment_id", custom_payment_id)
+    .eq("transaction_reference", custom_payment_id)
     .single();
 
   if (error || !payment) {
@@ -353,19 +346,24 @@ async function handleVerify(req: Request, supabase: any) {
     );
   }
 
+  // Calculate if access is still active based on metadata duration
+  const duration_days = payment.metadata?.duration_days || 30;
+  const createdAt = new Date(payment.created_at);
+  const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+  const isActive = payment.status === "successful" && new Date() < expiresAt;
+
   return new Response(
     JSON.stringify({
       status: payment.status,
-      payment_type: payment.payment_type,
-      access_expires_at: payment.access_expires_at,
-      is_active: payment.status === "active" && new Date(payment.access_expires_at) > new Date(),
+      payment_type: payment.subscription_plan,
+      access_expires_at: expiresAt.toISOString(),
+      is_active: isActive,
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 }
 
-async function handleStatus(req: Request, supabase: any) {
-  // Get user from authorization header
+async function handleStatus(req: Request, supabase: SupabaseClientType) {
   const authHeader = req.headers.get("authorization");
   if (!authHeader) {
     return new Response(
@@ -384,27 +382,32 @@ async function handleStatus(req: Request, supabase: any) {
     );
   }
 
-  // Check for active payment
-  const { data: payment } = await supabase
-    .from("user_payments")
+  // Check for successful payment
+  const { data: payments } = await supabase
+    .from("payments")
     .select("*")
     .eq("user_id", user.id)
-    .eq("status", "active")
-    .gt("access_expires_at", new Date().toISOString())
-    .order("access_expires_at", { ascending: false })
-    .limit(1)
-    .single();
+    .eq("status", "successful")
+    .order("created_at", { ascending: false })
+    .limit(1);
 
-  if (payment) {
-    return new Response(
-      JSON.stringify({
-        access_level: "paid",
-        has_active_payment: true,
-        payment_type: payment.payment_type,
-        expires_at: payment.access_expires_at,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  if (payments && payments.length > 0) {
+    const payment = payments[0];
+    const duration_days = payment.metadata?.duration_days || 30;
+    const createdAt = new Date(payment.created_at);
+    const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+    
+    if (new Date() < expiresAt) {
+      return new Response(
+        JSON.stringify({
+          access_level: "paid",
+          has_active_payment: true,
+          payment_type: payment.subscription_plan,
+          expires_at: expiresAt.toISOString(),
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
   }
 
   return new Response(

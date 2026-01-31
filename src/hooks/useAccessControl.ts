@@ -29,16 +29,14 @@ export const useAccessControl = () => {
         return;
       }
 
-      // Check for active payment directly in database
-      const { data: payment, error } = await supabase
-        .from("user_payments")
+      // Check for successful payment directly in database
+      const { data: payments, error } = await supabase
+        .from("payments")
         .select("*")
         .eq("user_id", session.user.id)
-        .eq("status", "active")
-        .gt("access_expires_at", new Date().toISOString())
-        .order("access_expires_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .eq("status", "successful")
+        .order("created_at", { ascending: false })
+        .limit(1);
 
       if (error) {
         console.error("Error checking access:", error);
@@ -50,14 +48,28 @@ export const useAccessControl = () => {
         return;
       }
 
-      if (payment) {
-        setStatus({
-          accessLevel: "paid",
-          hasActivePayment: true,
-          paymentType: payment.payment_type as "weekly" | "monthly",
-          expiresAt: payment.access_expires_at,
-          isLoading: false,
-        });
+      if (payments && payments.length > 0) {
+        const payment = payments[0];
+        // Calculate expiry date based on created_at and duration_days from metadata
+        const duration_days = payment.metadata?.duration_days || 30;
+        const createdAt = new Date(payment.created_at);
+        const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+
+        if (expiresAt > new Date()) {
+          setStatus({
+            accessLevel: "paid",
+            hasActivePayment: true,
+            paymentType: payment.subscription_plan as "weekly" | "monthly",
+            expiresAt: expiresAt.toISOString(),
+            isLoading: false,
+          });
+        } else {
+          setStatus({
+            accessLevel: "free",
+            hasActivePayment: false,
+            isLoading: false,
+          });
+        }
       } else {
         setStatus({
           accessLevel: "free",
