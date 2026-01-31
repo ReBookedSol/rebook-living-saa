@@ -123,16 +123,66 @@ const APSCalculator = () => {
   );
 };
 
+// University logos mapping - use abbreviation as key
+const UNIVERSITY_LOGOS: Record<string, string> = {
+  "CPUT": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Cape_Peninsula_University_of_Technology_logo.svg/800px-Cape_Peninsula_University_of_Technology_logo.svg.png",
+  "CUT": "https://upload.wikimedia.org/wikipedia/en/thumb/5/55/Central_University_of_Technology_logo.svg/800px-Central_University_of_Technology_logo.svg.png",
+  "DUT": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5a/Durban_University_of_Technology_logo.svg/800px-Durban_University_of_Technology_logo.svg.png",
+  "MUT": "https://upload.wikimedia.org/wikipedia/en/d/d7/Mangosuthu_University_of_Technology_logo.png",
+  "NMU": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a3/Nelson_Mandela_University_logo.svg/800px-Nelson_Mandela_University_logo.svg.png",
+  "NWU": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3f/NWU_Logo.svg/800px-NWU_Logo.svg.png",
+  "RU": "https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Rhodes_University_logo.svg/800px-Rhodes_University_logo.svg.png",
+  "SMU": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e5/Sefako_Makgatho_Health_Sciences_University_logo.svg/800px-Sefako_Makgatho_Health_Sciences_University_logo.svg.png",
+  "SPU": "https://upload.wikimedia.org/wikipedia/en/thumb/9/99/Sol_Plaatje_University_logo.svg/800px-Sol_Plaatje_University_logo.svg.png",
+  "SU": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Stellenbosch_University_logo.svg/800px-Stellenbosch_University_logo.svg.png",
+  "TUT": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e7/Tshwane_University_of_Technology_logo.svg/800px-Tshwane_University_of_Technology_logo.svg.png",
+  "UCT": "https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Cape_Town_logo.svg/800px-University_of_Cape_Town_logo.svg.png",
+  "UFH": "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/University_of_Fort_Hare_logo.svg/800px-University_of_Fort_Hare_logo.svg.png",
+  "UFS": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/University_of_the_Free_State_logo.svg/800px-University_of_the_Free_State_logo.svg.png",
+  "UJ": "https://upload.wikimedia.org/wikipedia/en/thumb/0/01/University_of_Johannesburg_logo.svg/800px-University_of_Johannesburg_logo.svg.png",
+  "UKZN": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e9/University_of_KwaZulu-Natal_logo.svg/800px-University_of_KwaZulu-Natal_logo.svg.png",
+  "UL": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/University_of_Limpopo_logo.svg/800px-University_of_Limpopo_logo.svg.png",
+  "UNISA": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/Unisa_logo.svg/800px-Unisa_logo.svg.png",
+  "UMP": "https://upload.wikimedia.org/wikipedia/en/1/14/University_of_Mpumalanga_logo.png",
+  "UP": "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/University_of_Pretoria_logo.svg/800px-University_of_Pretoria_logo.svg.png",
+  "UNIVEN": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/University_of_Venda_logo.svg/800px-University_of_Venda_logo.svg.png",
+  "UWC": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/University_of_the_Western_Cape_logo.svg/800px-University_of_the_Western_Cape_logo.svg.png",
+  "WSU": "https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Walter_Sisulu_University_logo.svg/800px-Walter_Sisulu_University_logo.svg.png",
+  "WITS": "https://upload.wikimedia.org/wikipedia/en/thumb/2/26/Wits_University_logo.svg/800px-Wits_University_logo.svg.png",
+  "UNIZULU": "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/University_of_Zululand_logo.svg/800px-University_of_Zululand_logo.svg.png",
+  "VUT": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Vaal_University_of_Technology_logo.svg/800px-Vaal_University_of_Technology_logo.svg.png",
+};
+
 // University Card Component
 const UniversityCard = ({ university }: { university: any }) => {
+  const abbrev = university.abbreviation?.toUpperCase() || "";
+  const logoUrl = university.logo || UNIVERSITY_LOGOS[abbrev];
+
   return (
     <Link to={`/university/${university.id}`}>
       <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border border-slate-200 shadow-sm h-full bg-white">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 flex-1">
-              <div className="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center flex-shrink-0">
-                <GraduationCap className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={`${university.name} logo`}
+                    className="w-10 h-10 object-contain"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      img.style.display = "none";
+                      const fallback = img.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <span
+                  className={`w-10 h-10 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg`}
+                >
+                  {abbrev || university.name?.substring(0, 3)?.toUpperCase()}
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-base group-hover:text-primary transition-colors line-clamp-2">

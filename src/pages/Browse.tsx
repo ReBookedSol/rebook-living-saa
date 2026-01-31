@@ -9,6 +9,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import React, { useState } from "react";
 import { Info } from "lucide-react";
 import Ad from "@/components/Ad";
+import { useSEO } from "@/hooks/useSEO";
 
 const Browse = () => {
   const [searchParams] = useSearchParams();
@@ -20,6 +21,14 @@ const Browse = () => {
   const amenitiesParam = searchParams.get("amenities") || "";
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
+
+  // SEO
+  useSEO({
+    title: university ? `${university} Student Accommodation` : "Browse Student Accommodation",
+    description: `Find verified NSFAS-accredited student accommodation in South Africa 2025/2026. ${university ? `Browse rooms near ${university}.` : "Compare prices, amenities, and reviews."} Safe, affordable housing from R1500/month.`,
+    keywords: `student accommodation South Africa, ${university || "university"} student housing, NSFAS accommodation 2025, student rooms ${province || "South Africa"}`,
+    canonical: "/browse",
+  });
 
   // Default sort: newest first so newly added accommodations appear on page 1
   const [sortBy, setSortBy] = useState("newest");

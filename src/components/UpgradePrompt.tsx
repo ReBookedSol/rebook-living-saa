@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Lock, Camera, Star, Map, XCircle, Sparkles, Check } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Lock, Camera, Star, Map, XCircle, Sparkles, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -52,6 +53,7 @@ const promptContent = {
 export const UpgradePrompt = ({ type, totalCount, className = "", compact = false, buttonText }: UpgradePromptProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<"weekly" | "monthly" | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const navigate = useNavigate();
   const content = promptContent[type];
   const Icon = content.icon;
@@ -59,9 +61,11 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
 
   const handleUpgrade = async (paymentType: "weekly" | "monthly") => {
     setIsLoading(paymentType);
+    setLoadingProgress(10);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      setLoadingProgress(20);
 
       if (!session?.user) {
         toast.error("Please sign in to upgrade");
@@ -69,13 +73,13 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         return;
       }
 
-      // Construct BobPay function URL
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (!supabaseUrl) {
-        throw new Error("Supabase configuration is missing");
-      }
+      setLoadingProgress(30);
 
+      // Use hardcoded Supabase URL instead of VITE_* env variable
+      const supabaseUrl = "https://gzihagvdpdjcoyjpvyvs.supabase.co";
       const bobpayFunctionUrl = `${supabaseUrl}/functions/v1/bobpay`;
+
+      setLoadingProgress(50);
 
       const response = await fetch(
         `${bobpayFunctionUrl}/initialize`,
@@ -93,6 +97,8 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         }
       );
 
+      setLoadingProgress(80);
+
       if (!response.ok) {
         let errorDetail = "Failed to initialize payment";
         try {
@@ -105,14 +111,16 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
       }
 
       const data = await response.json();
+      setLoadingProgress(100);
       
       // Redirect to BobPay payment page
       window.location.href = data.payment_url;
     } catch (error) {
       console.error("Upgrade error:", error);
-      toast.error("Failed to start payment. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to start payment. Please try again.");
     } finally {
       setIsLoading(null);
+      setLoadingProgress(0);
     }
   };
 
@@ -127,7 +135,8 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
           </Button>
         </DialogTrigger>
         <UpgradeDialog 
-          isLoading={isLoading} 
+          isLoading={isLoading}
+          loadingProgress={loadingProgress}
           onUpgrade={handleUpgrade}
           type={type}
           totalCount={totalCount}
@@ -156,7 +165,8 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
         </Card>
       </DialogTrigger>
       <UpgradeDialog 
-        isLoading={isLoading} 
+        isLoading={isLoading}
+        loadingProgress={loadingProgress}
         onUpgrade={handleUpgrade}
         type={type}
         totalCount={totalCount}
@@ -167,12 +177,13 @@ export const UpgradePrompt = ({ type, totalCount, className = "", compact = fals
 
 interface UpgradeDialogProps {
   isLoading: "weekly" | "monthly" | null;
+  loadingProgress: number;
   onUpgrade: (type: "weekly" | "monthly") => void;
   type: string;
   totalCount?: number;
 }
 
-const UpgradeDialog = ({ isLoading, onUpgrade, type, totalCount }: UpgradeDialogProps) => {
+const UpgradeDialog = ({ isLoading, loadingProgress, onUpgrade, type, totalCount }: UpgradeDialogProps) => {
   const features = [
     "All accommodation photos",
     "All Google reviews",
@@ -182,74 +193,93 @@ const UpgradeDialog = ({ isLoading, onUpgrade, type, totalCount }: UpgradeDialog
   ];
 
   return (
-    <DialogContent className="sm:max-w-md">
+    <DialogContent className="w-[92vw] max-w-sm sm:max-w-md rounded-2xl p-4 sm:p-6">
       <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
+        <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
           Upgrade to Premium
         </DialogTitle>
       </DialogHeader>
       
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          Get unlimited access to all photos, reviews, maps, and enjoy an ad-free experience.
-          {totalCount && type === "photos" && ` View all ${totalCount}+ photos.`}
-          {totalCount && type === "reviews" && ` Read all ${totalCount}+ reviews.`}
-        </p>
-
-        <div className="space-y-2">
-          {features.map((feature) => (
-            <div key={feature} className="flex items-center gap-2 text-sm">
-              <Check className="w-4 h-4 text-green-500" />
-              <span>{feature}</span>
-            </div>
-          ))}
+      {/* Loading State */}
+      {isLoading && (
+        <div className="py-6 space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <span className="text-sm font-medium text-muted-foreground">
+              Preparing payment...
+            </span>
+          </div>
+          <Progress value={loadingProgress} className="h-2" />
+          <p className="text-xs text-center text-muted-foreground">
+            You'll be redirected to our secure payment page
+          </p>
         </div>
+      )}
 
-        <div className="grid gap-3 pt-2">
-          <Card 
-            className="cursor-pointer hover:border-primary transition-colors"
-            onClick={() => !isLoading && onUpgrade("weekly")}
-          >
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold">Weekly Pass</h4>
-                  <Badge variant="secondary">Best for trying</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">7 days of premium access</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">R19</p>
-                <p className="text-xs text-muted-foreground">one-time</p>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Normal State */}
+      {!isLoading && (
+        <div className="space-y-3 sm:space-y-4">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Get unlimited access to all photos, reviews, maps, and enjoy an ad-free experience.
+            {totalCount && type === "photos" && ` View all ${totalCount}+ photos.`}
+            {totalCount && type === "reviews" && ` Read all ${totalCount}+ reviews.`}
+          </p>
 
-          <Card 
-            className="cursor-pointer hover:border-primary transition-colors border-primary/50 bg-primary/5"
-            onClick={() => !isLoading && onUpgrade("monthly")}
-          >
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold">Monthly Pass</h4>
-                  <Badge className="bg-green-500">Save 25%</Badge>
+          <div className="space-y-1.5 sm:space-y-2">
+            {features.map((feature) => (
+              <div key={feature} className="flex items-center gap-2 text-xs sm:text-sm">
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
+                <span>{feature}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-2.5 sm:gap-3 pt-2">
+            <Card 
+              className="cursor-pointer hover:border-primary transition-colors rounded-xl"
+              onClick={() => onUpgrade("weekly")}
+            >
+              <CardContent className="p-3 sm:p-4 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-sm sm:text-base">Weekly Pass</h4>
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs">Best for trying</Badge>
+                  </div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">7 days of premium access</p>
                 </div>
-                <p className="text-sm text-muted-foreground">30 days of premium access</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">R59</p>
-                <p className="text-xs text-muted-foreground">one-time</p>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="text-right">
+                  <p className="text-xl sm:text-2xl font-bold">R19</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">one-time</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer hover:border-primary transition-colors border-primary/50 bg-primary/5 rounded-xl"
+              onClick={() => onUpgrade("monthly")}
+            >
+              <CardContent className="p-3 sm:p-4 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-sm sm:text-base">Monthly Pass</h4>
+                    <Badge className="bg-green-500 text-[10px] sm:text-xs">Save 25%</Badge>
+                  </div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">30 days of premium access</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl sm:text-2xl font-bold">R59</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">one-time</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <p className="text-[10px] sm:text-xs text-center text-muted-foreground">
+            Payments are one-time and non-recurring. Access expires automatically.
+          </p>
         </div>
-
-        <p className="text-xs text-center text-muted-foreground">
-          Payments are one-time and non-recurring. Access expires automatically.
-        </p>
-      </div>
+      )}
     </DialogContent>
   );
 };
