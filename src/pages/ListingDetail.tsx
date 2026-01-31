@@ -723,33 +723,34 @@ const ListingDetail = () => {
 
               {/* Map Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Location</CardTitle>
+                    <CardTitle className="text-base md:text-lg">Location</CardTitle>
                     {!isPaidUser && (
-                      <Badge variant="secondary" className="gap-1.5">
+                      <Badge variant="secondary" className="gap-1 text-xs">
                         <Lock className="h-3 w-3" />
                         Premium
                       </Badge>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   {isPaidUser ? (
                     <>
-                      <div className="flex gap-2 mb-4">
-                        <Button 
-                          size="sm" 
+                      <div className="flex gap-2 mb-3">
+                        <Button
+                          size="sm"
                           variant="outline"
+                          className="text-xs"
                           onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}
                         >
                           {mapType === 'roadmap' ? '🛰️ Satellite' : '🗺️ Map'}
                         </Button>
-                        <Button size="sm" onClick={() => enterStreetView()}>
+                        <Button size="sm" onClick={() => enterStreetView()} className="text-xs">
                           Street View
                         </Button>
                       </div>
-                      <div ref={mapRef} id="gmaps" className="h-80 w-full rounded-lg overflow-hidden bg-muted" />
+                      <div ref={mapRef} id="gmaps" className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
                     </>
                   ) : (
                     <div className="h-64 bg-gradient-to-br from-muted to-muted-foreground/10 rounded-lg flex items-center justify-center">
