@@ -389,9 +389,11 @@ const ListingDetail = () => {
 
   useEffect(() => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.setMapTypeId(mapType);
+      // Only allow satellite for paid users
+      const allowedMapType = !isPaidUser && mapType === 'satellite' ? 'roadmap' : mapType;
+      mapInstanceRef.current.setMapTypeId(allowedMapType);
     }
-  }, [mapType]);
+  }, [mapType, isPaidUser]);
 
   const enterStreetView = () => {
     try {
