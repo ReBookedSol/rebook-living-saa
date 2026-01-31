@@ -396,6 +396,16 @@ const ListingDetail = () => {
     }
   }, [mapType, isPaidUser]);
 
+  const toggleReviewExpand = (reviewId: string) => {
+    const newExpanded = new Set(expandedReviews);
+    if (newExpanded.has(reviewId)) {
+      newExpanded.delete(reviewId);
+    } else {
+      newExpanded.add(reviewId);
+    }
+    setExpandedReviews(newExpanded);
+  };
+
   const enterStreetView = () => {
     if (!isPaidUser) {
       toast.error('Street View is available with a premium pass');
