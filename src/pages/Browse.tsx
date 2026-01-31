@@ -140,8 +140,8 @@ const Browse = () => {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => setPageInUrl(i)}
-              isActive={pageParam === i}
+              onClick={() => handlePageChange(i)}
+              isActive={currentPage === i}
             >
               {i}
             </PaginationLink>
