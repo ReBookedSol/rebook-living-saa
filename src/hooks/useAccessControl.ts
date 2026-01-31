@@ -31,7 +31,7 @@ export const useAccessControl = () => {
 
       // Check for successful payment directly in database
       const { data: payments, error } = await supabase
-        .from("payments")
+        .from("users_payments")
         .select("*")
         .eq("user_id", session.user.id)
         .eq("status", "successful")
