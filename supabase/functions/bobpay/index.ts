@@ -13,9 +13,6 @@ const BOBPAY_API_URL = BOBPAY_SANDBOX
   ? "https://api.sandbox.bobpay.co.za/v2"
   : "https://api.bobpay.co.za/v2";
 
-// Allowed IPs for webhook verification
-const ALLOWED_IPS = ["13.246.115.225", "13.246.100.25"];
-
 interface PaymentRequest {
   payment_type: "weekly" | "monthly";
   email: string;
@@ -120,8 +117,12 @@ async function handleInitialize(req: Request, supabase: SupabaseClientType) {
   const item_name = payment_type === "weekly" ? "Weekly Access Pass" : "Monthly Access Pass";
   const item_description = `ReBooked ${payment_type === "weekly" ? "7-day" : "30-day"} premium access - all photos, reviews, maps & no ads`;
 
-  // Generate unique payment ID (used as transaction_reference)
+  // Generate unique payment ID
   const custom_payment_id = `RB-${user_id.slice(0, 8)}-${Date.now()}`;
+
+  // Calculate access expiration date
+  const access_expires_at = new Date();
+  access_expires_at.setDate(access_expires_at.getDate() + duration_days);
 
   // Get BobPay credentials
   const bobpayToken = Deno.env.get("BOBPAY_API_TOKEN");
@@ -217,23 +218,20 @@ async function handleInitialize(req: Request, supabase: SupabaseClientType) {
   const paymentData = await paymentResponse.json();
   console.log("BobPay success response:", JSON.stringify(paymentData, null, 2));
 
-  // Store pending payment record in the existing "payments" table
-  // Using correct values that match the CHECK constraints:
-  // - payment_type must be: 'subscription', 'one_time', 'tutoring', 'refund'
-  // - status must be: 'pending', 'successful', 'failed', 'refunded'
-  const { error: insertError } = await supabase.from("payments").insert({
+  // Store pending payment record in user_payments table
+  // Using the correct columns from the user_payments table schema
+  const { error: insertError } = await supabase.from("user_payments").insert({
     user_id,
-    payment_type: "one_time", // One-time payment for access passes
-    amount: amount, // Store in Rands (not cents)
-    currency: "ZAR",
+    amount,
+    payment_type, // "weekly" or "monthly"
+    payment_provider: "bobpay",
     status: "pending",
-    payment_method: "bobpay",
-    subscription_plan: payment_type, // Store "weekly" or "monthly" here
-    description: item_description,
-    transaction_reference: custom_payment_id,
-    metadata: {
+    custom_payment_id,
+    access_expires_at: access_expires_at.toISOString(),
+    raw_payload: {
       duration_days,
       item_name,
+      item_description,
       bobpay_sandbox: BOBPAY_SANDBOX,
     },
   });
@@ -286,11 +284,11 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
     return new Response("OK", { status: 200 });
   }
 
-  // Find the payment record by transaction_reference
+  // Find the payment record by custom_payment_id
   const { data: existingPayment, error: findError } = await supabase
-    .from("payments")
+    .from("user_payments")
     .select("*")
-    .eq("transaction_reference", payload.custom_payment_id)
+    .eq("custom_payment_id", payload.custom_payment_id)
     .single();
 
   if (findError || !existingPayment) {
@@ -298,28 +296,29 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
     return new Response("OK", { status: 200 });
   }
 
-  // Update payment to successful
+  // Update payment to active
   const { error: updateError } = await supabase
-    .from("payments")
+    .from("user_payments")
     .update({
-      status: "successful",
+      status: "active",
+      paid_at: new Date().toISOString(),
       payment_method: payload.payment_method || "bobpay",
-      metadata: {
-        ...existingPayment.metadata,
-        paid_at: new Date().toISOString(),
-        bobpay_payment_id: payload.payment_id?.toString(),
-        bobpay_uuid: payload.uuid,
-        raw_webhook: payload,
+      bobpay_payment_id: payload.payment_id?.toString(),
+      bobpay_uuid: payload.uuid,
+      raw_payload: {
+        ...existingPayment.raw_payload,
+        webhook_received_at: new Date().toISOString(),
+        webhook_payload: payload,
       },
       updated_at: new Date().toISOString(),
     })
-    .eq("transaction_reference", payload.custom_payment_id);
+    .eq("custom_payment_id", payload.custom_payment_id);
 
   if (updateError) {
     console.error("Failed to update payment:", updateError);
   }
 
-  console.log("Payment marked as successful:", payload.custom_payment_id);
+  console.log("Payment marked as active:", payload.custom_payment_id);
   return new Response("OK", { status: 200 });
 }
 
@@ -334,9 +333,9 @@ async function handleVerify(req: Request, supabase: SupabaseClientType) {
   }
 
   const { data: payment, error } = await supabase
-    .from("payments")
+    .from("user_payments")
     .select("*")
-    .eq("transaction_reference", custom_payment_id)
+    .eq("custom_payment_id", custom_payment_id)
     .single();
 
   if (error || !payment) {
@@ -346,17 +345,14 @@ async function handleVerify(req: Request, supabase: SupabaseClientType) {
     );
   }
 
-  // Calculate if access is still active based on metadata duration
-  const duration_days = payment.metadata?.duration_days || 30;
-  const createdAt = new Date(payment.created_at);
-  const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
-  const isActive = payment.status === "successful" && new Date() < expiresAt;
+  // Check if access is still active
+  const isActive = payment.status === "active" && new Date() < new Date(payment.access_expires_at);
 
   return new Response(
     JSON.stringify({
       status: payment.status,
-      payment_type: payment.subscription_plan,
-      access_expires_at: expiresAt.toISOString(),
+      payment_type: payment.payment_type,
+      access_expires_at: payment.access_expires_at,
       is_active: isActive,
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -382,32 +378,27 @@ async function handleStatus(req: Request, supabase: SupabaseClientType) {
     );
   }
 
-  // Check for successful payment
+  // Check for active payment using the has_paid_access function or direct query
   const { data: payments } = await supabase
-    .from("payments")
+    .from("user_payments")
     .select("*")
     .eq("user_id", user.id)
-    .eq("status", "successful")
+    .eq("status", "active")
+    .gt("access_expires_at", new Date().toISOString())
     .order("created_at", { ascending: false })
     .limit(1);
 
   if (payments && payments.length > 0) {
     const payment = payments[0];
-    const duration_days = payment.metadata?.duration_days || 30;
-    const createdAt = new Date(payment.created_at);
-    const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
-    
-    if (new Date() < expiresAt) {
-      return new Response(
-        JSON.stringify({
-          access_level: "paid",
-          has_active_payment: true,
-          payment_type: payment.subscription_plan,
-          expires_at: expiresAt.toISOString(),
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    return new Response(
+      JSON.stringify({
+        access_level: "paid",
+        has_active_payment: true,
+        payment_type: payment.payment_type,
+        expires_at: payment.access_expires_at,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   return new Response(
