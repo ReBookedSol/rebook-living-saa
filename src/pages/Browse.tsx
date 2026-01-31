@@ -128,14 +128,14 @@ const Browse = () => {
 
   const renderPaginationItems = () => {
     const items = [];
-    const showEllipsisStart = pageParam > 3;
-    const showEllipsisEnd = pageParam < totalPages - 2;
+    const showEllipsisStart = currentPage > 3;
+    const showEllipsisEnd = currentPage < totalPages - 2;
 
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
         i === totalPages ||
-        (i >= pageParam - 1 && i <= pageParam + 1)
+        (i >= currentPage - 1 && i <= currentPage + 1)
       ) {
         items.push(
           <PaginationItem key={i}>
