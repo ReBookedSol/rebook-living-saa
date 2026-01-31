@@ -50,16 +50,14 @@ export const useAccessControl = () => {
 
       if (payments && payments.length > 0) {
         const payment = payments[0];
-        // Calculate expiry date based on created_at and duration_days from metadata
-        const duration_days = payment.metadata?.duration_days || 30;
-        const createdAt = new Date(payment.created_at);
-        const expiresAt = new Date(createdAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+        // Use access_expires_at directly from the payment record
+        const expiresAt = new Date(payment.access_expires_at);
 
         if (expiresAt > new Date()) {
           setStatus({
             accessLevel: "paid",
             hasActivePayment: true,
-            paymentType: payment.subscription_plan as "weekly" | "monthly",
+            paymentType: payment.payment_type as "weekly" | "monthly",
             expiresAt: expiresAt.toISOString(),
             isLoading: false,
           });

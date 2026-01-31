@@ -16,6 +16,7 @@ import UniversityMergeTab from "@/components/admin/UniversityMergeTab";
 import LandlordSubmissionsTab from "@/components/admin/LandlordSubmissionsTab";
 import PaymentsTab from "@/components/admin/PaymentsTab";
 import ProgramsTab from "@/components/admin/ProgramsTab";
+import PlaceCacheTab from "@/components/admin/PlaceCacheTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -137,11 +138,12 @@ Example Output:
         </div>
 
         <Tabs defaultValue="stats" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-13 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-14 gap-1 h-auto p-1">
             <TabsTrigger value="stats" className="text-xs sm:text-sm">Stats</TabsTrigger>
             <TabsTrigger value="accommodations" className="text-xs sm:text-sm">Listings</TabsTrigger>
             <TabsTrigger value="landlords" className="text-xs sm:text-sm">Landlords</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
+            <TabsTrigger value="cache" className="text-xs sm:text-sm">Cache</TabsTrigger>
             <TabsTrigger value="add" className="text-xs sm:text-sm">Add</TabsTrigger>
             <TabsTrigger value="university" className="text-xs sm:text-sm">Universities</TabsTrigger>
             <TabsTrigger value="programs" className="text-xs sm:text-sm">Programs</TabsTrigger>
@@ -167,6 +169,10 @@ Example Output:
 
           <TabsContent value="payments">
             <PaymentsTab />
+          </TabsContent>
+
+          <TabsContent value="cache">
+            <PlaceCacheTab />
           </TabsContent>
 
           <TabsContent value="add">

@@ -654,6 +654,45 @@ export type Database = {
         }
         Relationships: []
       }
+      place_cache: {
+        Row: {
+          attributions: string | null
+          cached_at: string
+          cached_tier: string
+          created_at: string
+          photo_count: number
+          photo_uris: string[] | null
+          place_id: string
+          review_count: number
+          reviews: Json | null
+          updated_at: string
+        }
+        Insert: {
+          attributions?: string | null
+          cached_at?: string
+          cached_tier?: string
+          created_at?: string
+          photo_count?: number
+          photo_uris?: string[] | null
+          place_id: string
+          review_count?: number
+          reviews?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          attributions?: string | null
+          cached_at?: string
+          cached_tier?: string
+          created_at?: string
+          photo_count?: number
+          photo_uris?: string[] | null
+          place_id?: string
+          review_count?: number
+          reviews?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       private_institutions: {
         Row: {
           abbreviation: string | null
@@ -1137,6 +1176,20 @@ export type Database = {
         Args: { p_accommodation_id: string; p_user_id?: string }
         Returns: string[]
       }
+      get_cached_place: {
+        Args: { p_place_id: string }
+        Returns: {
+          attributions: string
+          cached_at: string
+          cached_tier: string
+          is_expired: boolean
+          photo_count: number
+          photo_uris: string[]
+          place_id: string
+          review_count: number
+          reviews: Json
+        }[]
+      }
       get_user_access_level: { Args: { p_user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
@@ -1156,6 +1209,17 @@ export type Database = {
       }
       increment_user_credits: {
         Args: { p_amount: number; p_user_id: string }
+        Returns: undefined
+      }
+      is_place_cache_expired: { Args: { cached_at: string }; Returns: boolean }
+      upsert_place_cache: {
+        Args: {
+          p_attributions: string
+          p_cached_tier?: string
+          p_photo_uris: string[]
+          p_place_id: string
+          p_reviews: Json
+        }
         Returns: undefined
       }
     }
