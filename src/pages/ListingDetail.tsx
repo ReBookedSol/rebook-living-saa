@@ -803,32 +803,22 @@ const ListingDetail = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 md:p-6">
-                  {isPaidUser ? (
-                    <>
-                      <div className="flex gap-2 mb-3">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs"
-                          onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}
-                        >
-                          {mapType === 'roadmap' ? '🛰️ Satellite' : '🗺️ Map'}
-                        </Button>
-                        <Button size="sm" onClick={() => enterStreetView()} className="text-xs">
-                          Street View
-                        </Button>
-                      </div>
-                      <div ref={mapRef} id="gmaps" className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
-                    </>
-                  ) : (
-                    <div className="h-64 bg-gradient-to-br from-muted to-muted-foreground/10 rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <Lock className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-                        <p className="text-muted-foreground mb-4">Unlock map and street view with a premium pass</p>
-                        <UpgradePrompt type="map" compact />
-                      </div>
+                  {isPaidUser && (
+                    <div className="flex gap-2 mb-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs"
+                        onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}
+                      >
+                        {mapType === 'roadmap' ? '🛰️ Satellite' : '🗺️ Map'}
+                      </Button>
+                      <Button size="sm" onClick={() => enterStreetView()} className="text-xs">
+                        Street View
+                      </Button>
                     </div>
                   )}
+                  <div ref={mapRef} id="gmaps" className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
                 </CardContent>
               </Card>
 
