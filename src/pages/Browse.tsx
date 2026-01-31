@@ -134,20 +134,20 @@ const Browse = () => {
 
   const renderPaginationItems = () => {
     const items = [];
-    const showEllipsisStart = currentPage > 3;
-    const showEllipsisEnd = currentPage < totalPages - 2;
+    const showEllipsisStart = pageParam > 3;
+    const showEllipsisEnd = pageParam < totalPages - 2;
 
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
         i === totalPages ||
-        (i >= currentPage - 1 && i <= currentPage + 1)
+        (i >= pageParam - 1 && i <= pageParam + 1)
       ) {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => { setCurrentPage(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              isActive={currentPage === i}
+              onClick={() => setPageInUrl(i)}
+              isActive={pageParam === i}
             >
               {i}
             </PaginationLink>
