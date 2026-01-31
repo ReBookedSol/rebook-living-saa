@@ -135,9 +135,29 @@ const ListingDetail = () => {
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (error) throw error;
       return data;
+    },
+  });
+
+  // Fetch photos with tier-based limits enforced at database level
+  const { data: tieredPhotos } = useQuery({
+    queryKey: ["accommodation-photos", id, isPaidUser],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || null;
+
+      const { data, error } = await supabase.rpc('get_accommodation_photos', {
+        p_accommodation_id: id,
+        p_user_id: userId,
+      });
+
+      if (error) {
+        console.warn('Failed to fetch tiered photos:', error);
+        return null;
+      }
+      return data as string[] | null;
     },
   });
 
@@ -236,7 +256,8 @@ const ListingDetail = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
-  const photos = isPaidUser ? allPhotos : allPhotos?.slice(0, FREE_TIER_LIMITS.MAX_PHOTOS);
+  // Use server-side tiered photos if available, otherwise use passed/fetched images
+  const photos = tieredPhotos !== undefined ? tieredPhotos : allPhotos;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
   const totalPhotos = allPhotos?.length || 0;
   const totalReviews = allReviews?.length || 0;
@@ -304,11 +325,15 @@ const ListingDetail = () => {
 
             service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
               if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
-                if (detail.reviews) setAllReviews(detail.reviews.slice(0, 10));
+                // Limit reviews based on tier (paid users get up to 10, free users get up to 1)
+                const maxGoogleReviews = isPaidUser ? 10 : 1;
+                if (detail.reviews) setAllReviews(detail.reviews.slice(0, maxGoogleReviews));
+                // Limit photos: paid users get up to 10, free users get up to 3
                 if (detail.photos && detail.photos.length > 0) {
                   try {
-                    const urls = detail.photos.map((p: any) => p.getUrl({ maxWidth: 800 }));
-                    setAllPhotos(urls);
+                    const maxGooglePhotos = isPaidUser ? 10 : 3;
+                    const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
+                    setAllPhotos(photoUrls);
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }
@@ -845,6 +870,7 @@ const ListingDetail = () => {
                         <ReviewsList
                           accommodationId={id}
                           onReviewsUpdated={() => setReviewsRefreshTrigger(prev => prev + 1)}
+                          maxReviews={isPaidUser ? undefined : FREE_TIER_LIMITS.MAX_REVIEWS}
                         />
 
                         {/* Google Reviews */}

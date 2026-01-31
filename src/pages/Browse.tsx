@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import SearchBar from "@/components/SearchBar";
@@ -12,7 +12,9 @@ import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
 
 const Browse = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
   const province = searchParams.get("province") || "";
@@ -21,6 +23,7 @@ const Browse = () => {
   const amenitiesParam = searchParams.get("amenities") || "";
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
   // SEO
   useSEO({
@@ -33,7 +36,6 @@ const Browse = () => {
   // Default sort: newest first so newly added accommodations appear on page 1
   const [sortBy, setSortBy] = useState("newest");
   const [selectedGender, setSelectedGender] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
 
   React.useEffect(() => {
@@ -46,16 +48,28 @@ const Browse = () => {
 
   const ITEMS_PER_PAGE = isLargeScreen ? 15 : 9;
 
-  // Reset page when filters/search params change
+  // Helper to update URL with page and preserve other params
+  const setPageInUrl = (newPage: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", newPage.toString());
+    setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Reset to page 1 when filters change (but not when page param changes)
   React.useEffect(() => {
-    setCurrentPage(1);
-  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy]);
+    const newParams = new URLSearchParams(searchParams);
+    if (newParams.get("page") !== "1") {
+      newParams.set("page", "1");
+      setSearchParams(newParams);
+    }
+  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy, setSearchParams]);
 
   const { data: pageResult, isLoading } = useQuery({
-    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage],
+    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, pageParam],
     queryFn: async () => {
-      const from = (currentPage - 1) * ITEMS_PER_PAGE;
-      const to = currentPage * ITEMS_PER_PAGE - 1;
+      const from = (pageParam - 1) * ITEMS_PER_PAGE;
+      const to = pageParam * ITEMS_PER_PAGE - 1;
 
       // Start with select and request exact count
       let query: any = supabase
@@ -120,20 +134,20 @@ const Browse = () => {
 
   const renderPaginationItems = () => {
     const items = [];
-    const showEllipsisStart = currentPage > 3;
-    const showEllipsisEnd = currentPage < totalPages - 2;
+    const showEllipsisStart = pageParam > 3;
+    const showEllipsisEnd = pageParam < totalPages - 2;
 
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
         i === totalPages ||
-        (i >= currentPage - 1 && i <= currentPage + 1)
+        (i >= pageParam - 1 && i <= pageParam + 1)
       ) {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => { setCurrentPage(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              isActive={currentPage === i}
+              onClick={() => setPageInUrl(i)}
+              isActive={pageParam === i}
             >
               {i}
             </PaginationLink>
@@ -236,15 +250,15 @@ const Browse = () => {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            onClick={() => setPageInUrl(Math.max(1, pageParam - 1))}
+                            className={pageParam === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         {renderPaginationItems()}
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            onClick={() => setPageInUrl(Math.min(totalPages, pageParam + 1))}
+                            className={pageParam === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
