@@ -14,6 +14,7 @@ import { useSEO } from "@/hooks/useSEO";
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
@@ -23,7 +24,6 @@ const Browse = () => {
   const amenitiesParam = searchParams.get("amenities") || "";
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
-  const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
   // SEO
   useSEO({
