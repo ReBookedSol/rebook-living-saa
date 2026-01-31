@@ -77,7 +77,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <DeveloperModeBanner />
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col pt-10">
         <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
