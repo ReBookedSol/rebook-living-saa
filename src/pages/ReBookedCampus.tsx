@@ -27,7 +27,7 @@ import {
   ChevronUp,
   ExternalLink,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // APS Calculator Component
 const APSCalculator = () => {
@@ -157,9 +157,10 @@ const UNIVERSITY_LOGOS: Record<string, string> = {
 const UniversityCard = ({ university }: { university: any }) => {
   const abbrev = university.abbreviation?.toUpperCase() || "";
   const logoUrl = university.logo || UNIVERSITY_LOGOS[abbrev];
+  const navigate = useNavigate();
 
   return (
-    <Link to={`/university/${university.id}`}>
+    <div onClick={() => navigate(`/university/${university.id}`)}>
       <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border border-slate-200 shadow-sm h-full bg-white">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
@@ -243,7 +244,7 @@ const UniversityCard = ({ university }: { university: any }) => {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </div>
   );
 };
 

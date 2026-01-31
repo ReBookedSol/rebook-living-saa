@@ -399,53 +399,57 @@ const ListingDetail = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-8">
           {/* Back Button */}
-          <Link to={returnPath} className="inline-block mb-6">
-            <Button variant="ghost" className="gap-2 hover:bg-muted">
+          <Link to={returnPath} className="inline-block mb-4">
+            <Button variant="ghost" size="sm" className="gap-2 hover:bg-muted text-sm">
               <ArrowLeft className="h-4 w-4" />
-              Back to browse
+              Back
             </Button>
           </Link>
 
           {/* Header Card */}
-          <Card className="mb-8 border-0 shadow-md">
-            <CardContent className="p-6 md:p-8">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    {listing.is_landlord_listing && (
-                      <Badge className="bg-green-500 text-white gap-1.5">
-                        <Building2 className="w-3 h-3" />
-                        Listed by Landlord
-                      </Badge>
-                    )}
-                    {listing.nsfas_accredited && (
-                      <Badge className="bg-blue-500 text-white gap-1.5">
-                        <CheckCircle className="w-3 h-3" />
-                        NSFAS Accredited
-                      </Badge>
-                    )}
+          <Card className="mb-6 border-0 shadow-md">
+            <CardContent className="p-4 md:p-8">
+              <div className="flex flex-col gap-4 md:gap-6">
+                {/* Top section with badges */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {listing.is_landlord_listing && (
+                    <Badge className="bg-green-500 text-white gap-1 text-xs">
+                      <Building2 className="w-3 h-3" />
+                      Listed by Landlord
+                    </Badge>
+                  )}
+                  {listing.nsfas_accredited && (
+                    <Badge className="bg-blue-500 text-white gap-1 text-xs">
+                      <CheckCircle className="w-3 h-3" />
+                      NSFAS Accredited
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Main title and location */}
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name}</h1>
+                  <div className="flex items-start gap-1 text-muted-foreground mb-3">
+                    <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base">{listing.address}, {listing.city}</span>
                   </div>
-                  <h1 className="text-4xl font-bold mb-3 text-foreground">{listing.property_name}</h1>
-                  <div className="flex items-center gap-1 text-muted-foreground mb-4">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span className="text-lg">{listing.address}, {listing.city}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="text-sm">{listing.type}</Badge>
-                    <Badge variant="secondary" className="text-sm">{listing.gender_policy}</Badge>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
+                    <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>
                     {listing.rooms_available && (
-                      <Badge variant="secondary" className="text-sm">{listing.rooms_available} rooms available</Badge>
+                      <Badge variant="secondary" className="text-xs">{listing.rooms_available} rooms</Badge>
                     )}
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-4">
-                  <div className="text-center bg-accent/10 px-4 py-3 rounded-lg">
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <Star className="h-5 w-5 text-accent fill-accent" />
-                      <span className="text-2xl font-bold">{(listing.rating || 0).toFixed(1)}</span>
+                {/* Bottom section - rating and actions */}
+                <div className="flex items-center justify-between pt-3 border-t">
+                  <div className="text-center bg-accent/10 px-3 py-2 rounded-lg">
+                    <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                      <Star className="h-4 w-4 text-accent fill-accent" />
+                      <span className="text-xl md:text-2xl font-bold">{(listing.rating || 0).toFixed(1)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Rating</p>
                   </div>
@@ -453,7 +457,7 @@ const ListingDetail = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
                       onClick={toggleFavorite}
                       className="rounded-full"
                       disabled={savingFavorite}
@@ -463,7 +467,7 @@ const ListingDetail = () => {
                     </Button>
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
                       onClick={shareListing}
                       className="rounded-full"
                       title="Share listing"
@@ -472,7 +476,7 @@ const ListingDetail = () => {
                     </Button>
                     <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="rounded-full" title="Report listing">
+                        <Button variant="outline" size="sm" className="rounded-full" title="Report listing">
                           <Flag className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
@@ -541,38 +545,30 @@ const ListingDetail = () => {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Photos Card */}
               <Card className="border-0 shadow-md overflow-hidden">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <div className="flex items-center justify-between gap-4">
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <Image className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-lg">Gallery</CardTitle>
+                      <Image className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                      <CardTitle className="text-base md:text-lg">Gallery</CardTitle>
                     </div>
-                    <div className="flex items-center gap-3 ml-auto">
-                      {hasMorePhotos && (
-                        <UpgradePrompt
-                          type="photos"
-                          totalCount={totalPhotos}
-                          compact
-                          buttonText="Unlock More"
-                        />
-                      )}
-                      {hasMorePhotos && (
+                    {hasMorePhotos && (
+                      <div className="flex items-center gap-2 ml-auto">
                         <Badge variant="secondary" className="text-xs">
                           {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
                         </Badge>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   {photos && photos.length > 0 ? (
                     <>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                         {photos.map((src, i) => (
                           <button
                             key={i}
@@ -588,9 +584,9 @@ const ListingDetail = () => {
                       {/* Blurred Locked Photos for Free Users */}
                       {hasMorePhotos && (
                         <>
-                          <div className="mt-8 pt-6 border-t">
-                            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">More photos locked</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                          <div className="mt-6 pt-4 md:mt-8 md:pt-6 border-t">
+                            <h4 className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">More photos locked</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                               {(() => {
                                 // Generate 10 different stock house images
                                 const lockedPhotoPlaceholders = [
@@ -663,33 +659,33 @@ const ListingDetail = () => {
 
               {/* Details Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <CardTitle className="text-lg">About this property</CardTitle>
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                  <CardTitle className="text-base md:text-lg">About this property</CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
+                <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
                   {listing.description && (
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
-                      <p className="text-foreground leading-relaxed">{listing.description}</p>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
+                      <p className="text-foreground text-sm leading-relaxed">{listing.description}</p>
                     </div>
                   )}
-                  
-                  <div className="grid grid-cols-2 gap-4">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">University</h3>
-                      <p className="text-foreground font-medium">{listing.university}</p>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">University</h3>
+                      <p className="text-foreground text-sm font-medium">{listing.university}</p>
                     </div>
                     {listing.units && (
                       <div>
-                        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Available Units</h3>
-                        <p className="text-foreground font-medium">{listing.units} units</p>
+                        <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">Available Units</h3>
+                        <p className="text-foreground text-sm font-medium">{listing.units} units</p>
                       </div>
                     )}
                   </div>
 
                   {listing.amenities && listing.amenities.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">Amenities</h3>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Amenities</h3>
                       <div className="flex flex-wrap gap-2">
                         {listing.amenities.map((amenity: string) => (
                           <Badge key={amenity} variant="outline" className="border-primary/20 bg-primary/5">
@@ -702,11 +698,11 @@ const ListingDetail = () => {
 
                   {listing.certified_universities && listing.certified_universities.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">Accredited For</h3>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Accredited For</h3>
                       <div className="space-y-1">
                         {listing.certified_universities.map((uni: string) => (
-                          <div key={uni} className="flex items-center gap-2 text-foreground">
-                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <div key={uni} className="flex items-center gap-2 text-foreground text-sm">
+                            <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500 flex-shrink-0" />
                             <span>{uni}</span>
                           </div>
                         ))}
@@ -715,9 +711,9 @@ const ListingDetail = () => {
                   )}
 
                   {listing.website && (
-                    <div className="pt-2 border-t">
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Website</h3>
-                      <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-sm">
+                    <div className="pt-3 border-t">
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">Website</h3>
+                      <a href={listing.website} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-xs md:text-sm">
                         {listing.website}
                       </a>
                     </div>
@@ -727,33 +723,34 @@ const ListingDetail = () => {
 
               {/* Map Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Location</CardTitle>
+                    <CardTitle className="text-base md:text-lg">Location</CardTitle>
                     {!isPaidUser && (
-                      <Badge variant="secondary" className="gap-1.5">
+                      <Badge variant="secondary" className="gap-1 text-xs">
                         <Lock className="h-3 w-3" />
                         Premium
                       </Badge>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   {isPaidUser ? (
                     <>
-                      <div className="flex gap-2 mb-4">
-                        <Button 
-                          size="sm" 
+                      <div className="flex gap-2 mb-3">
+                        <Button
+                          size="sm"
                           variant="outline"
+                          className="text-xs"
                           onClick={() => setMapType(prev => prev === 'roadmap' ? 'satellite' : 'roadmap')}
                         >
                           {mapType === 'roadmap' ? '🛰️ Satellite' : '🗺️ Map'}
                         </Button>
-                        <Button size="sm" onClick={() => enterStreetView()}>
+                        <Button size="sm" onClick={() => enterStreetView()} className="text-xs">
                           Street View
                         </Button>
                       </div>
-                      <div ref={mapRef} id="gmaps" className="h-80 w-full rounded-lg overflow-hidden bg-muted" />
+                      <div ref={mapRef} id="gmaps" className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
                     </>
                   ) : (
                     <div className="h-64 bg-gradient-to-br from-muted to-muted-foreground/10 rounded-lg flex items-center justify-center">
@@ -776,48 +773,48 @@ const ListingDetail = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6 lg:sticky lg:top-20">
+            <div className="space-y-4 md:space-y-6 lg:sticky lg:top-20">
               {/* Contact Card */}
               <Card className="border-0 shadow-md">
-                <CardContent className="p-6">
-                  <div className="mb-6">
-                    <div className="text-4xl font-bold text-primary mb-1">R{listing.monthly_cost?.toLocaleString()}</div>
-                    <p className="text-sm text-muted-foreground">per month</p>
+                <CardContent className="p-4 md:p-6">
+                  <div className="mb-4 md:mb-6">
+                    <div className="text-3xl md:text-4xl font-bold text-primary mb-1">R{listing.monthly_cost?.toLocaleString()}</div>
+                    <p className="text-xs md:text-sm text-muted-foreground">per month</p>
                   </div>
 
-                  <div className="space-y-3 mb-6 pb-6 border-b">
-                    <div className="flex items-start gap-3">
-                      <Phone className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                  <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 pb-4 md:pb-6 border-b">
+                    <div className="flex items-start gap-2 md:gap-3">
+                      <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
-                        <p className="font-medium text-sm break-all">{listing.contact_phone}</p>
+                        <p className="font-medium text-xs md:text-sm break-all">{listing.contact_phone}</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Mail className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex items-start gap-2 md:gap-3">
+                      <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground mb-0.5">Email</p>
-                        <p className="font-medium text-sm break-all">{listing.contact_email}</p>
+                        <p className="font-medium text-xs md:text-sm break-all">{listing.contact_email}</p>
                       </div>
                     </div>
                     {listing.contact_person && (
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2 md:gap-3">
                         <p className="text-xs text-muted-foreground mb-0.5">Contact Person</p>
-                        <p className="font-medium text-sm">{listing.contact_person}</p>
+                        <p className="font-medium text-xs md:text-sm">{listing.contact_person}</p>
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <a href={`tel:${listing.contact_phone}`} className="block">
-                      <Button className="w-full bg-primary hover:bg-primary/90">
-                        <Phone className="h-4 w-4 mr-2" />
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
+                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
                         Call Now
                       </Button>
                     </a>
                     <a href={`mailto:${listing.contact_email}`} className="block">
-                      <Button variant="outline" className="w-full">
-                        <Mail className="h-4 w-4 mr-2" />
+                      <Button variant="outline" className="w-full text-sm">
+                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
                         Send Email
                       </Button>
                     </a>
@@ -827,13 +824,13 @@ const ListingDetail = () => {
 
               {/* Unified Reviews Section */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <CardTitle className="text-lg">Reviews & Feedback</CardTitle>
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                  <CardTitle className="text-base md:text-lg">Reviews & Feedback</CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+                <CardContent className="p-4 md:p-6">
+                  <div className="space-y-3 md:space-y-4">
                     {/* Review Form */}
-                    <div className="pb-4 border-b">
+                    <div className="pb-3 md:pb-4 border-b">
                       <ReviewForm
                         accommodationId={id || ""}
                         onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
@@ -842,8 +839,8 @@ const ListingDetail = () => {
 
                     {/* All Reviews */}
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">All Reviews</h3>
-                      <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2 md:mb-3">All Reviews</h3>
+                      <div className="space-y-2 md:space-y-3 max-h-[50vh] overflow-y-auto">
                         {/* ReBooked Living Reviews */}
                         <ReviewsList
                           accommodationId={id}
@@ -853,24 +850,24 @@ const ListingDetail = () => {
                         {/* Google Reviews */}
                         {reviews && reviews.length > 0 && (
                           <>
-                            <div className="my-3 text-center text-xs text-muted-foreground">
+                            <div className="my-2 md:my-3 text-center text-xs text-muted-foreground">
                               ─ Google Reviews ─
                             </div>
                             {reviews.map((r: any, idx: number) => (
-                              <div key={`google-${idx}`} className="p-2.5 bg-muted/30 rounded-lg border border-muted text-sm">
-                                <div className="flex gap-2 items-start mb-1.5">
+                              <div key={`google-${idx}`} className="p-2 md:p-2.5 bg-muted/30 rounded-lg border border-muted text-xs md:text-sm">
+                                <div className="flex gap-2 items-start mb-1">
                                   {r.profile_photo_url ? (
-                                    <img src={r.profile_photo_url} alt={r.author_name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                                    <img src={r.profile_photo_url} alt={r.author_name} className="w-6 h-6 md:w-7 md:h-7 rounded-full object-cover flex-shrink-0" />
                                   ) : (
-                                    <div className="w-7 h-7 rounded-full bg-muted flex-shrink-0" />
+                                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-muted flex-shrink-0" />
                                   )}
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5 justify-between mb-0.5">
-                                      <div className="flex items-center gap-1.5">
+                                    <div className="flex items-center gap-1 justify-between mb-0.5">
+                                      <div className="flex items-center gap-1">
                                         <p className="font-semibold text-xs truncate">{r.author_name}</p>
-                                        <span className="text-xs px-1 py-0.5 bg-blue-100 text-blue-700 rounded-full">Google</span>
+                                        <span className="text-xs px-1 py-0 bg-blue-100 text-blue-700 rounded-full">Google</span>
                                       </div>
-                                      <span className="text-xs text-yellow-500 font-medium">{r.rating}★</span>
+                                      <span className="text-xs text-yellow-500 font-medium flex-shrink-0">{r.rating}★</span>
                                     </div>
                                     <p className="text-xs text-muted-foreground">{r.relative_time_description}</p>
                                   </div>
@@ -879,7 +876,7 @@ const ListingDetail = () => {
                               </div>
                             ))}
                             {hasMoreReviews && (
-                              <div className="mt-3 p-2.5 bg-muted/50 rounded-lg">
+                              <div className="mt-2 md:mt-3 p-2 md:p-2.5 bg-muted/50 rounded-lg">
                                 <UpgradePrompt
                                   type="reviews"
                                   totalCount={totalReviews}
@@ -901,26 +898,30 @@ const ListingDetail = () => {
 
         {/* Photo Dialog */}
         <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-          <DialogContent className="max-w-4xl w-[95vw] p-2">
+          <DialogContent className="max-w-4xl w-[95vw] p-2 md:p-4">
             <div>
-              <div className="flex items-center justify-between mb-4 px-2">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))} 
+              <div className="flex items-center justify-between mb-3 md:mb-4 px-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedPhoto(p => Math.max(0, p - 1))}
                   disabled={selectedPhoto === 0}
+                  className="text-xs md:text-sm"
                 >
                   ← Prev
                 </Button>
-                <p className="text-sm font-medium">{selectedPhoto + 1} / {photos?.length || 0}</p>
-                <Button 
+                <p className="text-xs md:text-sm font-medium">{selectedPhoto + 1} / {photos?.length || 0}</p>
+                <Button
                   variant="ghost"
-                  onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))} 
+                  size="sm"
+                  onClick={() => setSelectedPhoto(p => Math.min((photos?.length || 1) - 1, p + 1))}
                   disabled={photos && selectedPhoto >= photos.length - 1}
+                  className="text-xs md:text-sm"
                 >
                   Next →
                 </Button>
               </div>
-              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[65vh] object-contain rounded" />
+              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[50vh] md:h-[65vh] object-contain rounded" />
             </div>
           </DialogContent>
         </Dialog>

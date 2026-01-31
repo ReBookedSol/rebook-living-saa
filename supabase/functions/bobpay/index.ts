@@ -117,8 +117,8 @@ async function handleInitialize(req: Request, supabase: SupabaseClientType) {
   const item_name = payment_type === "weekly" ? "Weekly Access Pass" : "Monthly Access Pass";
   const item_description = `ReBooked ${payment_type === "weekly" ? "7-day" : "30-day"} premium access - all photos, reviews, maps & no ads`;
 
-  // Generate unique payment ID
-  const custom_payment_id = `RB-${user_id.slice(0, 8)}-${Date.now()}`;
+  // Generate unique payment ID with full user_id for webhook lookup
+  const custom_payment_id = `RB-${user_id}-${Date.now()}`;
 
   // Calculate access expiration date
   const access_expires_at = new Date();
@@ -274,27 +274,16 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
   }
 
   // Parse the custom_payment_id to extract user_id
-  // Format: RB-{user_id_first_8_chars}-{timestamp}
-  const paymentIdParts = payload.custom_payment_id.split("-");
-  if (paymentIdParts.length < 3) {
+  // Format: RB-{full_user_id}-{timestamp}
+  // Example: RB-f7f60a18-5bab-42ae-a737-c74ad1f3b31f-1769845983281
+  const match = payload.custom_payment_id.match(/^RB-([0-9a-f-]{36})-\d+$/);
+  if (!match) {
     console.error("Invalid custom_payment_id format:", payload.custom_payment_id);
     return new Response("OK", { status: 200 });
   }
 
-  // Look up user by the first 8 characters of their user_id
-  const userIdPrefix = paymentIdParts[1];
-  const { data: profiles, error: profileError } = await supabase
-    .from("profiles")
-    .select("id")
-    .ilike("id", `${userIdPrefix}%`)
-    .limit(1);
-
-  if (profileError || !profiles || profiles.length === 0) {
-    console.error("Could not find user for payment:", userIdPrefix, profileError);
-    return new Response("OK", { status: 200 });
-  }
-
-  const user_id = profiles[0].id;
+  const user_id = match[1];
+  console.log("Extracted user_id from payment:", user_id);
   
   // Determine payment type from item_name
   const payment_type = payload.item_name?.includes("Weekly") ? "weekly" : "monthly";

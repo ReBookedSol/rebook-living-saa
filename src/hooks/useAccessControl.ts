@@ -29,17 +29,17 @@ export const useAccessControl = () => {
         return;
       }
 
-      // Check for successful payment directly in database
+      // Check for successful or active payment directly in database
       const { data: payments, error } = await supabase
-        .from("payments")
+        .from("user_payments")
         .select("*")
         .eq("user_id", session.user.id)
-        .eq("status", "successful")
+        .in("status", ["successful", "active"])
         .order("created_at", { ascending: false })
         .limit(1);
 
       if (error) {
-        console.error("Error checking access:", error);
+        console.error("Error checking access:", error.message || JSON.stringify(error));
         setStatus({
           accessLevel: "free",
           hasActivePayment: false,

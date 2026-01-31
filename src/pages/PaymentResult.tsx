@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, Home, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAccessControl } from "@/hooks/useAccessControl";
 
 const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refresh: refreshAccessControl } = useAccessControl();
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed">("loading");
   const [paymentDetails, setPaymentDetails] = useState<{
     type?: string;
@@ -27,7 +29,7 @@ const PaymentResult = () => {
     try {
       // Check payment status in database
       const { data: payment, error } = await supabase
-        .from("payments")
+        .from("user_payments")
         .select("*")
         .eq("transaction_reference", paymentId)
         .single();
@@ -73,12 +75,18 @@ const PaymentResult = () => {
   // Auto-redirect to browse page after 5 seconds if payment is successful
   useEffect(() => {
     if (status === "success") {
+      // Refresh access control status
+      refreshAccessControl();
+
+      // Mark user as newly paid for animation
+      sessionStorage.setItem("justPaid", "true");
+
       const redirectTimer = setTimeout(() => {
         navigate("/browse");
       }, 5000);
       return () => clearTimeout(redirectTimer);
     }
-  }, [status, navigate]);
+  }, [status, navigate, refreshAccessControl]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);

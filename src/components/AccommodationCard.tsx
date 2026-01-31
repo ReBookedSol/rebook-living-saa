@@ -51,6 +51,7 @@ const AccommodationCard = ({
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [showPremiumBorderAnimation, setShowPremiumBorderAnimation] = useState(false);
 
   const shareListing = async () => {
     const url = `${window.location.origin}/listing/${id}`;
@@ -96,6 +97,19 @@ const AccommodationCard = ({
     // eslint-disable-next-line no-alert
     prompt('Copy this link', url);
   };
+
+  // Check for premium animation flag and clear it after animation
+  useEffect(() => {
+    if (isPaidUser && sessionStorage.getItem("justPaid") === "true") {
+      setShowPremiumBorderAnimation(true);
+      // Clear the flag and animation after 2.5 seconds (duration of animation)
+      const timer = setTimeout(() => {
+        setShowPremiumBorderAnimation(false);
+        sessionStorage.removeItem("justPaid");
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isPaidUser]);
 
   useEffect(() => {
     let mounted = true;
@@ -257,7 +271,21 @@ const AccommodationCard = ({
       state={{ images: (localImages && localImages.length > 0) ? localImages : (displayImages && displayImages.length > 0) ? displayImages : [thumb] }}
       className="block group"
     >
-      <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border border-primary/20 h-full flex flex-col">
+      <Card
+        className={`overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col ${
+          showPremiumBorderAnimation
+            ? "border-2"
+            : isPaidUser
+            ? "border-2 border-yellow-500"
+            : "border border-primary/20"
+        }`}
+        style={showPremiumBorderAnimation ? {
+          animation: "premiumBorderPulse 2.5s ease-in-out forwards",
+          borderColor: "rgb(59 130 246 / 0.2)"
+        } : isPaidUser ? {
+          borderColor: "#d4af37"
+        } : {}}
+      >
         {/* Image Section with Overlay */}
         <div className="relative w-full h-56 overflow-hidden bg-muted group-hover:brightness-95 transition-all duration-300">
           {/* Always show images on cards - no paywall on browse cards */}
