@@ -218,30 +218,19 @@ async function handleInitialize(req: Request, supabase: SupabaseClientType) {
   const paymentData = await paymentResponse.json();
   console.log("BobPay success response:", JSON.stringify(paymentData, null, 2));
 
-  // Store pending payment record in user_payments table
-  // Using the correct columns from the user_payments table schema
-  const { error: insertError } = await supabase.from("user_payments").insert({
+  // Note: We don't insert payment record here since the status constraint only allows
+  // 'active', 'expired', 'cancelled'. The payment record will be created when 
+  // the webhook confirms successful payment with status 'active'.
+  // We log the pending payment info for tracking purposes.
+  console.log("Payment initialized, awaiting webhook confirmation:", {
+    custom_payment_id,
     user_id,
     amount,
-    payment_type, // "weekly" or "monthly"
-    payment_provider: "bobpay",
-    status: "pending",
-    custom_payment_id,
+    payment_type,
     access_expires_at: access_expires_at.toISOString(),
-    raw_payload: {
-      duration_days,
-      item_name,
-      item_description,
-      bobpay_sandbox: BOBPAY_SANDBOX,
-    },
   });
 
-  if (insertError) {
-    console.error("Failed to store payment record:", insertError);
-    throw new Error(`Failed to create payment record: ${insertError.message}`);
-  }
-
-  console.log("Payment record created successfully:", custom_payment_id);
+  console.log("Payment initialization complete, awaiting webhook:", custom_payment_id);
 
   return new Response(
     JSON.stringify({
@@ -284,41 +273,79 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
     return new Response("OK", { status: 200 });
   }
 
-  // Find the payment record by custom_payment_id
-  const { data: existingPayment, error: findError } = await supabase
-    .from("user_payments")
-    .select("*")
-    .eq("custom_payment_id", payload.custom_payment_id)
-    .single();
-
-  if (findError || !existingPayment) {
-    console.error("Payment record not found:", payload.custom_payment_id, findError);
+  // Parse the custom_payment_id to extract user_id
+  // Format: RB-{user_id_first_8_chars}-{timestamp}
+  const paymentIdParts = payload.custom_payment_id.split("-");
+  if (paymentIdParts.length < 3) {
+    console.error("Invalid custom_payment_id format:", payload.custom_payment_id);
     return new Response("OK", { status: 200 });
   }
 
-  // Update payment to active
-  const { error: updateError } = await supabase
-    .from("user_payments")
-    .update({
-      status: "active",
-      paid_at: new Date().toISOString(),
-      payment_method: payload.payment_method || "bobpay",
-      bobpay_payment_id: payload.payment_id?.toString(),
-      bobpay_uuid: payload.uuid,
-      raw_payload: {
-        ...existingPayment.raw_payload,
-        webhook_received_at: new Date().toISOString(),
-        webhook_payload: payload,
-      },
-      updated_at: new Date().toISOString(),
-    })
-    .eq("custom_payment_id", payload.custom_payment_id);
+  // Look up user by the first 8 characters of their user_id
+  const userIdPrefix = paymentIdParts[1];
+  const { data: profiles, error: profileError } = await supabase
+    .from("profiles")
+    .select("id")
+    .ilike("id", `${userIdPrefix}%`)
+    .limit(1);
 
-  if (updateError) {
-    console.error("Failed to update payment:", updateError);
+  if (profileError || !profiles || profiles.length === 0) {
+    console.error("Could not find user for payment:", userIdPrefix, profileError);
+    return new Response("OK", { status: 200 });
   }
 
-  console.log("Payment marked as active:", payload.custom_payment_id);
+  const user_id = profiles[0].id;
+  
+  // Determine payment type from item_name
+  const payment_type = payload.item_name?.includes("Weekly") ? "weekly" : "monthly";
+  const duration_days = payment_type === "weekly" ? 7 : 30;
+  
+  // Calculate access expiration
+  const access_expires_at = new Date();
+  access_expires_at.setDate(access_expires_at.getDate() + duration_days);
+
+  // Check if payment already exists to avoid duplicates
+  const { data: existingPayment } = await supabase
+    .from("user_payments")
+    .select("id")
+    .eq("custom_payment_id", payload.custom_payment_id)
+    .single();
+
+  if (existingPayment) {
+    console.log("Payment already processed:", payload.custom_payment_id);
+    return new Response("OK", { status: 200 });
+  }
+
+  // Create the payment record with status 'active'
+  const { error: insertError } = await supabase
+    .from("user_payments")
+    .insert({
+      user_id,
+      amount: Math.round(payload.amount), // Amount from webhook
+      payment_type,
+      payment_provider: "bobpay",
+      status: "active", // Allowed status value
+      payment_method: payload.payment_method || "instant_eft",
+      custom_payment_id: payload.custom_payment_id,
+      bobpay_payment_id: payload.payment_id?.toString(),
+      bobpay_uuid: payload.uuid,
+      access_expires_at: access_expires_at.toISOString(),
+      paid_at: new Date().toISOString(),
+      raw_payload: {
+        item_name: payload.item_name,
+        item_description: payload.item_description,
+        duration_days,
+        webhook_payload: payload,
+        is_sandbox: payload.is_test,
+      },
+    });
+
+  if (insertError) {
+    console.error("Failed to create payment record:", insertError);
+    return new Response("Error creating payment", { status: 500 });
+  }
+
+  console.log("Payment created successfully:", payload.custom_payment_id, "for user:", user_id);
   return new Response("OK", { status: 200 });
 }
 
