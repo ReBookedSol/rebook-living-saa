@@ -52,6 +52,7 @@ const AccommodationCard = ({
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [showPremiumBorderAnimation, setShowPremiumBorderAnimation] = useState(false);
 
   const shareListing = async () => {
     const url = `${window.location.origin}/listing/${id}`;
