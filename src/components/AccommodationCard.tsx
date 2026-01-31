@@ -271,7 +271,22 @@ const AccommodationCard = ({
       state={{ images: (localImages && localImages.length > 0) ? localImages : (displayImages && displayImages.length > 0) ? displayImages : [thumb] }}
       className="block group"
     >
-      <Card className="overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer border border-primary/20 h-full flex flex-col">
+      <Card
+        className={`overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col ${
+          showPremiumBorderAnimation
+            ? "border-2 border-yellow-500 animate-pulse shadow-lg shadow-yellow-500/50"
+            : isPaidUser
+            ? "border-2 border-yellow-500"
+            : "border border-primary/20"
+        }`}
+        style={showPremiumBorderAnimation ? {
+          animation: "premiumBorderPulse 2.5s ease-in-out forwards",
+          boxShadow: "0 0 20px rgba(234, 179, 8, 0.3)"
+        } : isPaidUser ? {
+          borderColor: "#d4af37",
+          boxShadow: "none"
+        } : {}}
+      >
         {/* Image Section with Overlay */}
         <div className="relative w-full h-56 overflow-hidden bg-muted group-hover:brightness-95 transition-all duration-300">
           {/* Always show images on cards - no paywall on browse cards */}
