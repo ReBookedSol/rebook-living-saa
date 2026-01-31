@@ -36,7 +36,6 @@ const Browse = () => {
   // Default sort: newest first so newly added accommodations appear on page 1
   const [sortBy, setSortBy] = useState("newest");
   const [selectedGender, setSelectedGender] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
 
   React.useEffect(() => {
@@ -49,10 +48,22 @@ const Browse = () => {
 
   const ITEMS_PER_PAGE = isLargeScreen ? 15 : 9;
 
-  // Reset page when filters/search params change
+  // Helper to update URL with page and preserve other params
+  const setPageInUrl = (newPage: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", newPage.toString());
+    setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Reset to page 1 when filters change (but not when page param changes)
   React.useEffect(() => {
-    setCurrentPage(1);
-  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy]);
+    const newParams = new URLSearchParams(searchParams);
+    if (newParams.get("page") !== "1") {
+      newParams.set("page", "1");
+      setSearchParams(newParams);
+    }
+  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy, setSearchParams]);
 
   const { data: pageResult, isLoading } = useQuery({
     queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage],
