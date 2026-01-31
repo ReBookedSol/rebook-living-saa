@@ -776,45 +776,45 @@ const ListingDetail = () => {
             <div className="space-y-6 lg:sticky lg:top-20">
               {/* Contact Card */}
               <Card className="border-0 shadow-md">
-                <CardContent className="p-6">
-                  <div className="mb-6">
-                    <div className="text-4xl font-bold text-primary mb-1">R{listing.monthly_cost?.toLocaleString()}</div>
-                    <p className="text-sm text-muted-foreground">per month</p>
+                <CardContent className="p-4 md:p-6">
+                  <div className="mb-4 md:mb-6">
+                    <div className="text-3xl md:text-4xl font-bold text-primary mb-1">R{listing.monthly_cost?.toLocaleString()}</div>
+                    <p className="text-xs md:text-sm text-muted-foreground">per month</p>
                   </div>
 
-                  <div className="space-y-3 mb-6 pb-6 border-b">
-                    <div className="flex items-start gap-3">
-                      <Phone className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                  <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 pb-4 md:pb-6 border-b">
+                    <div className="flex items-start gap-2 md:gap-3">
+                      <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
-                        <p className="font-medium text-sm break-all">{listing.contact_phone}</p>
+                        <p className="font-medium text-xs md:text-sm break-all">{listing.contact_phone}</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Mail className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex items-start gap-2 md:gap-3">
+                      <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
                       <div className="min-w-0">
                         <p className="text-xs text-muted-foreground mb-0.5">Email</p>
-                        <p className="font-medium text-sm break-all">{listing.contact_email}</p>
+                        <p className="font-medium text-xs md:text-sm break-all">{listing.contact_email}</p>
                       </div>
                     </div>
                     {listing.contact_person && (
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2 md:gap-3">
                         <p className="text-xs text-muted-foreground mb-0.5">Contact Person</p>
-                        <p className="font-medium text-sm">{listing.contact_person}</p>
+                        <p className="font-medium text-xs md:text-sm">{listing.contact_person}</p>
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <a href={`tel:${listing.contact_phone}`} className="block">
-                      <Button className="w-full bg-primary hover:bg-primary/90">
-                        <Phone className="h-4 w-4 mr-2" />
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
+                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
                         Call Now
                       </Button>
                     </a>
                     <a href={`mailto:${listing.contact_email}`} className="block">
-                      <Button variant="outline" className="w-full">
-                        <Mail className="h-4 w-4 mr-2" />
+                      <Button variant="outline" className="w-full text-sm">
+                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
                         Send Email
                       </Button>
                     </a>
