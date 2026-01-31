@@ -75,12 +75,18 @@ const PaymentResult = () => {
   // Auto-redirect to browse page after 5 seconds if payment is successful
   useEffect(() => {
     if (status === "success") {
+      // Refresh access control status
+      refreshAccessControl();
+
+      // Mark user as newly paid for animation
+      sessionStorage.setItem("justPaid", "true");
+
       const redirectTimer = setTimeout(() => {
         navigate("/browse");
       }, 5000);
       return () => clearTimeout(redirectTimer);
     }
-  }, [status, navigate]);
+  }, [status, navigate, refreshAccessControl]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
