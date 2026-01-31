@@ -244,15 +244,15 @@ const Browse = () => {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => setPageInUrl(Math.max(1, pageParam - 1))}
-                            className={pageParam === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         {renderPaginationItems()}
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => setPageInUrl(Math.min(totalPages, pageParam + 1))}
-                            className={pageParam === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
