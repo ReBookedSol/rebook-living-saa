@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import SearchBar from "@/components/SearchBar";
@@ -12,7 +12,9 @@ import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
 
 const Browse = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
   const province = searchParams.get("province") || "";
@@ -21,6 +23,7 @@ const Browse = () => {
   const amenitiesParam = searchParams.get("amenities") || "";
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
   // SEO
   useSEO({
