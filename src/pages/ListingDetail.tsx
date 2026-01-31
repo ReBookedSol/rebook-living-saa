@@ -824,13 +824,13 @@ const ListingDetail = () => {
 
               {/* Unified Reviews Section */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                  <CardTitle className="text-lg">Reviews & Feedback</CardTitle>
+                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                  <CardTitle className="text-base md:text-lg">Reviews & Feedback</CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+                <CardContent className="p-4 md:p-6">
+                  <div className="space-y-3 md:space-y-4">
                     {/* Review Form */}
-                    <div className="pb-4 border-b">
+                    <div className="pb-3 md:pb-4 border-b">
                       <ReviewForm
                         accommodationId={id || ""}
                         onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
@@ -839,8 +839,8 @@ const ListingDetail = () => {
 
                     {/* All Reviews */}
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">All Reviews</h3>
-                      <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2 md:mb-3">All Reviews</h3>
+                      <div className="space-y-2 md:space-y-3 max-h-[50vh] overflow-y-auto">
                         {/* ReBooked Living Reviews */}
                         <ReviewsList
                           accommodationId={id}
