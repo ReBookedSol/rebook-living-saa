@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Info } from "lucide-react";
 import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
