@@ -100,7 +100,7 @@ const PaymentsTab = () => {
       return {
         activeUsers: activeResult.count || 0,
         totalPayments: totalResult.count || 0,
-        totalRevenue: totalRevenue / 100, // Convert from cents
+        totalRevenue: totalRevenue,
       };
     },
   });
