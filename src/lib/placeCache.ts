@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { PlaceCacheData, PlaceCacheRequest } from "@/types/place-cache";
 
-const SUPABASE_URL = "https://gzihagvdpdjcoyjpvyvs.supabase.co";
+const SUPABASE_URL = (import.meta.env as any).VITE_SUPABASE_URL || "https://gzihagvdpdjcoyjpvyvs.supabase.co";
+const SUPABASE_API_KEY = (import.meta.env as any).VITE_SUPABASE_PUBLISHABLE_KEY || (import.meta.env as any).VITE_SUPABASE_ANON_KEY;
 
 /**
  * Fetch place data from cache or Google Places API
@@ -22,7 +23,7 @@ export async function getPlaceData(
       headers: {
         "Content-Type": "application/json",
         Authorization: session ? `Bearer ${session.access_token}` : "",
-        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6aWhhZ3ZkcGRqY295anB2eXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NzM2NzQsImV4cCI6MjA3NzE0OTY3NH0.2y2vuzaq9dKDrJIyjbAfcNAgrxVEpxeYwS5xNHSrqYw",
+        apikey: SUPABASE_API_KEY,
       },
       body: JSON.stringify({
         place_id,

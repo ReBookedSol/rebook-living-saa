@@ -10,7 +10,7 @@ export const DeveloperModeBanner = () => {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-400 text-black px-4 py-2 flex items-center justify-between">
+    <div className="fixed top-0 left-0 right-0 z-40 bg-yellow-400 text-black px-4 py-2 flex items-center justify-between">
       <div className="flex-1 text-center">
         <p className="text-sm font-semibold">Developer Mode</p>
       </div>

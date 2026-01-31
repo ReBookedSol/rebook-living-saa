@@ -257,6 +257,7 @@ const ListingDetail = () => {
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
+  const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set());
 
   // Fetch place data from cache/API
   const { data: placeCache, isLoading: placeCacheLoading } = useQuery({
@@ -394,6 +395,16 @@ const ListingDetail = () => {
       mapInstanceRef.current.setMapTypeId(allowedMapType);
     }
   }, [mapType, isPaidUser]);
+
+  const toggleReviewExpand = (reviewId: string) => {
+    const newExpanded = new Set(expandedReviews);
+    if (newExpanded.has(reviewId)) {
+      newExpanded.delete(reviewId);
+    } else {
+      newExpanded.add(reviewId);
+    }
+    setExpandedReviews(newExpanded);
+  };
 
   const enterStreetView = () => {
     if (!isPaidUser) {
@@ -912,28 +923,41 @@ const ListingDetail = () => {
                             <div className="my-2 md:my-3 text-center text-xs text-muted-foreground">
                               ─ Google Reviews ─
                             </div>
-                            {reviews.map((r: any, idx: number) => (
-                              <div key={`google-${idx}`} className="p-2 md:p-2.5 bg-muted/30 rounded-lg border border-muted text-xs md:text-sm">
-                                <div className="flex gap-2 items-start mb-1">
-                                  {r.profile_photo_url ? (
-                                    <img src={r.profile_photo_url} alt={r.author_name} className="w-6 h-6 md:w-7 md:h-7 rounded-full object-cover flex-shrink-0" />
-                                  ) : (
-                                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-muted flex-shrink-0" />
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1 justify-between mb-0.5">
-                                      <div className="flex items-center gap-1">
-                                        <p className="font-semibold text-xs truncate">{r.author_name}</p>
-                                        <span className="text-xs px-1 py-0 bg-blue-100 text-blue-700 rounded-full">Google</span>
+                            {reviews.map((r: any, idx: number) => {
+                              const reviewId = `google-${idx}`;
+                              const isExpanded = expandedReviews.has(reviewId);
+                              const isTruncated = r.text && r.text.length > 150;
+                              return (
+                                <div key={reviewId} className="p-2 md:p-2.5 bg-muted/30 rounded-lg border border-muted text-xs md:text-sm">
+                                  <div className="flex gap-2 items-start mb-1">
+                                    {r.profile_photo_url ? (
+                                      <img src={r.profile_photo_url} alt={r.author_name} className="w-6 h-6 md:w-7 md:h-7 rounded-full object-cover flex-shrink-0" />
+                                    ) : (
+                                      <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-muted flex-shrink-0" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-1 justify-between mb-0.5">
+                                        <div className="flex items-center gap-1">
+                                          <p className="font-semibold text-xs truncate">{r.author_name}</p>
+                                          <span className="text-xs px-1 py-0 bg-blue-100 text-blue-700 rounded-full">Google</span>
+                                        </div>
+                                        <span className="text-xs text-yellow-500 font-medium flex-shrink-0">{r.rating}★</span>
                                       </div>
-                                      <span className="text-xs text-yellow-500 font-medium flex-shrink-0">{r.rating}★</span>
+                                      <p className="text-xs text-muted-foreground">{r.relative_time_description}</p>
                                     </div>
-                                    <p className="text-xs text-muted-foreground">{r.relative_time_description}</p>
                                   </div>
+                                  <p className={`text-xs text-foreground ${!isExpanded && isTruncated ? 'line-clamp-2' : ''}`}>{r.text}</p>
+                                  {isTruncated && (
+                                    <button
+                                      onClick={() => toggleReviewExpand(reviewId)}
+                                      className="text-xs text-primary hover:underline mt-1 font-medium"
+                                    >
+                                      {isExpanded ? 'Show less' : 'Show more'}
+                                    </button>
+                                  )}
                                 </div>
-                                <p className="text-xs text-foreground line-clamp-2">{r.text}</p>
-                              </div>
-                            ))}
+                              );
+                            })}
                             {hasMoreReviews && (
                               <div className="mt-2 md:mt-3 p-2 md:p-2.5 bg-muted/50 rounded-lg">
                                 <UpgradePrompt
@@ -957,7 +981,7 @@ const ListingDetail = () => {
 
         {/* Photo Dialog */}
         <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-          <DialogContent className="max-w-4xl w-[95vw] p-2 md:p-4">
+          <DialogContent className="max-w-2xl md:max-w-4xl w-[90vw] md:w-[95vw] p-2 md:p-4 rounded-2xl">
             <div>
               <div className="flex items-center justify-between mb-3 md:mb-4 px-2">
                 <Button
@@ -980,7 +1004,7 @@ const ListingDetail = () => {
                   Next →
                 </Button>
               </div>
-              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[50vh] md:h-[65vh] object-contain rounded" />
+              <img loading="lazy" src={photos && photos[selectedPhoto]} alt={`Photo ${selectedPhoto+1}`} className="w-full h-[40vh] md:h-[65vh] object-contain rounded-xl" />
             </div>
           </DialogContent>
         </Dialog>

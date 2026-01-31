@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Info } from "lucide-react";
 import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
@@ -14,6 +14,7 @@ import { useSEO } from "@/hooks/useSEO";
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
@@ -23,7 +24,6 @@ const Browse = () => {
   const amenitiesParam = searchParams.get("amenities") || "";
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
-  const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
   // SEO
   useSEO({
@@ -48,28 +48,22 @@ const Browse = () => {
 
   const ITEMS_PER_PAGE = isLargeScreen ? 15 : 9;
 
-  // Helper to update URL with page and preserve other params
-  const setPageInUrl = (newPage: number) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", newPage.toString());
-    setSearchParams(newParams);
+  // Helper to update page and scroll to top
+  const handlePageChange = useCallback((newPage: number) => {
+    setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  // Reset to page 1 when filters change (but not when page param changes)
+  // Reset to page 1 when filters change
   React.useEffect(() => {
-    const newParams = new URLSearchParams(searchParams);
-    if (newParams.get("page") !== "1") {
-      newParams.set("page", "1");
-      setSearchParams(newParams);
-    }
-  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy, setSearchParams]);
+    setCurrentPage(1);
+  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy]);
 
   const { data: pageResult, isLoading } = useQuery({
-    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, pageParam],
+    queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage, isLargeScreen],
     queryFn: async () => {
-      const from = (pageParam - 1) * ITEMS_PER_PAGE;
-      const to = pageParam * ITEMS_PER_PAGE - 1;
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = currentPage * ITEMS_PER_PAGE - 1;
 
       // Start with select and request exact count
       let query: any = supabase
@@ -134,20 +128,20 @@ const Browse = () => {
 
   const renderPaginationItems = () => {
     const items = [];
-    const showEllipsisStart = pageParam > 3;
-    const showEllipsisEnd = pageParam < totalPages - 2;
+    const showEllipsisStart = currentPage > 3;
+    const showEllipsisEnd = currentPage < totalPages - 2;
 
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
         i === totalPages ||
-        (i >= pageParam - 1 && i <= pageParam + 1)
+        (i >= currentPage - 1 && i <= currentPage + 1)
       ) {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => setPageInUrl(i)}
-              isActive={pageParam === i}
+              onClick={() => handlePageChange(i)}
+              isActive={currentPage === i}
             >
               {i}
             </PaginationLink>
@@ -250,15 +244,15 @@ const Browse = () => {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => setPageInUrl(Math.max(1, pageParam - 1))}
-                            className={pageParam === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         {renderPaginationItems()}
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => setPageInUrl(Math.min(totalPages, pageParam + 1))}
-                            className={pageParam === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
