@@ -250,7 +250,14 @@ const Profile = () => {
                 <User2 className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg sm:text-2xl md:text-3xl font-bold truncate">{firstName || lastName ? `${firstName} ${lastName}` : user.email}</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-lg sm:text-2xl md:text-3xl font-bold">{firstName || lastName ? `${firstName} ${lastName}` : user.email}</h1>
+                  {hasActivePayment && (
+                    <div title="Premium Member">
+                      <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-500 fill-yellow-500" />
+                    </div>
+                  )}
+                </div>
                 <div className="text-xs sm:text-sm text-muted-foreground mt-1">Member since {memberSince}</div>
                 {user.email_confirmed_at ? (
                   <div className="mt-1 sm:mt-2 inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-green-600 font-medium">
