@@ -420,34 +420,6 @@ const AccommodationCard = ({
         {/* Action Buttons */}
         <CardFooter className="p-4 pt-3 flex items-center justify-between gap-2 flex-shrink-0">
           <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs">
-                  <Info className="w-4 h-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-xs w-[90vw] rounded-xl p-4">
-                <DialogHeader>
-                  <DialogTitle className="text-base">{propertyName} — Info</DialogTitle>
-                  <DialogDescription>
-                    <p className="mt-2 text-sm">Gender policy: <span className="font-medium">{genderPolicy || 'Mixed'}</span></p>
-                    <p className="mt-2 text-sm">NSFAS accredited: <span className="font-medium">{nsfasAccredited ? 'Yes' : 'No'}</span></p>
-                    <p className="mt-2 text-sm">University: <span className="font-medium">{university}</span></p>
-                    {amenities.length > 0 && <p className="mt-2 text-sm">Amenities: <span className="font-medium">{amenities.join(', ')}</span></p>}
-                    {website && (
-                      <p className="mt-2 text-sm">Website: <a href={website} target="_blank" rel="noreferrer" className="text-primary underline">Visit</a></p>
-                    )}
-                    <p className="mt-4 text-xs text-muted-foreground">For bursaries and university info see: <a href="https://www.rebookedsolutions.co.za/university-info" target="_blank" rel="noreferrer" className="text-primary underline">University Info</a></p>
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-4 flex justify-end">
-                  <DialogClose asChild>
-                    <Button className="bg-primary text-white">Close</Button>
-                  </DialogClose>
-                </div>
-              </DialogContent>
-            </Dialog>
-
             <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); shareListing(); }} className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs">
               <Share className="w-4 h-4" />
             </Button>
