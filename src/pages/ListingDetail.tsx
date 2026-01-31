@@ -256,7 +256,8 @@ const ListingDetail = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
-  const photos = isPaidUser ? allPhotos : allPhotos?.slice(0, FREE_TIER_LIMITS.MAX_PHOTOS);
+  // Use server-side tiered photos if available, otherwise use passed/fetched images
+  const photos = tieredPhotos !== undefined ? tieredPhotos : allPhotos;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
   const totalPhotos = allPhotos?.length || 0;
   const totalReviews = allReviews?.length || 0;
