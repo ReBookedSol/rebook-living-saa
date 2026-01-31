@@ -155,6 +155,9 @@ Deno.serve(async (req) => {
       attributions = cachedPlace.attributions;
       cacheHit = true;
       console.log("Using cached data:", { photos: photos.length, reviews: reviews.length });
+      
+      // Track cache hit in analytics
+      await supabase.rpc("increment_cache_analytics", { p_is_hit: true });
     } else {
       // Fetch from Google Places API
       console.log("Fetching from Google Places API...");
@@ -226,6 +229,9 @@ Deno.serve(async (req) => {
           } else {
             console.log("Successfully cached place data");
           }
+          
+          // Track cache miss in analytics
+          await supabase.rpc("increment_cache_analytics", { p_is_hit: false });
         }
       }
     }

@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Database, Image, MessageSquare, Clock, CheckCircle2, Trash2, RefreshCw } from "lucide-react";
+import { Database, Image, MessageSquare, Clock, CheckCircle2, Trash2, RefreshCw, TrendingUp, TrendingDown, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 interface PlaceCacheRow {
@@ -17,10 +17,17 @@ interface PlaceCacheRow {
   attributions: string | null;
 }
 
+interface CacheAnalytics {
+  date: string;
+  cache_hits: number;
+  cache_misses: number;
+  api_calls_saved: number;
+}
+
 const PlaceCacheTab = () => {
   const queryClient = useQueryClient();
 
-  const { data: cacheStats, isLoading: statsLoading } = useQuery({
+  const { data: cacheStats } = useQuery({
     queryKey: ["place-cache-stats"],
     queryFn: async () => {
       const [totalResult, proResult] = await Promise.all([
@@ -43,6 +50,26 @@ const PlaceCacheTab = () => {
       };
     },
   });
+
+  const { data: analytics } = useQuery({
+    queryKey: ["place-cache-analytics"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("place_cache_analytics")
+        .select("*")
+        .order("date", { ascending: false })
+        .limit(7);
+      
+      if (error) throw error;
+      return data as CacheAnalytics[];
+    },
+  });
+
+  // Calculate totals from analytics
+  const totalHits = analytics?.reduce((sum, a) => sum + (a.cache_hits || 0), 0) || 0;
+  const totalMisses = analytics?.reduce((sum, a) => sum + (a.cache_misses || 0), 0) || 0;
+  const totalSaved = analytics?.reduce((sum, a) => sum + (a.api_calls_saved || 0), 0) || 0;
+  const hitRate = totalHits + totalMisses > 0 ? ((totalHits / (totalHits + totalMisses)) * 100).toFixed(1) : "0";
 
   const { data: recentCaches, isLoading: cachesLoading } = useQuery({
     queryKey: ["place-cache-recent"],
@@ -167,6 +194,50 @@ const PlaceCacheTab = () => {
         </Card>
       </div>
 
+      {/* Analytics Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cache Hit Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">{hitRate}%</div>
+            <p className="text-xs text-muted-foreground">Last 7 days</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cache Hits</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalHits}</div>
+            <p className="text-xs text-muted-foreground">Requests served from cache</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cache Misses</CardTitle>
+            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalMisses}</div>
+            <p className="text-xs text-muted-foreground">Required API calls</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">API Calls Saved</CardTitle>
+            <Zap className="h-4 w-4 text-accent" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-accent">{totalSaved}</div>
+            <p className="text-xs text-muted-foreground">Estimated savings</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Cache Info */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -190,6 +261,7 @@ const PlaceCacheTab = () => {
           <p>• <strong>Max Reviews:</strong> 5 per place</p>
           <p>• <strong>Display Limits:</strong> Browse: 1 photo | Free: 3 photos + 1 review | Pro: 10 photos + 5 reviews</p>
           <p>• <strong>API Savings:</strong> Each cached place saves ~90% of API calls</p>
+          <p>• <strong>Auto Cleanup:</strong> Cron job runs every 10 minutes to remove expired entries</p>
         </CardContent>
       </Card>
 

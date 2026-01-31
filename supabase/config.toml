@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.place-cache]
 verify_jwt = false
+
+[functions.place-cache-cleanup]
+verify_jwt = false
