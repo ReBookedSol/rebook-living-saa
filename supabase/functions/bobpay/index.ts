@@ -236,8 +236,10 @@ async function handleInitialize(req: Request, supabase: any) {
 
   if (insertError) {
     console.error("Failed to store payment record:", insertError);
-    // Don't fail the request - payment link was created successfully
+    throw new Error(`Failed to create payment record: ${insertError.message}`);
   }
+
+  console.log("Payment record created successfully:", custom_payment_id);
 
   return new Response(
     JSON.stringify({
