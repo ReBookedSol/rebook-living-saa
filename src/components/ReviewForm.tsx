@@ -16,6 +16,7 @@ interface ReviewFormProps {
 }
 
 export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormProps) => {
+  const queryClient = useQueryClient();
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [comment, setComment] = useState("");
