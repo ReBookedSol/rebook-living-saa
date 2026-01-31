@@ -135,9 +135,29 @@ const ListingDetail = () => {
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (error) throw error;
       return data;
+    },
+  });
+
+  // Fetch photos with tier-based limits enforced at database level
+  const { data: tieredPhotos } = useQuery({
+    queryKey: ["accommodation-photos", id, isPaidUser],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || null;
+
+      const { data, error } = await supabase.rpc('get_accommodation_photos', {
+        p_accommodation_id: id,
+        p_user_id: userId,
+      });
+
+      if (error) {
+        console.warn('Failed to fetch tiered photos:', error);
+        return null;
+      }
+      return data as string[] | null;
     },
   });
 
