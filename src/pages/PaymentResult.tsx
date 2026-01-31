@@ -27,7 +27,7 @@ const PaymentResult = () => {
     try {
       // Check payment status in database
       const { data: payment, error } = await supabase
-        .from("users_payments")
+        .from("user_payments")
         .select("*")
         .eq("transaction_reference", paymentId)
         .single();
