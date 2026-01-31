@@ -751,7 +751,7 @@ export type Database = {
           duration?: string | null
           employment_rate?: number | null
           faculty_name?: string | null
-          id?: string
+          id: string
           is_active?: boolean | null
           name: string
           salary_range?: string | null
