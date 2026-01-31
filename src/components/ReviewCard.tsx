@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -199,13 +200,14 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
               <p className="text-xs text-gray-500 review-date">{formatDate(review.created_at)}</p>
             </div>
           </div>
-          {isAdmin && (
+          {(isAdmin || currentUserId === review.user_id) && (
             <Button
               size="sm"
               variant="ghost"
               className="h-7 w-7 p-0"
-              onClick={() => hideReviewMutation.mutate()}
-              disabled={hideReviewMutation.isPending}
+              onClick={() => deleteReviewMutation.mutate()}
+              disabled={deleteReviewMutation.isPending}
+              title={isAdmin ? "Delete review (admin)" : "Delete your review"}
             >
               <Trash2 className="w-3 h-3" />
             </Button>

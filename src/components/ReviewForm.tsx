@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ interface ReviewFormProps {
 }
 
 export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormProps) => {
+  const queryClient = useQueryClient();
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [comment, setComment] = useState("");
@@ -97,6 +98,8 @@ export const ReviewForm = ({ accommodationId, onReviewSubmitted }: ReviewFormPro
       setComment("");
       setHasSubmitted(true);
       setModerationWarning("");
+      // Invalidate the reviews cache so the new review appears immediately
+      queryClient.invalidateQueries({ queryKey: ["reviews", accommodationId] });
       onReviewSubmitted?.();
       setTimeout(() => setHasSubmitted(false), 3000);
     },

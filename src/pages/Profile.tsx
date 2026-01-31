@@ -254,7 +254,7 @@ const Profile = () => {
                   <h1 className="text-lg sm:text-2xl md:text-3xl font-bold">{firstName || lastName ? `${firstName} ${lastName}` : user.email}</h1>
                   {hasActivePayment && (
                     <div title="Premium Member">
-                      <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-500 fill-yellow-500" />
+                      <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-500 fill-yellow-500" />
                     </div>
                   )}
                 </div>
@@ -294,7 +294,7 @@ const Profile = () => {
         <Card className="w-full p-3 sm:p-4 mb-4 rounded-2xl shadow-sm">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${hasActivePayment ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${hasActivePayment ? 'bg-yellow-100 text-yellow-600' : 'bg-muted text-muted-foreground'}`}>
                 {hasActivePayment ? <Crown className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />}
               </div>
               <div>

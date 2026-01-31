@@ -9,19 +9,19 @@ const Pricing = () => {
     "See preview photos on browse cards",
     "Unlimited photos in property galleries",
     "Complete property information",
-    "Interactive map view",
-    "Satellite imagery",
+    "Interactive map with satellite view",
+    "Street view (360° imagery)",
     "Advanced search filters",
-    "No advertisements",
+    "Direct landlord messaging",
   ];
 
   const freeFeatures = [
-    { name: "Preview photos hidden on browse cards", included: false },
-    { name: "Maximum 3 photos in listing gallery", included: true },
-    { name: "Basic listing information only", included: false },
-    { name: "No interactive map view", included: false },
-    { name: "No satellite imagery", included: false },
-    { name: "Advertisements displayed", included: false },
+    { name: "Browse all accommodations", included: true },
+    { name: "View up to 3 photos per listing", included: true },
+    { name: "Read reviews and ratings", included: true },
+    { name: "Basic property details", included: true },
+    { name: "Search by location, price & amenities", included: true },
+    { name: "Interactive map (standard view)", included: true },
   ];
 
   return (
