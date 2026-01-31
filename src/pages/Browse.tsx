@@ -48,22 +48,16 @@ const Browse = () => {
 
   const ITEMS_PER_PAGE = isLargeScreen ? 15 : 9;
 
-  // Helper to update URL with page and preserve other params
-  const setPageInUrl = useCallback((newPage: number) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", newPage.toString());
-    setSearchParams(newParams);
+  // Helper to update page and scroll to top
+  const handlePageChange = useCallback((newPage: number) => {
+    setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [searchParams, setSearchParams]);
+  }, []);
 
-  // Reset to page 1 when filters change (but not when page param changes)
+  // Reset to page 1 when filters change
   React.useEffect(() => {
-    const newParams = new URLSearchParams(searchParams);
-    if (newParams.get("page") !== "1") {
-      newParams.set("page", "1");
-      setSearchParams(newParams);
-    }
-  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy, setSearchParams]);
+    setCurrentPage(1);
+  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy]);
 
   const { data: pageResult, isLoading } = useQuery({
     queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, pageParam, isLargeScreen],
