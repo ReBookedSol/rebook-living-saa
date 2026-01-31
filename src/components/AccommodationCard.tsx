@@ -274,17 +274,16 @@ const AccommodationCard = ({
       <Card
         className={`overflow-hidden rounded-2xl hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col ${
           showPremiumBorderAnimation
-            ? "border-2 border-yellow-500 animate-pulse shadow-lg shadow-yellow-500/50"
+            ? "border-2"
             : isPaidUser
             ? "border-2 border-yellow-500"
             : "border border-primary/20"
         }`}
         style={showPremiumBorderAnimation ? {
           animation: "premiumBorderPulse 2.5s ease-in-out forwards",
-          boxShadow: "0 0 20px rgba(234, 179, 8, 0.3)"
+          borderColor: "rgb(59 130 246 / 0.2)"
         } : isPaidUser ? {
-          borderColor: "#d4af37",
-          boxShadow: "none"
+          borderColor: "#d4af37"
         } : {}}
       >
         {/* Image Section with Overlay */}
