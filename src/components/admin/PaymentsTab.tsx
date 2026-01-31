@@ -48,7 +48,7 @@ const PaymentsTab = () => {
     queryKey: ["admin-payments", statusFilter],
     queryFn: async () => {
       let query = supabase
-        .from("payments")
+        .from("users_payments")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -82,15 +82,15 @@ const PaymentsTab = () => {
       
       const [activeResult, totalResult, revenueResult] = await Promise.all([
         supabase
-          .from("payments")
+          .from("users_payments")
           .select("id", { count: "exact" })
           .eq("status", "successful")
           .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
         supabase
-          .from("payments")
+          .from("users_payments")
           .select("id", { count: "exact" }),
         supabase
-          .from("payments")
+          .from("users_payments")
           .select("amount")
           .eq("status", "successful"),
       ]);
@@ -121,7 +121,7 @@ const PaymentsTab = () => {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + data.days);
 
-      const { error } = await supabase.from("payments").insert({
+      const { error } = await supabase.from("users_payments").insert({
         user_id: profile.id,
         payment_type: "one_time",
         subscription_plan: data.paymentType,
@@ -154,7 +154,7 @@ const PaymentsTab = () => {
   const updatePaymentMutation = useMutation({
     mutationFn: async (data: { id: string; status?: string; access_expires_at?: string }) => {
       const { error } = await supabase
-        .from("payments")
+        .from("users_payments")
         .update(data)
         .eq("id", data.id);
 
