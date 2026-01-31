@@ -12,6 +12,7 @@ interface ReviewsListProps {
   isAdmin?: boolean;
   filterFlagged?: boolean;
   onReviewsUpdated?: () => void;
+  maxReviews?: number; // Tier-based limit to enforce at database level
 }
 
 export const ReviewsList = ({
