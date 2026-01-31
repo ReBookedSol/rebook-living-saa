@@ -409,43 +409,47 @@ const ListingDetail = () => {
           </Link>
 
           {/* Header Card */}
-          <Card className="mb-8 border-0 shadow-md">
-            <CardContent className="p-6 md:p-8">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    {listing.is_landlord_listing && (
-                      <Badge className="bg-green-500 text-white gap-1.5">
-                        <Building2 className="w-3 h-3" />
-                        Listed by Landlord
-                      </Badge>
-                    )}
-                    {listing.nsfas_accredited && (
-                      <Badge className="bg-blue-500 text-white gap-1.5">
-                        <CheckCircle className="w-3 h-3" />
-                        NSFAS Accredited
-                      </Badge>
-                    )}
+          <Card className="mb-6 border-0 shadow-md">
+            <CardContent className="p-4 md:p-8">
+              <div className="flex flex-col gap-4 md:gap-6">
+                {/* Top section with badges */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {listing.is_landlord_listing && (
+                    <Badge className="bg-green-500 text-white gap-1 text-xs">
+                      <Building2 className="w-3 h-3" />
+                      Listed by Landlord
+                    </Badge>
+                  )}
+                  {listing.nsfas_accredited && (
+                    <Badge className="bg-blue-500 text-white gap-1 text-xs">
+                      <CheckCircle className="w-3 h-3" />
+                      NSFAS Accredited
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Main title and location */}
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name}</h1>
+                  <div className="flex items-start gap-1 text-muted-foreground mb-3">
+                    <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base">{listing.address}, {listing.city}</span>
                   </div>
-                  <h1 className="text-4xl font-bold mb-3 text-foreground">{listing.property_name}</h1>
-                  <div className="flex items-center gap-1 text-muted-foreground mb-4">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span className="text-lg">{listing.address}, {listing.city}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="text-sm">{listing.type}</Badge>
-                    <Badge variant="secondary" className="text-sm">{listing.gender_policy}</Badge>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
+                    <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>
                     {listing.rooms_available && (
-                      <Badge variant="secondary" className="text-sm">{listing.rooms_available} rooms available</Badge>
+                      <Badge variant="secondary" className="text-xs">{listing.rooms_available} rooms</Badge>
                     )}
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-4">
-                  <div className="text-center bg-accent/10 px-4 py-3 rounded-lg">
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <Star className="h-5 w-5 text-accent fill-accent" />
-                      <span className="text-2xl font-bold">{(listing.rating || 0).toFixed(1)}</span>
+                {/* Bottom section - rating and actions */}
+                <div className="flex items-center justify-between pt-3 border-t">
+                  <div className="text-center bg-accent/10 px-3 py-2 rounded-lg">
+                    <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                      <Star className="h-4 w-4 text-accent fill-accent" />
+                      <span className="text-xl md:text-2xl font-bold">{(listing.rating || 0).toFixed(1)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Rating</p>
                   </div>
@@ -453,7 +457,7 @@ const ListingDetail = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
                       onClick={toggleFavorite}
                       className="rounded-full"
                       disabled={savingFavorite}
@@ -463,7 +467,7 @@ const ListingDetail = () => {
                     </Button>
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
                       onClick={shareListing}
                       className="rounded-full"
                       title="Share listing"
@@ -472,7 +476,7 @@ const ListingDetail = () => {
                     </Button>
                     <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="rounded-full" title="Report listing">
+                        <Button variant="outline" size="sm" className="rounded-full" title="Report listing">
                           <Flag className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
