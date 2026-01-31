@@ -218,7 +218,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-base mb-2">What if I have payment issues?</h3>
-                    <p className="text-sm text-muted-foreground">Contact our support team at info@rebookedsolutions.co.za with your order details and we'll assist you within 24 hours.</p>
+                    <p className="text-sm text-muted-foreground">Contact our support team at support@rebookedsolutions.co.za with your order details and we'll assist you within 24 hours.</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-base mb-2">Can I upgrade my account?</h3>
