@@ -32,7 +32,8 @@ type PaginationLinkProps = {
   React.ComponentProps<"button">;
 
 const PaginationLink = ({ className, isActive, size = "icon", ...props }: PaginationLinkProps) => (
-  <a
+  <button
+    type="button"
     aria-current={isActive ? "page" : undefined}
     className={cn(
       buttonVariants({
