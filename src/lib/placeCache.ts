@@ -23,7 +23,7 @@ export async function getPlaceData(
       headers: {
         "Content-Type": "application/json",
         Authorization: session ? `Bearer ${session.access_token}` : "",
-        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6aWhhZ3ZkcGRqY295anB2eXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NzM2NzQsImV4cCI6MjA3NzE0OTY3NH0.2y2vuzaq9dKDrJIyjbAfcNAgrxVEpxeYwS5xNHSrqYw",
+        apikey: SUPABASE_API_KEY,
       },
       body: JSON.stringify({
         place_id,
