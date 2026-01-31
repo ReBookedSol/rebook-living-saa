@@ -568,7 +568,7 @@ const ListingDetail = () => {
                 <CardContent className="p-4 md:p-6">
                   {photos && photos.length > 0 ? (
                     <>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                         {photos.map((src, i) => (
                           <button
                             key={i}
