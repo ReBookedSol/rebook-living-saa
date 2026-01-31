@@ -665,27 +665,27 @@ const ListingDetail = () => {
                 <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
                   {listing.description && (
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
-                      <p className="text-foreground leading-relaxed">{listing.description}</p>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
+                      <p className="text-foreground text-sm leading-relaxed">{listing.description}</p>
                     </div>
                   )}
-                  
-                  <div className="grid grid-cols-2 gap-4">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">University</h3>
-                      <p className="text-foreground font-medium">{listing.university}</p>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">University</h3>
+                      <p className="text-foreground text-sm font-medium">{listing.university}</p>
                     </div>
                     {listing.units && (
                       <div>
-                        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Available Units</h3>
-                        <p className="text-foreground font-medium">{listing.units} units</p>
+                        <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">Available Units</h3>
+                        <p className="text-foreground text-sm font-medium">{listing.units} units</p>
                       </div>
                     )}
                   </div>
 
                   {listing.amenities && listing.amenities.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">Amenities</h3>
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Amenities</h3>
                       <div className="flex flex-wrap gap-2">
                         {listing.amenities.map((amenity: string) => (
                           <Badge key={amenity} variant="outline" className="border-primary/20 bg-primary/5">
