@@ -39,7 +39,7 @@ export const useAccessControl = () => {
         .limit(1);
 
       if (error) {
-        console.error("Error checking access:", error);
+        console.error("Error checking access:", error.message || JSON.stringify(error));
         setStatus({
           accessLevel: "free",
           hasActivePayment: false,
