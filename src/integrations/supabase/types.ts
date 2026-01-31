@@ -693,6 +693,36 @@ export type Database = {
         }
         Relationships: []
       }
+      place_cache_analytics: {
+        Row: {
+          api_calls_saved: number
+          cache_hits: number
+          cache_misses: number
+          created_at: string
+          date: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          api_calls_saved?: number
+          cache_hits?: number
+          cache_misses?: number
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          api_calls_saved?: number
+          cache_hits?: number
+          cache_misses?: number
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       private_institutions: {
         Row: {
           abbreviation: string | null
@@ -1202,6 +1232,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_cache_analytics: {
+        Args: { p_is_hit: boolean }
+        Returns: undefined
       }
       increment_listing_analytics: {
         Args: { p_accommodation_id: string; p_field: string }
