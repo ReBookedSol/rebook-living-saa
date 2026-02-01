@@ -165,6 +165,67 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </nav>
 
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && !isAdmin && (
+        <div className="fixed md:hidden top-16 left-0 right-0 z-40 bg-white border-b shadow-lg">
+          <div className="container mx-auto px-4 py-4 space-y-2">
+            <Link
+              to="/browse"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium"
+            >
+              Browse
+            </Link>
+            <Link
+              to="/campus-guide"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium"
+            >
+              ReBooked Campus
+            </Link>
+            <Link
+              to="/travel"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium flex items-center gap-2"
+            >
+              Travel
+              <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
+            </Link>
+            <Link
+              to="/pricing"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium"
+            >
+              Pricing
+            </Link>
+            {isLoggedIn && (
+              <Link
+                to="/notifications"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium flex items-center gap-2"
+              >
+                <Bell className="w-4 h-4" />
+                Notifications
+                {(unreadCount || 0) > 0 && (
+                  <span className="ml-auto w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
+            <div className="border-t border-primary/10 my-2 pt-2">
+              <Link
+                to={isLoggedIn ? "/profile" : "/auth"}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium"
+              >
+                {isLoggedIn ? "Profile" : "Sign In"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1">
         {children}
       </main>
