@@ -152,55 +152,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {!isAdmin && (
               <div className="md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Menu className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to="/browse" className="cursor-pointer">
-                        Browse
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/campus-guide" className="cursor-pointer">
-                        ReBooked Campus
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/travel" className="cursor-pointer flex items-center gap-2">
-                        Travel
-                        <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/pricing" className="cursor-pointer">
-                        Pricing
-                      </Link>
-                    </DropdownMenuItem>
-                    {isLoggedIn && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/notifications" className="cursor-pointer flex items-center gap-2">
-                          <Bell className="w-4 h-4" />
-                          Notifications
-                          {(unreadCount || 0) > 0 && (
-                            <span className="ml-auto w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                              {unreadCount > 9 ? "9+" : unreadCount}
-                            </span>
-                          )}
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to={isLoggedIn ? "/profile" : "/auth"} className="cursor-pointer">
-                        {isLoggedIn ? "Profile" : "Sign In"}
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
               </div>
             )}
           </div>
