@@ -107,35 +107,11 @@ const Index = () => {
           <div className="marquee-wrapper">
             <div className="marquee-track">
               {(() => {
-                const items = [
-                  { name: 'Cape Peninsula University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdd3f79bff5204a1598dafadcf67dc845?format=webp&width=800' },
-                  { name: 'University of Zululand', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fa1462063edff4136aa6b3f8f2f28fb60?format=webp&width=800' },
-                  { name: 'Walter Sisulu University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F7336ffee8a5d444fb73e0305fb1de017?format=webp&width=800' },
-                  { name: 'University of Venda', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fddbea07a58154b82adce08a5ec4ee7d6?format=webp&width=800' },
-                  { name: 'University of South Africa (UNISA)', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fcf83ac7e02484e3b9d997a344ba71b38?format=webp&width=800' },
-                  { name: 'Nelson Mandela University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdaaa8a2acf8048d1bfa0719fb10bac30?format=webp&width=800' },
-                  { name: 'University of Johannesburg', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F83842c23ccc3423e863dd8a8f3870db0?format=webp&width=800' },
-                  { name: 'University of the Witwatersrand', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fa7c47d3fcaed4d519b24179ecb387ab5?format=webp&width=800' },
-                  { name: 'Stellenbosch University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F2587c0fe8bba4fc49f5a7e3a595d658f?format=webp&width=800' },
-                  { name: 'Sefako Makgatho Health Sciences University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F8192f040973b47aa83916dc1d4ac4576?format=webp&width=800' },
-
-                  { name: 'Rhodes University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F7a6a9c9034814f95a50b9f6809364413?format=webp&width=800' },
-                  { name: 'University of Pretoria', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fd6ef31c9ee0e4ee5af4eb8c0f15c6e78?format=webp&width=800' },
-                  { name: 'North-West University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F848378a075a84246b0514b8b57cc72e2?format=webp&width=800' },
-                  { name: 'University of Limpopo', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F4e0a3bf953c74672b7497e0639e3144e?format=webp&width=800' },
-                  { name: 'University of KwaZulu-Natal', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F279fcfd0958f49f08a8d882c939b2d3e?format=webp&width=800' },
-                  { name: 'University of the Free State', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F978596f651974bd5a03106c8c489d706?format=webp&width=800' },
-                  { name: 'University of Fort Hare', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F4c011c2a32bf47cba51ea98ce746d059?format=webp&width=800' },
-                  { name: 'University of Cape Town', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fd5948bbfce7f40658e8e73601575e3d6?format=webp&width=800' },
-                  { name: 'Vaal University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F1fd45a76dc5c48afa9da7a6c114d7c9c?format=webp&width=800' },
-                  { name: 'Tshwane University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F0ca5e48711b446e4a6ab7265b1fe70c0?format=webp&width=800' },
-
-                  { name: 'Sol Plaatje University', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fb6c76e80b95a4395b104a26b3df10226?format=webp&width=800' },
-                  { name: 'University of Mpumalanga', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fbd74672545364f308902d10f33374a06?format=webp&width=800' },
-                  { name: 'Mangosuthu University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2F138df0329f6d4c2cafc27caa699da2ab?format=webp&width=800' },
-                  { name: 'Durban University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fdd56c08897c54cf58fc7f304e268c801?format=webp&width=800' },
-                  { name: 'Central University of Technology', logo: 'https://cdn.builder.io/api/v1/image/assets%2F3fe99bb47eea469287a61aee79801588%2Fad248754621646e68feca7f8c01de238?format=webp&width=800' },
-                ];
+                // Convert logo mapping to array format for carousel
+                const items = Object.entries(UNIVERSITY_LOGOS).map(([name, logo]) => ({
+                  name,
+                  logo
+                }));
 
                 // duplicate the list for seamless scroll
                 const track = items.concat(items);
