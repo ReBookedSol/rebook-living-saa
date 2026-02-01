@@ -228,19 +228,21 @@ const UniversityCard = ({ university }: { university: any }) => {
           </div>
 
           <div className="flex items-center gap-2 pt-2">
-            {university.website && (
-              <a
-                href={university.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:text-primary/80 font-medium text-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
+            <Button
+              size="sm"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              asChild
+            >
+              <Link to={`/university/${university.id}`}>
                 <Globe className="w-4 h-4" />
-                Website
+                Visit University Profile
                 <ChevronRight className="w-3 h-3" />
-              </a>
-            )}
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
