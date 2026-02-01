@@ -33,13 +33,16 @@ import {
   putcoRoutes
 } from "@/lib/transitData";
 
-// Gautrain stations - now using comprehensive data from transitData
-const GAUTRAIN_STATIONS = gautrainStations.map(station => ({
+// Helper to convert transit stations to map-compatible format
+const formatGautrainStation = (station: typeof gautrainStations[0]) => ({
   name: station.name,
   lat: station.lat,
   lng: station.lng,
   code: station.id.replace('gt-', '').toUpperCase().substring(0, 3),
-}));
+});
+
+// Gautrain stations - now using comprehensive data from transitData
+const GAUTRAIN_STATIONS = gautrainStations.map(formatGautrainStation);
 
 // PUTCO Routes data - organize comprehensive data by region
 const PUTCO_ROUTES = {
