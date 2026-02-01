@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Settings } from "lucide-react";
+import { Home, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIAssistantBubble } from "@/components/AIAssistantBubble";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
