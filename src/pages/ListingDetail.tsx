@@ -20,6 +20,7 @@ import { ReviewsList } from "@/components/ReviewsList";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getPlaceData, getUserTier } from "@/lib/placeCache";
+import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
 import type { GoogleReview } from "@/types/place-cache";
 
 const ListingDetail = () => {
