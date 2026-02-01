@@ -145,12 +145,12 @@ const UniversityCard = ({ university }: { university: any }) => {
   const abbrev = university.abbreviation?.toUpperCase() || "";
 
   return (
-    <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border border-teal-100 shadow-md h-full bg-white flex flex-col overflow-hidden">
+    <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border border-primary/20 shadow-md h-full bg-white flex flex-col overflow-hidden">
       {/* Header Section */}
       <div className="flex items-start justify-between gap-4 p-6 pb-4">
         <div className="flex items-start gap-3 flex-1">
           {/* Logo Badge */}
-          <div className="w-14 h-14 bg-white border-2 border-teal-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="w-14 h-14 bg-white border-2 border-primary/30 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -165,7 +165,7 @@ const UniversityCard = ({ university }: { university: any }) => {
               />
             ) : null}
             <span
-              className={`w-12 h-12 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg`}
+              className={`w-12 h-12 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-primary text-primary-foreground rounded-lg`}
             >
               {abbrev || university.name?.substring(0, 3)?.toUpperCase()}
             </span>
@@ -188,7 +188,7 @@ const UniversityCard = ({ university }: { university: any }) => {
       <div className="px-6 py-4 space-y-4 flex-1">
         {/* Location */}
         <div className="flex items-start gap-3">
-          <MapPin className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+          <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
           <div>
             <p className="text-sm font-semibold text-slate-900">{university.location || "Location TBA"}</p>
             <p className="text-xs text-slate-600">{university.province || "Province"}</p>
@@ -198,7 +198,7 @@ const UniversityCard = ({ university }: { university: any }) => {
         {/* Student Population */}
         {university.student_population && (
           <div className="flex items-start gap-3">
-            <Users className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-sm font-semibold text-slate-900">{(university.student_population / 1000).toFixed(0)}K+ Students</p>
               <p className="text-xs text-slate-600">Student Population</p>
@@ -209,7 +209,7 @@ const UniversityCard = ({ university }: { university: any }) => {
         {/* Founded Year */}
         {university.established_year && (
           <div className="flex items-start gap-3">
-            <Calendar className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <Calendar className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-sm font-semibold text-slate-900">Since {university.established_year}</p>
               <p className="text-xs text-slate-600">Established</p>
@@ -219,13 +219,13 @@ const UniversityCard = ({ university }: { university: any }) => {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-teal-50"></div>
+      <div className="border-t border-primary/10"></div>
 
       {/* Footer Button */}
       <div className="p-4 pt-3">
         <Button
           asChild
-          className="w-full bg-white hover:bg-teal-50 text-teal-600 border border-teal-100 gap-2 font-medium transition-all"
+          className="w-full bg-white hover:bg-primary/5 text-primary border border-primary/20 gap-2 font-medium transition-all"
           variant="outline"
         >
           <Link to={`/university/${university.id}`}>

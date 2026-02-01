@@ -292,7 +292,7 @@ const UniversityProfile: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 mb-6 sm:mb-8">
                   {/* Logo */}
                   <div className="relative mx-auto sm:mx-0 flex-shrink-0">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-slate-200 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-primary/20 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
                       {logoUrl ? (
                         <img
                           src={logoUrl}
@@ -307,7 +307,7 @@ const UniversityProfile: React.FC = () => {
                         />
                       ) : null}
                       <span
-                        className={`w-12 h-12 sm:w-16 sm:h-16 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-lg sm:text-2xl font-bold bg-gradient-to-br from-slate-600 to-slate-800 text-white rounded-lg`}
+                        className={`w-12 h-12 sm:w-16 sm:h-16 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-lg sm:text-2xl font-bold bg-primary text-primary-foreground rounded-lg`}
                       >
                         {university.abbreviation || university.name.substring(0, 3).toUpperCase()}
                       </span>
@@ -320,7 +320,7 @@ const UniversityProfile: React.FC = () => {
                   {/* Info */}
                   <div className="flex-1 space-y-3 sm:space-y-4 text-center sm:text-left">
                     <div>
-                      <Badge variant="secondary" className="mb-3 bg-slate-100 text-slate-700 border-slate-200">
+                      <Badge variant="secondary" className="mb-3 bg-primary/10 text-primary border-primary/20">
                         {university.type || "University"}
                       </Badge>
                       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3 leading-tight">
