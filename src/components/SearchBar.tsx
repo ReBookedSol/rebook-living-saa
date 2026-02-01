@@ -87,6 +87,7 @@ const SearchBar = ({ compact = false }) => {
     "Public Transport Access",
   ];
   const [nsfasOnly, setNsfasOnly] = useState(false);
+  const [nearTrain, setNearTrain] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
 
