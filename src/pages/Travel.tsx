@@ -294,6 +294,7 @@ const DESTINATIONS = [
 
 // Origin locations
 const ORIGINS = [
+  // Gauteng Origins
   { id: "sosh-f4", name: "Soshanguve Block F4", region: "soshanguve" },
   { id: "sosh-h", name: "Soshanguve Block H", region: "soshanguve" },
   { id: "ekangala", name: "Ekangala", region: "ekangala" },
@@ -305,6 +306,19 @@ const ORIGINS = [
   { id: "sandton", name: "Sandton", region: "gautrain" },
   { id: "midrand", name: "Midrand", region: "gautrain" },
   { id: "centurion", name: "Centurion", region: "gautrain" },
+
+  // Western Cape Origins
+  { id: "khayelitsha", name: "Khayelitsha", region: "southernfreeway" },
+  { id: "mitchells-plain", name: "Mitchells Plain", region: "southernfreeway" },
+  { id: "atlantis", name: "Atlantis", region: "atlantis" },
+  { id: "table-view", name: "Table View", region: "northernsuburbs" },
+  { id: "bellville", name: "Bellville", region: "northernsuburbs" },
+  { id: "wynberg", name: "Wynberg", region: "southernsuburbs" },
+  { id: "hout-bay", name: "Hout Bay", region: "seapoint" },
+  { id: "simon-town", name: "Simon's Town", region: "falsebay" },
+  { id: "muizenberg", name: "Muizenberg", region: "falsebay" },
+  { id: "sea-point", name: "Sea Point", region: "seapoint" },
+  { id: "waterfront", name: "Waterfront", region: "waterfront" },
 ];
 
 export default function Travel() {
