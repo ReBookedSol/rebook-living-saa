@@ -16,6 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getUniversitiesWithTrainAccess } from "@/lib/gautrain";
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
