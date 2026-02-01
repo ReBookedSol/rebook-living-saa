@@ -61,7 +61,7 @@ const Browse = () => {
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, selectedGender, sortBy]);
+  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, nearTrainParam, selectedGender, sortBy]);
 
   const { data: pageResult, isLoading } = useQuery({
     queryKey: ["accommodations", location, university, maxCost, nsfasParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage, isLargeScreen],
