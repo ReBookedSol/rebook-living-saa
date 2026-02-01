@@ -750,20 +750,25 @@ export default function Travel() {
               </div>
 
               {/* Legend */}
-              <div className="flex flex-wrap gap-4 justify-center text-sm bg-muted/50 p-4 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500" />
-                  <span>MyCiTi Station</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <span>PUTCO Stop</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-600" />
-                  <span>Gautrain Station</span>
-                </div>
-              </div>
+              <Card className="bg-white border shadow">
+                <CardContent className="pt-4">
+                  <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Legend</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500 shadow" />
+                      <span className="text-sm font-medium">MyCiTi Station</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-amber-500 shadow" />
+                      <span className="text-sm font-medium">PUTCO Stop</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-600 shadow" />
+                      <span className="text-sm font-medium">Gautrain</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Route Planner Tab */}
