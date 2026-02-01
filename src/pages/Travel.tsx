@@ -179,13 +179,13 @@ export default function Travel() {
                           <div className="px-4 pb-4 pt-0 border-t bg-muted/30">
                             <div className="pt-3 space-y-3">
                               {route.options.map((option, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                                <div key={idx} className="flex items-center justify-between p-3 bg-white rounded-lg border hover:border-emerald-300 hover:bg-emerald-50/30 transition-colors">
                                   <div>
                                     <p className="font-medium text-sm">{option.method}</p>
                                     <p className="text-xs text-muted-foreground">{option.frequency}</p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="font-semibold text-sm text-blue-600">{option.fare}</p>
+                                    <p className="font-semibold text-sm text-emerald-600">{option.fare}</p>
                                     <p className="text-xs text-muted-foreground">{option.time}</p>
                                   </div>
                                 </div>
