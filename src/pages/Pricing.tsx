@@ -12,7 +12,6 @@ const Pricing = () => {
     "Interactive map with satellite view",
     "Street view (360° imagery)",
     "Advanced search filters",
-    "Direct landlord messaging",
   ];
 
   const freeFeatures = [
