@@ -40,7 +40,7 @@ const PaymentsTab = () => {
   const [grantForm, setGrantForm] = useState({
     email: "",
     paymentType: "weekly" as "weekly" | "monthly",
-    days: 7,
+    days: 5,
   });
   const queryClient = useQueryClient();
 
