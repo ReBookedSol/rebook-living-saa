@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, MapPin, GraduationCap, DollarSign, CheckCircle, ChevronsUpDown, Check } from "lucide-react";
+import { Search, MapPin, GraduationCap, DollarSign, CheckCircle, ChevronsUpDown, Check, Train } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
