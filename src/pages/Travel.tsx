@@ -106,7 +106,7 @@ export default function Travel() {
               </div>
               <h1 className="text-4xl font-bold">Travel & Transportation</h1>
             </div>
-            <p className="text-blue-100 text-lg max-w-2xl">
+            <p className="text-emerald-100 text-lg max-w-2xl">
               Explore all transportation options from your accommodation to universities across Johannesburg and Pretoria. 
               Calculate fares, check schedules, and find the best commute for your lifestyle.
             </p>
