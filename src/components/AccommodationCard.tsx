@@ -366,8 +366,22 @@ const AccommodationCard = ({
 
             {/* University and Rating Row */}
             <div className="flex items-center justify-between">
-              <div className="text-xs text-muted-foreground font-medium">
-                {university}
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-muted-foreground font-medium">
+                  {university}
+                </div>
+                {university && (
+                  <div className="flex items-center gap-1.5">
+                    {isGautrainAccessible(university) ? (
+                      <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                        <Train className="w-3 h-3" />
+                        {getGautrainStation(university)}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{getGautrainStation(university) || 'Not on Gautrain'}</span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 {[0,1,2,3,4].map((i) => {
