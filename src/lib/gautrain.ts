@@ -156,3 +156,26 @@ export const isMycitiAccessible = (universityName: string): boolean => {
   const station = getMycitiStation(universityName);
   return !!station;
 };
+
+/**
+ * Check if a university has any train station access (Gautrain or MyCiTi)
+ * @param universityName - Name of the university
+ * @returns True if the university has access to any train network
+ */
+export const hasTrainAccess = (universityName: string): boolean => {
+  return isGautrainAccessible(universityName) || isMycitiAccessible(universityName);
+};
+
+/**
+ * Get all universities with train station access
+ * @returns Array of university names with train access
+ */
+export const getUniversitiesWithTrainAccess = (): string[] => {
+  const allUniversities = [...Object.keys(UNIVERSITY_GAUTRAIN_MAPPING), ...Object.keys(UNIVERSITY_MYCITI_MAPPING)];
+  // Remove duplicates and filter out entries with "Not on" text
+  return [...new Set(allUniversities)].filter(uni => {
+    const gautrainStation = getGautrainStation(uni);
+    const mycitiStation = getMycitiStation(uni);
+    return (gautrainStation && !gautrainStation.includes("Not on")) || mycitiStation;
+  });
+};
