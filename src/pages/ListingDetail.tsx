@@ -1092,6 +1092,13 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
+              {/* Ad Card */}
+              {!isPaidUser && (
+                <div className="mt-6">
+                  <Ad density="compact" />
+                </div>
+              )}
+
             </div>
           </div>
         </div>
