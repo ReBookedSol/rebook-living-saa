@@ -945,13 +945,6 @@ const ListingDetail = () => {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Ad Card */}
-              {!isPaidUser && (
-                <div className="my-6">
-                  <Ad density="compact" />
-                </div>
-              )}
             </div>
 
             {/* Sidebar */}
