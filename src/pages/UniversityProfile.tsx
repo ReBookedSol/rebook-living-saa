@@ -245,8 +245,28 @@ const UniversityProfile: React.FC = () => {
     return progs.filter(isEligibleForProgram);
   };
 
-  // Get logo URL
-  const logoUrl = university?.logo || (id ? UNIVERSITY_LOGOS[id.toLowerCase()] : undefined);
+  // Get logo URL with multiple fallback strategies
+  const getLogoUrl = () => {
+    if (!university) return undefined;
+
+    // Try database logo first
+    if (university.logo) return university.logo;
+
+    // Try ID-based lookup (lowercase)
+    if (id && UNIVERSITY_LOGOS[id.toLowerCase()]) return UNIVERSITY_LOGOS[id.toLowerCase()];
+
+    // Try uppercase abbreviation
+    const abbrev = university.abbreviation?.toUpperCase();
+    if (abbrev && UNIVERSITY_LOGOS[abbrev]) return UNIVERSITY_LOGOS[abbrev];
+
+    // Try lowercase abbreviation
+    const abbrLower = university.abbreviation?.toLowerCase();
+    if (abbrLower && UNIVERSITY_LOGOS[abbrLower]) return UNIVERSITY_LOGOS[abbrLower];
+
+    return undefined;
+  };
+
+  const logoUrl = getLogoUrl();
 
   if (universityLoading) {
     return (
