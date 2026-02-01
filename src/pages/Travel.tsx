@@ -744,8 +744,8 @@ export default function Travel() {
                 </Card>
 
                 {/* Map */}
-                <Card className="lg:col-span-3 overflow-hidden">
-                  <div ref={mapRef} className="w-full h-[500px] bg-muted" />
+                <Card className="lg:col-span-4 overflow-hidden shadow-lg">
+                  <div ref={mapRef} className="w-full h-[600px] bg-gradient-to-br from-slate-100 to-slate-200" />
                 </Card>
               </div>
 
