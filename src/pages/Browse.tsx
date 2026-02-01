@@ -27,6 +27,7 @@ const Browse = () => {
   const amenitiesParam = searchParams.get("amenities") || "";
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
+  const nearTrainParam = searchParams.get("nearTrain") === "true";
 
   // SEO
   useSEO({
