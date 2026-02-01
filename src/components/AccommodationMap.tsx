@@ -55,13 +55,6 @@ export const AccommodationMap = ({
       return;
     }
 
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    if (!apiKey) {
-      console.warn("Google Maps API key not configured");
-      setIsLoading(false);
-      return;
-    }
-
     const loadMap = () => {
       const google = (window as any).google;
       if (!google || !mapRef.current) return;
