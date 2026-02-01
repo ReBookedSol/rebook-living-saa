@@ -598,8 +598,8 @@ const ListingDetail = () => {
                     </div>
                   )}
                   <div className="flex flex-wrap gap-1.5">
-                    <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
-                    <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>
+                    {listing.type && <Badge variant="secondary" className="text-xs">{listing.type}</Badge>}
+                    {listing.gender_policy && <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>}
                     {listing.rooms_available && (
                       <Badge variant="secondary" className="text-xs">{listing.rooms_available} rooms</Badge>
                     )}
