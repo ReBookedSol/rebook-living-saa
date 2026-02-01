@@ -165,8 +165,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       </nav>
 
       {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && !isAdmin && (
-        <div className="fixed md:hidden top-16 left-0 right-0 z-40 bg-white border-b shadow-lg">
+      {!isAdmin && (
+        <div className={`fixed md:hidden top-16 left-0 right-0 z-40 bg-white border-b shadow-lg overflow-hidden transition-all duration-300 ease-in-out origin-top ${isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
           <div className="container mx-auto px-4 py-4 space-y-2">
             <Link
               to="/browse"
