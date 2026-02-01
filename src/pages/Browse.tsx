@@ -102,6 +102,10 @@ const Browse = () => {
         query = query.contains("amenities", amenities);
       }
 
+      if (nearTrainParam) {
+        query = query.contains("amenities", ["Public Transport Access"]);
+      }
+
       if (selectedGender && selectedGender !== "all") {
         query = query.eq("gender_policy", selectedGender);
       }
