@@ -300,7 +300,7 @@ const ListingDetail = () => {
                     (passedImages && passedImages.length > 0 ? passedImages : googlePhotos);
   
   // Use server-side tiered photos if available, otherwise use cached/fetched images
-  const photos = tieredPhotos !== undefined && tieredPhotos !== null ? tieredPhotos : allPhotos;
+  const photos = (tieredPhotos && tieredPhotos.length > 0) ? tieredPhotos : allPhotos;
   const allReviews = placeCache?.reviews?.length ? placeCache.reviews : googleReviews;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
   const totalPhotos = placeCache?.photo_count || allPhotos?.length || 0;
