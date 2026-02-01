@@ -805,6 +805,7 @@ const ListingDetail = () => {
                               type="photos"
                               totalCount={totalPhotos}
                               compact
+                              buttonText={`Unlock all ${totalPhotos} photos`}
                             />
                           </div>
                         </>
