@@ -320,7 +320,7 @@ const UniversityProfile: React.FC = () => {
                   {/* Info */}
                   <div className="flex-1 space-y-3 sm:space-y-4 text-center sm:text-left">
                     <div>
-                      <Badge variant="secondary" className="mb-3 bg-slate-100 text-slate-700 border-slate-200">
+                      <Badge variant="secondary" className="mb-3 bg-primary/10 text-primary border-primary/20">
                         {university.type || "University"}
                       </Badge>
                       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3 leading-tight">
