@@ -363,13 +363,6 @@ const ReBookedCampus = () => {
                 <span className="hidden sm:inline">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
-                value="gautrain"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
-              >
-                <Train className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Gautrain</span>
-              </TabsTrigger>
-              <TabsTrigger
                 value="universities"
                 className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
               >
