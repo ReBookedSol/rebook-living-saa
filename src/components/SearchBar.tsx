@@ -175,7 +175,15 @@ const SearchBar = ({ compact = false }) => {
             {showAdvanced ? 'Hide Filters' : 'Show Filters'}
           </Button>
 
-          <Button onClick={handleClearFilters} variant="ghost" className="w-full sm:w-auto text-sm sm:text-base px-3 py-2 text-muted-foreground hover:text-foreground">
+          <Button
+            onClick={handleClearFilters}
+            variant={hasActiveFilters ? "default" : "ghost"}
+            className={`w-full sm:w-auto text-sm sm:text-base px-3 py-2 ${
+              hasActiveFilters
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
             Clear All
           </Button>
 
