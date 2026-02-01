@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIAssistantBubble } from "@/components/AIAssistantBubble";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
