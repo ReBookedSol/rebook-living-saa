@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Travel from "./pages/Travel";
 import Dashboard from "./pages/admin/Dashboard";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/travel" element={<Travel />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />

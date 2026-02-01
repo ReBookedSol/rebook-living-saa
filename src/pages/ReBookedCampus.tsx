@@ -26,10 +26,8 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Train,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { GautrainInfo } from "@/components/GautrainInfo";
 
 // APS Calculator Component
 const APSCalculator = () => {
@@ -363,13 +361,6 @@ const ReBookedCampus = () => {
                 <span className="hidden sm:inline">Bursaries</span>
               </TabsTrigger>
               <TabsTrigger
-                value="gautrain"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
-              >
-                <Train className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Gautrain</span>
-              </TabsTrigger>
-              <TabsTrigger
                 value="universities"
                 className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
               >
@@ -551,94 +542,6 @@ const ReBookedCampus = () => {
               </Card>
             </TabsContent>
 
-            {/* Gautrain Tab */}
-            <TabsContent value="gautrain" className="space-y-6">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">Gautrain for Students</h2>
-                <p className="text-muted-foreground">Plan your commute with Gautrain - stations, fares, and university connections</p>
-              </div>
-
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card className="border border-slate-200 shadow-lg">
-                  <CardContent className="pt-6">
-                    <GautrainInfo showFareCalculator={true} />
-                  </CardContent>
-                </Card>
-
-                <div className="space-y-6">
-                  <Card className="border border-slate-200 shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 to-white">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Info className="w-5 h-5 text-blue-600" />
-                        Student Commuter Tips
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-6 space-y-4">
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-blue-600">1</span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">Get a Gold Card</p>
-                            <p className="text-xs text-muted-foreground">Purchase at any Gautrain station for R20 (refundable). Required for all trips.</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-blue-600">2</span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">Off-Peak Travel Saves Money</p>
-                            <p className="text-xs text-muted-foreground">Travel between 9AM-4PM or after 7PM for lower demand.</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-blue-600">3</span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">Use Midibus Connections</p>
-                            <p className="text-xs text-muted-foreground">Free Gautrain Midibuses connect stations to nearby areas and universities.</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-blue-600">4</span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">Park & Ride Available</p>
-                            <p className="text-xs text-muted-foreground">Most stations have affordable parking from R20/day.</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border border-green-200 bg-gradient-to-br from-green-50 to-white shadow-lg">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-green-900 mb-1">Find Accommodation Near Gautrain</h4>
-                          <p className="text-sm text-green-800 mb-3">
-                            Living near a Gautrain station makes commuting to university easy and affordable.
-                          </p>
-                          <Link to="/browse">
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                              Browse Accommodation
-                              <ChevronRight className="w-4 h-4 ml-1" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </TabsContent>
             <TabsContent value="universities" className="space-y-6">
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-2">South African Universities</h2>

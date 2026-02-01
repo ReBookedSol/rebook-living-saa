@@ -71,8 +71,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col pt-20">
-        <nav className="fixed top-8 left-0 right-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
+      <div className="min-h-screen flex flex-col pt-16">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
@@ -89,6 +89,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </Link>
                 <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4">
                   ReBooked Campus
+                </Link>
+                <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4">
+                  Travel
                 </Link>
                 <Link to="/about" className="text-base font-medium hover:underline underline-offset-4">
                   About
@@ -158,6 +161,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <ul className="space-y-3 text-sm">
                 <li><Link to="/browse" onClick={(e) => handleFooterNav(e, '/browse')} className="text-muted-foreground hover:text-primary transition-colors">Browse Listings</Link></li>
                 <li><Link to="/campus-guide" onClick={(e) => handleFooterNav(e, '/campus-guide')} className="text-muted-foreground hover:text-primary transition-colors">ReBooked Campus</Link></li>
+                <li><Link to="/travel" onClick={(e) => handleFooterNav(e, '/travel')} className="text-muted-foreground hover:text-primary transition-colors">Travel Guide</Link></li>
                 <li><Link to="/pricing" onClick={(e) => handleFooterNav(e, '/pricing')} className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
                 <li><Link to="/about" onClick={(e) => handleFooterNav(e, '/about')} className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
                 <li><Link to="/contact" onClick={(e) => handleFooterNav(e, '/contact')} className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
