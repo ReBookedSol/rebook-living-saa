@@ -487,50 +487,20 @@ export default function Travel() {
       });
     } else {
       // Add PUTCO stations with route lines
-      const putcoRouteColors: { [key: string]: string } = {
-        // Soshanguve routes - Orange
-        S101: "#FB8C00", S102: "#FB8C00", S103: "#FB8C00", S104: "#FB8C00", S105: "#FB8C00", S106: "#FB8C00",
-        // Ekangala routes - Orange
-        E201: "#FB8C00", E202: "#FB8C00", E210: "#FB8C00", E217: "#FB8C00",
-        // Tshwane routes - Orange
-        T301: "#FB8C00", T305: "#FB8C00", T309: "#FB8C00", T330: "#FB8C00",
-      };
-
       // Draw PUTCO route polylines first
-      Object.entries(PUTCO_ROUTES).forEach(([regionKey, region]) => {
-        if (!region?.routes) return;
-
-        region.routes.forEach((route) => {
-          const routeColor = putcoRouteColors[route.id as keyof typeof putcoRouteColors] || "#FB8C00";
-          const routePath: { lat: number; lng: number }[] = [];
-
-          // Build path from route origin and destination
-          region.stations?.forEach((station) => {
-            if (station.name.includes(route.from) || route.from.includes(station.name)) {
-              if (!routePath.find(p => p.lat === station.lat && p.lng === station.lng)) {
-                routePath.push({ lat: station.lat, lng: station.lng });
-              }
-            }
-            if (station.name.includes(route.to) || route.to.includes(station.name)) {
-              if (!routePath.find(p => p.lat === station.lat && p.lng === station.lng)) {
-                routePath.push({ lat: station.lat, lng: station.lng });
-              }
-            }
+      putcoRoutes.forEach((route) => {
+        // Draw routes that have path data defined
+        if (route.path && route.path.length >= 2) {
+          const polyline = new google.maps.Polyline({
+            path: route.path,
+            geodesic: true,
+            strokeColor: route.color,
+            strokeOpacity: 0.75,
+            strokeWeight: 4,
+            map: mapInstanceRef.current,
           });
-
-          // Draw polyline if we have at least 2 points
-          if (routePath.length >= 2) {
-            const polyline = new google.maps.Polyline({
-              path: routePath,
-              geodesic: true,
-              strokeColor: routeColor,
-              strokeOpacity: 0.7,
-              strokeWeight: 3,
-              map: mapInstanceRef.current,
-            });
-            polylinesRef.current.push(polyline);
-          }
-        });
+          polylinesRef.current.push(polyline);
+        }
       });
 
       // Add PUTCO stations - show all regions or just the selected region
