@@ -37,36 +37,7 @@ import {
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProgramDetailModal from "@/components/ProgramDetailModal";
-
-// University logos mapping
-const UNIVERSITY_LOGOS: Record<string, string> = {
-  "cput": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Cape_Peninsula_University_of_Technology_logo.svg/800px-Cape_Peninsula_University_of_Technology_logo.svg.png",
-  "cut": "https://upload.wikimedia.org/wikipedia/en/thumb/5/55/Central_University_of_Technology_logo.svg/800px-Central_University_of_Technology_logo.svg.png",
-  "dut": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5a/Durban_University_of_Technology_logo.svg/800px-Durban_University_of_Technology_logo.svg.png",
-  "mut": "https://upload.wikimedia.org/wikipedia/en/d/d7/Mangosuthu_University_of_Technology_logo.png",
-  "nmu": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a3/Nelson_Mandela_University_logo.svg/800px-Nelson_Mandela_University_logo.svg.png",
-  "nwu": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3f/NWU_Logo.svg/800px-NWU_Logo.svg.png",
-  "ru": "https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Rhodes_University_logo.svg/800px-Rhodes_University_logo.svg.png",
-  "smu": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e5/Sefako_Makgatho_Health_Sciences_University_logo.svg/800px-Sefako_Makgatho_Health_Sciences_University_logo.svg.png",
-  "spu": "https://upload.wikimedia.org/wikipedia/en/thumb/9/99/Sol_Plaatje_University_logo.svg/800px-Sol_Plaatje_University_logo.svg.png",
-  "su": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Stellenbosch_University_logo.svg/800px-Stellenbosch_University_logo.svg.png",
-  "tut": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e7/Tshwane_University_of_Technology_logo.svg/800px-Tshwane_University_of_Technology_logo.svg.png",
-  "uct": "https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Cape_Town_logo.svg/800px-University_of_Cape_Town_logo.svg.png",
-  "ufh": "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/University_of_Fort_Hare_logo.svg/800px-University_of_Fort_Hare_logo.svg.png",
-  "ufs": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/University_of_the_Free_State_logo.svg/800px-University_of_the_Free_State_logo.svg.png",
-  "uj": "https://upload.wikimedia.org/wikipedia/en/thumb/0/01/University_of_Johannesburg_logo.svg/800px-University_of_Johannesburg_logo.svg.png",
-  "ukzn": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e9/University_of_KwaZulu-Natal_logo.svg/800px-University_of_KwaZulu-Natal_logo.svg.png",
-  "ul": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/University_of_Limpopo_logo.svg/800px-University_of_Limpopo_logo.svg.png",
-  "unisa": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/Unisa_logo.svg/800px-Unisa_logo.svg.png",
-  "ump": "https://upload.wikimedia.org/wikipedia/en/1/14/University_of_Mpumalanga_logo.png",
-  "up": "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/University_of_Pretoria_logo.svg/800px-University_of_Pretoria_logo.svg.png",
-  "univen": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/University_of_Venda_logo.svg/800px-University_of_Venda_logo.svg.png",
-  "uwc": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/University_of_the_Western_Cape_logo.svg/800px-University_of_the_Western_Cape_logo.svg.png",
-  "wsu": "https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Walter_Sisulu_University_logo.svg/800px-Walter_Sisulu_University_logo.svg.png",
-  "wits": "https://upload.wikimedia.org/wikipedia/en/thumb/2/26/Wits_University_logo.svg/800px-Wits_University_logo.svg.png",
-  "unizulu": "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/University_of_Zululand_logo.svg/800px-University_of_Zululand_logo.svg.png",
-  "vut": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Vaal_University_of_Technology_logo.svg/800px-Vaal_University_of_Technology_logo.svg.png",
-};
+import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
 
 interface Program {
   id: string;
