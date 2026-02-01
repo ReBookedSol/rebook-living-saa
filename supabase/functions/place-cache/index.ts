@@ -245,29 +245,29 @@ Deno.serve(async (req) => {
       } else {
         const result = detailsData.result;
 
-        // Extract photos (up to fetch limit)
+        // Extract new photos from API (up to fetch limit)
+        const newPhotos: string[] = [];
         if (result.photos && result.photos.length > 0) {
           const photoPromises = result.photos.slice(0, photoFetchLimit).map(async (photo: any) => {
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${googleApiKey}`;
-            // Return the photo URL directly - we'll store Google's URLs
-            // Note: In production, you'd want to download and store these in Supabase Storage
             return photoUrl;
           });
 
-          photos = await Promise.all(photoPromises);
+          newPhotos.push(...await Promise.all(photoPromises));
 
           // Collect attributions
           const photoAttributions = result.photos
-            .slice(0, photoFetchLimit)
+            .slice(0, Math.max(photoFetchLimit, result.photos.length))
             .map((p: any) => p.html_attributions?.join(" ") || "")
             .filter(Boolean)
             .join(" ");
           attributions = photoAttributions || "Photos from Google Places";
         }
 
-        // Extract reviews (up to fetch limit)
+        // Extract new reviews from API (up to fetch limit)
+        const newReviews: GoogleReview[] = [];
         if (result.reviews && result.reviews.length > 0) {
-          reviews = result.reviews.slice(0, reviewFetchLimit).map((r: any) => ({
+          newReviews.push(...result.reviews.slice(0, reviewFetchLimit).map((r: any) => ({
             author_name: r.author_name,
             author_url: r.author_url,
             profile_photo_url: r.profile_photo_url,
@@ -275,27 +275,47 @@ Deno.serve(async (req) => {
             relative_time_description: r.relative_time_description,
             text: r.text,
             time: r.time,
-          }));
+          })));
         }
 
-        console.log("Fetched from API:", { photos: photos.length, reviews: reviews.length });
+        // Merge with cached data if doing delta-fetch
+        if (needsDeltaFetch) {
+          const cachedPhotos = cachedPlace.photo_uris || [];
+          const cachedReviews = cachedPlace.reviews || [];
 
-        // Cache the data (always cache full pro-tier data)
+          // Cached items first, then new items
+          photos = [...cachedPhotos, ...newPhotos];
+          reviews = [...cachedReviews, ...newReviews];
+
+          console.log("Delta-fetch merged:", { totalPhotos: photos.length, totalReviews: reviews.length, cachedPhotos: cachedPhotos.length, newPhotos: newPhotos.length });
+        } else {
+          photos = newPhotos;
+          reviews = newReviews;
+          console.log("Fetched from API:", { photos: photos.length, reviews: reviews.length });
+        }
+
+        // Determine cache tier based on completeness
+        const isComplete = photos.length >= 3 && reviews.length >= 1;
+        const finalCacheTier = isComplete ? "pro" : "incomplete";
+
+        console.log("Cache completeness check:", { photos: photos.length, reviews: reviews.length, isComplete, tier: finalCacheTier });
+
+        // Cache the data
         if (photos.length > 0 || reviews.length > 0) {
           const { error: cacheError } = await supabase.rpc("upsert_place_cache", {
             p_place_id: resolvedPlaceId,
             p_photo_uris: photos,
             p_reviews: reviews,
             p_attributions: attributions,
-            p_cached_tier: "pro",
+            p_cached_tier: finalCacheTier,
           });
 
           if (cacheError) {
             console.error("Failed to cache place data:", cacheError);
           } else {
-            console.log("Successfully cached place data");
+            console.log("Successfully cached place data with tier:", finalCacheTier);
           }
-          
+
           // Track cache miss in analytics
           await supabase.rpc("increment_cache_analytics", { p_is_hit: false });
         }
