@@ -161,14 +161,22 @@ Deno.serve(async (req) => {
     } else {
       // Fetch from Google Places API
       console.log("Fetching from Google Places API...");
-      
+
+      // Determine fetch limits based on user tier and cache status
+      // For free users on uncached listings: fetch only 3 photos instead of 10
+      const isFreeUserUncached = user_tier === "free" && !cacheHit;
+      const photoFetchLimit = isFreeUserUncached ? 3 : CACHE_LIMITS.photos;
+      const reviewFetchLimit = isFreeUserUncached ? 1 : CACHE_LIMITS.reviews;
+
+      console.log("Fetch limits:", { photos: photoFetchLimit, reviews: reviewFetchLimit, isFreeUserUncached });
+
       const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${resolvedPlaceId}&fields=photos,reviews,name,formatted_address&key=${googleApiKey}`;
       const detailsResp = await fetch(detailsUrl);
       const detailsData = await detailsResp.json();
 
       if (detailsData.status !== "OK") {
         console.error("Google Places API error:", detailsData.status, detailsData.error_message);
-        
+
         // If we have stale cache, use it as fallback
         if (cachedPlace) {
           console.log("Using stale cache as fallback");
@@ -178,30 +186,30 @@ Deno.serve(async (req) => {
         }
       } else {
         const result = detailsData.result;
-        
-        // Extract photos (up to max limit)
+
+        // Extract photos (up to fetch limit)
         if (result.photos && result.photos.length > 0) {
-          const photoPromises = result.photos.slice(0, CACHE_LIMITS.photos).map(async (photo: any) => {
+          const photoPromises = result.photos.slice(0, photoFetchLimit).map(async (photo: any) => {
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${googleApiKey}`;
             // Return the photo URL directly - we'll store Google's URLs
             // Note: In production, you'd want to download and store these in Supabase Storage
             return photoUrl;
           });
-          
+
           photos = await Promise.all(photoPromises);
-          
+
           // Collect attributions
           const photoAttributions = result.photos
-            .slice(0, CACHE_LIMITS.photos)
+            .slice(0, photoFetchLimit)
             .map((p: any) => p.html_attributions?.join(" ") || "")
             .filter(Boolean)
             .join(" ");
           attributions = photoAttributions || "Photos from Google Places";
         }
 
-        // Extract reviews (up to max limit)
+        // Extract reviews (up to fetch limit)
         if (result.reviews && result.reviews.length > 0) {
-          reviews = result.reviews.slice(0, CACHE_LIMITS.reviews).map((r: any) => ({
+          reviews = result.reviews.slice(0, reviewFetchLimit).map((r: any) => ({
             author_name: r.author_name,
             author_url: r.author_url,
             profile_photo_url: r.profile_photo_url,
