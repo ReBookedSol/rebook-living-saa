@@ -817,6 +817,20 @@ const ListingDetail = () => {
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">University</h3>
                       <p className="text-foreground text-sm font-medium">{listing.university}</p>
+                      {listing.university && (
+                        <div className="mt-2">
+                          {isGautrainAccessible(listing.university) ? (
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                                <Train className="w-3 h-3" />
+                                {getGautrainStation(listing.university)}
+                              </Badge>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">{getGautrainStation(listing.university) || 'Not on Gautrain line'}</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                     {listing.units && (
                       <div>
