@@ -209,6 +209,33 @@ const AccommodationsTab = () => {
     },
   });
 
+  const deleteAllDuplicatesMutation = useMutation({
+    mutationFn: async () => {
+      const allDuplicateIds: string[] = [];
+      duplicateEntries.forEach(([, items]) => {
+        // Sort by created_at to keep the oldest
+        const sorted = [...items].sort((a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+        // Keep the first (oldest), delete the rest
+        sorted.slice(1).forEach((item: any) => {
+          allDuplicateIds.push(item.id);
+        });
+      });
+
+      if (allDuplicateIds.length === 0) return;
+      const { error } = await supabase.from("accommodations").delete().in("id", allDuplicateIds);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-accommodations"] });
+      toast.success("Successfully deleted all duplicate listings");
+    },
+    onError: () => {
+      toast.error("Failed to delete duplicate listings");
+    },
+  });
+
   const toggleSelectAll = () => {
     if (selectedIds.length === filteredAccommodations?.length) {
       setSelectedIds([]);
