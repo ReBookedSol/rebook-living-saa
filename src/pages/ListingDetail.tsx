@@ -130,18 +130,30 @@ const ListingDetail = () => {
     prompt('Copy link', url);
   };
 
-  const { data: listing, isLoading } = useQuery({
+  const { data: listing, isLoading, error: queryError } = useQuery({
     queryKey: ["accommodation", id],
     queryFn: async () => {
+      if (!id) throw new Error("No accommodation ID provided");
+
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching accommodation:", error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("Accommodation not found");
+      }
+
       return data;
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Fetch photos with tier-based limits enforced at database level
