@@ -49,7 +49,8 @@ serve(async (req) => {
       });
     }
 
-    const { action, query, listings, userPreferences } = await req.json();
+    const body = await req.json();
+    const { action, query, listings, userPreferences, message, conversationHistory } = body;
 
     // Verify user has Pro access
     const authHeader = req.headers.get("authorization");
