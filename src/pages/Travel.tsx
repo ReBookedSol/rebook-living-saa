@@ -272,14 +272,24 @@ const TRANSPORT_OPTIONS = [
 
 // University destinations for route planner
 const DESTINATIONS = [
-  { id: "up", name: "University of Pretoria (Hatfield)", lat: -25.7545, lng: 28.2314, nearestGautrain: "Hatfield" },
-  { id: "wits", name: "Wits University", lat: -26.1929, lng: 28.0305, nearestGautrain: "Park" },
-  { id: "uj-auckland", name: "UJ Auckland Park", lat: -26.1836, lng: 28.0061, nearestGautrain: "Park" },
-  { id: "uj-doornfontein", name: "UJ Doornfontein", lat: -26.2022, lng: 28.0553, nearestGautrain: "Park" },
-  { id: "tut-pretoria", name: "TUT Pretoria", lat: -25.7319, lng: 28.1642, nearestGautrain: "Pretoria" },
-  { id: "tut-soshanguve", name: "TUT Soshanguve", lat: -25.4833, lng: 28.0833, nearestGautrain: "Pretoria" },
-  { id: "unisa", name: "UNISA Muckleneuk", lat: -25.7675, lng: 28.1983, nearestGautrain: "Pretoria" },
-  { id: "vut", name: "Vaal University of Technology", lat: -26.7117, lng: 27.8508, nearestGautrain: "Midrand" },
+  // Gauteng Universities
+  { id: "up", name: "University of Pretoria (Hatfield)", lat: -25.7545, lng: 28.2314, nearestGautrain: "Hatfield", transport: "Gautrain" },
+  { id: "wits", name: "Wits University", lat: -26.1929, lng: 28.0305, nearestGautrain: "Park", transport: "Gautrain" },
+  { id: "uj-auckland", name: "UJ Auckland Park", lat: -26.1836, lng: 28.0061, nearestGautrain: "Park", transport: "Gautrain" },
+  { id: "uj-doornfontein", name: "UJ Doornfontein", lat: -26.2022, lng: 28.0553, nearestGautrain: "Park", transport: "Gautrain" },
+  { id: "tut-pretoria", name: "TUT Pretoria", lat: -25.7319, lng: 28.1642, nearestGautrain: "Pretoria", transport: "Gautrain" },
+  { id: "tut-soshanguve", name: "TUT Soshanguve", lat: -25.4833, lng: 28.0833, nearestGautrain: "Pretoria", transport: "Gautrain" },
+  { id: "unisa", name: "UNISA Muckleneuk", lat: -25.7675, lng: 28.1983, nearestGautrain: "Pretoria", transport: "Gautrain" },
+  { id: "vut", name: "Vaal University of Technology", lat: -26.7117, lng: 27.8508, nearestGautrain: "Midrand", transport: "Gautrain" },
+
+  // Western Cape Universities
+  { id: "uct-campus", name: "UCT Upper Campus (Rondebosch)", lat: -33.9596, lng: 18.4717, nearestMyCiTi: "Civic Centre", transport: "MyCiTi" },
+  { id: "uct-health", name: "UCT Health Sciences (City Bowl)", lat: -33.9290, lng: 18.4365, nearestMyCiTi: "Civic Centre", transport: "MyCiTi" },
+  { id: "uct-hiddingh", name: "UCT Hiddingh Campus (Gardens)", lat: -33.9515, lng: 18.4422, nearestMyCiTi: "Gardens", transport: "MyCiTi" },
+  { id: "stellenbosch", name: "Stellenbosch University", lat: -33.9331, lng: 18.8674, nearestMyCiTi: "Bellville", transport: "MyCiTi" },
+  { id: "cput-bellville", name: "CPUT Bellville", lat: -33.9217, lng: 18.6449, nearestMyCiTi: "Civic Centre", transport: "MyCiTi" },
+  { id: "cput-downtown", name: "CPUT Downtown Campus", lat: -33.9100, lng: 18.4261, nearestMyCiTi: "Civic Centre", transport: "MyCiTi" },
+  { id: "dut-cape", name: "Durban University of Technology Cape Campus", lat: -34.1200, lng: 18.6100, nearestMyCiTi: "Mitchells Plain", transport: "MyCiTi" },
 ];
 
 // Origin locations
