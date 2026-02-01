@@ -686,7 +686,7 @@ const AccommodationsTab = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete duplicate entries?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete all duplicate records for the selected property name but keep one record. This action cannot be undone.
+              This will delete all duplicate records for the selected property but keep the oldest record. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -695,7 +695,11 @@ const AccommodationsTab = () => {
               onClick={() => {
                 if (!selectedDuplicateKey) return;
                 const items = duplicatesMap.get(selectedDuplicateKey) || [];
-                const keepId = items[0]?.id;
+                // Sort by created_at to keep the oldest
+                const sorted = [...items].sort((a, b) =>
+                  new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                );
+                const keepId = sorted[0]?.id;
                 if (!keepId) return;
                 deleteDuplicatesMutation.mutate({ key: selectedDuplicateKey, keepId });
               }}
