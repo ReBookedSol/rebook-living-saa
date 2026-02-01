@@ -163,13 +163,23 @@ Deno.serve(async (req) => {
     });
 
     const cachedPlace = cacheData && cacheData.length > 0 ? cacheData[0] : null;
-    const isCacheValid = cachedPlace && !cachedPlace.is_expired && cachedPlace.cached_tier === "pro";
+    const cacheExists = cachedPlace && !cachedPlace.is_expired;
+    const cacheTier = cachedPlace?.cached_tier;
 
-    console.log("Cache status:", { 
-      found: !!cachedPlace, 
-      expired: cachedPlace?.is_expired, 
-      tier: cachedPlace?.cached_tier,
-      valid: isCacheValid 
+    // Determine if we need to do delta-fetch (pro user visiting after free cache exists)
+    const needsDeltaFetch = cacheExists && cacheTier === "free" && user_tier === "pro";
+
+    // Cache is valid only if:
+    // - tier === "pro" (full data available for any user)
+    // - tier === "free" AND user_tier === "free" (free user sees free tier cache)
+    const isCacheValid = cacheExists && cacheTier !== "incomplete" && (cacheTier === "pro" || (cacheTier === "free" && user_tier === "free"));
+
+    console.log("Cache status:", {
+      found: !!cachedPlace,
+      expired: cachedPlace?.is_expired,
+      tier: cacheTier,
+      valid: isCacheValid,
+      needsDeltaFetch
     });
 
     let photos: string[] = [];
