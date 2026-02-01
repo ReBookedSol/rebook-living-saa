@@ -157,8 +157,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <li><Link to="/campus-guide" onClick={(e) => handleFooterNav(e, '/campus-guide')} className="text-muted-foreground hover:text-primary transition-colors">ReBooked Campus</Link></li>
                 <li><Link to="/travel" onClick={(e) => handleFooterNav(e, '/travel')} className="text-muted-foreground hover:text-primary transition-colors">Travel Guide</Link></li>
                 <li><Link to="/pricing" onClick={(e) => handleFooterNav(e, '/pricing')} className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
-                <li><Link to="/about" onClick={(e) => handleFooterNav(e, '/about')} className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-                <li><Link to="/contact" onClick={(e) => handleFooterNav(e, '/contact')} className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
                 <li><Link to="/profile" onClick={(e) => handleFooterNav(e, '/profile')} className="text-muted-foreground hover:text-primary transition-colors">My Profile</Link></li>
               </ul>
             </div>
