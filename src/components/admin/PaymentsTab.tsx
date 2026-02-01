@@ -140,7 +140,7 @@ const PaymentsTab = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
       queryClient.invalidateQueries({ queryKey: ["payment-stats"] });
       setGrantDialogOpen(false);
-      setGrantForm({ email: "", paymentType: "weekly", days: 7 });
+      setGrantForm({ email: "", paymentType: "weekly", days: 5 });
     },
     onError: (error: Error) => {
       toast.error(error.message);
