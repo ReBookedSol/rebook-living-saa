@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Heart, Share, Building2, Lock } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Heart, Share, Building2, Lock, Train } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
+import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
 
 interface AccommodationCardProps {
   id: string;
