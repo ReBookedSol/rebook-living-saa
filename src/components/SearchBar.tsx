@@ -98,6 +98,7 @@ const SearchBar = ({ compact = false }) => {
     if (province && province !== "All Provinces") params.set("province", province);
     if (maxCost) params.set("maxCost", maxCost);
     if (nsfasOnly) params.set("nsfas", "true");
+    if (nearTrain) params.set("nearTrain", "true");
     if (minRating > 0) params.set("minRating", String(minRating));
     if (amenities.length > 0) params.set("amenities", amenities.join(","));
 
