@@ -432,8 +432,12 @@ const ListingDetail = () => {
                   }));
                   setGoogleReviews(formattedReviews);
                 }
-                // Limit photos: paid users get up to 10, free users get up to 3
-                if (detail.photos && detail.photos.length > 0) {
+                // Optimization: For free users, only set Google photos if we don't already have photos from DB or cache
+                // This prevents wasting API quota by fetching photos we won't display
+                const hasPhotosFromSource = (tieredPhotos && tieredPhotos.length > 0) || (placeCache?.photos?.length);
+                const shouldFetchGooglePhotos = isPaidUser || !hasPhotosFromSource;
+
+                if (shouldFetchGooglePhotos && detail.photos && detail.photos.length > 0) {
                   try {
                     const maxGooglePhotos = isPaidUser ? 10 : 3;
                     const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
