@@ -41,63 +41,40 @@ const GAUTRAIN_STATIONS = gautrainStations.map(station => ({
   code: station.id.replace('gt-', '').toUpperCase().substring(0, 3),
 }));
 
-// PUTCO Routes data with enhanced information
+// PUTCO Routes data - organize comprehensive data by region
 const PUTCO_ROUTES = {
   soshanguve: {
-    name: "Soshanguve",
-    description: "Routes connecting Soshanguve to Pretoria CBD and surrounds",
+    name: "Soshanguve (S101-S120)",
+    description: "Routes connecting Soshanguve to Pretoria and surrounds",
     image: "/images/soshanguve-fares-table.jpg",
     color: "bg-primary",
-    routes: [
-      { id: "S101", from: "Block F4", to: "Zone XX Entrance", fare: "R17.00", time: "~25min" },
-      { id: "S102", from: "Block F4", to: "Orchards", fare: "R22.00", time: "~40min" },
-      { id: "S103", from: "Block F4", to: "Marabastad", fare: "R24.00", time: "~45min" },
-      { id: "S105", from: "Block F4", to: "Centurion Gateway", fare: "R42.00", time: "~60min" },
-      { id: "S106", from: "Block F4", to: "Midrand", fare: "R45.00", time: "~75min" },
-    ],
-    stations: [
-      { name: "Soshanguve Block F4", lat: -25.4833, lng: 28.0833 },
-      { name: "Soshanguve Block H", lat: -25.5000, lng: 28.1000 },
-      { name: "Rosslyn", lat: -25.7167, lng: 28.0667 },
-      { name: "Pretoria CBD", lat: -25.7479, lng: 28.1881 },
-    ],
+    routes: putcoRoutes
+      .filter(r => r.id.includes('S1'))
+      .slice(0, 8)
+      .map(r => ({ id: r.name, from: r.description.split(' to ')[0], to: r.description.split(' to ')[1] || '', fare: "Variable", time: "~30-60min" })),
+    stations: putcoStations.filter(s => s.id.includes('pt-f4') || s.id.includes('pt-transfer') || s.id.includes('pt-xxentrance') || s.id.includes('pt-orchards') || s.id.includes('pt-midrand')).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   ekangala: {
-    name: "Ekangala & Bronkhorstspruit",
+    name: "Ekangala & Mpumalanga (E201-E224)",
     description: "Long-distance routes from Mpumalanga to Pretoria",
     image: "/images/ekangala-fares.jpg",
     color: "bg-accent",
-    routes: [
-      { id: "E101", from: "Ekangala", to: "Bronkhorstspruit", fare: "R15.00", time: "~20min" },
-      { id: "E102", from: "Ekangala", to: "Mamelodi", fare: "R35.00", time: "~50min" },
-      { id: "E103", from: "Ekangala", to: "Pretoria CBD", fare: "R45.00", time: "~75min" },
-      { id: "E104", from: "Bronkhorstspruit", to: "Pretoria CBD", fare: "R38.00", time: "~60min" },
-    ],
-    stations: [
-      { name: "Ekangala Main", lat: -25.6833, lng: 28.7500 },
-      { name: "Bronkhorstspruit", lat: -25.8000, lng: 28.7333 },
-      { name: "Mamelodi", lat: -25.7000, lng: 28.3500 },
-    ],
+    routes: putcoRoutes
+      .filter(r => r.id.includes('E2') || r.id.includes('E1'))
+      .slice(0, 8)
+      .map(r => ({ id: r.name, from: r.description.split(' to ')[0], to: r.description.split(' to ')[1] || '', fare: "Variable", time: "~40-90min" })),
+    stations: putcoStations.filter(s => s.id.includes('pt-ekangala') || s.id.includes('pt-zithobeni') || s.id.includes('pt-langkloof') || s.id.includes('pt-rayton')).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   tshwane: {
-    name: "Tshwane Metro",
-    description: "Routes within Tshwane: Atteridgeville, Mamelodi, Mabopane, Ga-Rankuwa",
+    name: "Tshwane & Mpumalanga (T301-T354)",
+    description: "Routes within Tshwane and Mpumalanga provinces",
     image: "",
     color: "bg-secondary",
-    routes: [
-      { id: "T101", from: "Atteridgeville", to: "Pretoria CBD", fare: "R18.00", time: "~20min" },
-      { id: "T102", from: "Mamelodi", to: "Pretoria CBD", fare: "R22.00", time: "~30min" },
-      { id: "T103", from: "Mabopane", to: "Pretoria CBD", fare: "R28.00", time: "~45min" },
-      { id: "T104", from: "Ga-Rankuwa", to: "Pretoria CBD", fare: "R26.00", time: "~40min" },
-      { id: "T105", from: "Hammanskraal", to: "Pretoria CBD", fare: "R32.00", time: "~55min" },
-    ],
-    stations: [
-      { name: "Atteridgeville", lat: -25.7667, lng: 28.0833 },
-      { name: "Mamelodi", lat: -25.7000, lng: 28.3500 },
-      { name: "Mabopane", lat: -25.5000, lng: 28.1000 },
-      { name: "Ga-Rankuwa", lat: -25.6167, lng: 28.0167 },
-      { name: "Hammanskraal", lat: -25.4000, lng: 28.2833 },
-    ],
+    routes: putcoRoutes
+      .filter(r => r.id.includes('T3'))
+      .slice(0, 10)
+      .map(r => ({ id: r.name, from: r.description.split(' to ')[0], to: r.description.split(' to ')[1] || '', fare: "Variable", time: "~50-90min" })),
+    stations: putcoStations.filter(s => ['pt-groblersdal', 'pt-rathoke', 'pt-vaalbank', 'pt-kwamhlanga', 'pt-pebblerock', 'pt-dennilton', 'pt-onderstepoort'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
 };
 
