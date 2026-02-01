@@ -260,11 +260,11 @@ export const putcoRoutes: Route[] = [
   { id: 'pt-S120', name: 'S120', description: 'Eastlynne to Midrand', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-eastlynne', 'pt-midrand'] },
   
   // Ekangala Routes (E201-E224)
-  { id: 'pt-E201', name: 'E201', description: 'Waterkloof Dennilton to Langkloof', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-dennilton', 'pt-langkloof'] },
-  { id: 'pt-E202', name: 'E202', description: 'Waterkloof Dennilton to Zithobeni', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-dennilton', 'pt-zithobeni'] },
-  { id: 'pt-E203', name: 'E203', description: 'Waterkloof Dennilton to Springs Taxi Rank', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-dennilton', 'pt-springs'] },
-  { id: 'pt-E204', name: 'E204', description: 'Vaalbank to Zithobeni', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-vaalbank', 'pt-zithobeni'] },
-  { id: 'pt-E205', name: 'E205', description: 'Tweefontein A to Zithobeni', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-tweefontein', 'pt-zithobeni'] },
+  { id: 'pt-E201', name: 'E201', description: 'Waterkloof Dennilton to Langkloof', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-dennilton', 'pt-langkloof'], path: [{ lat: -25.3150, lng: 29.2250 }, { lat: -25.5680, lng: 28.8250 }] },
+  { id: 'pt-E202', name: 'E202', description: 'Waterkloof Dennilton to Zithobeni', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-dennilton', 'pt-zithobeni'], path: [{ lat: -25.3150, lng: 29.2250 }, { lat: -25.6780, lng: 28.7420 }] },
+  { id: 'pt-E203', name: 'E203', description: 'Waterkloof Dennilton to Springs Taxi Rank', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-dennilton', 'pt-springs'], path: [{ lat: -25.3150, lng: 29.2250 }, { lat: -26.2450, lng: 28.4420 }] },
+  { id: 'pt-E204', name: 'E204', description: 'Vaalbank to Zithobeni', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-vaalbank', 'pt-zithobeni'], path: [{ lat: -25.3450, lng: 29.1980 }, { lat: -25.6780, lng: 28.7420 }] },
+  { id: 'pt-E205', name: 'E205', description: 'Tweefontein A to Zithobeni', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-tweefontein', 'pt-zithobeni'], path: [{ lat: -25.4050, lng: 29.0850 }, { lat: -25.6780, lng: 28.7420 }] },
   { id: 'pt-E206', name: 'E206', description: 'Langkloof Loop', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-langkloof'] },
   { id: 'pt-E208', name: 'E208', description: 'Langkloof to Rayton Cross', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-langkloof', 'pt-rayton'] },
   { id: 'pt-E209', name: 'E209', description: 'Langkloof to Springs Taxi Rank', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-langkloof', 'pt-springs'] },
