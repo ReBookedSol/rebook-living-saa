@@ -138,11 +138,11 @@ export const mycitiStations: Station[] = [
 // MYCITI ROUTES
 // ============================================
 export const mycitiRoutes: Route[] = [
-  // Trunk Routes
-  { id: 'mc-T01', name: 'T01', description: 'Dunoon – Table View – Civic Centre – Waterfront', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-dunoon', 'mc-tableview', 'mc-milnerton', 'mc-civic', 'mc-waterfront'] },
-  { id: 'mc-T02', name: 'T02', description: 'Atlantis – Table View – Civic Centre', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-atlantis', 'mc-duynefontein', 'mc-melkbosstrand', 'mc-tableview', 'mc-civic'] },
-  { id: 'mc-T03', name: 'T03', description: 'Atlantis – Melkbosstrand – Table View – Century City', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-atlantis', 'mc-melkbosstrand', 'mc-tableview', 'mc-centurycity'] },
-  { id: 'mc-T04', name: 'T04', description: 'Dunoon – Omuramba – Century City', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-dunoon', 'mc-omuramba', 'mc-centurycity'] },
+  // Trunk Routes with path coordinates
+  { id: 'mc-T01', name: 'T01', description: 'Dunoon – Table View – Civic Centre – Waterfront', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-dunoon', 'mc-tableview', 'mc-milnerton', 'mc-civic', 'mc-waterfront'], path: [{ lat: -33.8140, lng: 18.5470 }, { lat: -33.8280, lng: 18.4880 }, { lat: -33.8680, lng: 18.4980 }, { lat: -33.9198, lng: 18.4240 }, { lat: -33.9035, lng: 18.4200 }] },
+  { id: 'mc-T02', name: 'T02', description: 'Atlantis – Table View – Civic Centre', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-atlantis', 'mc-duynefontein', 'mc-melkbosstrand', 'mc-tableview', 'mc-civic'], path: [{ lat: -33.5640, lng: 18.4890 }, { lat: -33.6630, lng: 18.4450 }, { lat: -33.7250, lng: 18.4400 }, { lat: -33.8280, lng: 18.4880 }, { lat: -33.9198, lng: 18.4240 }] },
+  { id: 'mc-T03', name: 'T03', description: 'Atlantis – Melkbosstrand – Table View – Century City', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-atlantis', 'mc-melkbosstrand', 'mc-tableview', 'mc-centurycity'], path: [{ lat: -33.5640, lng: 18.4890 }, { lat: -33.7250, lng: 18.4400 }, { lat: -33.8280, lng: 18.4880 }, { lat: -33.8890, lng: 18.5120 }] },
+  { id: 'mc-T04', name: 'T04', description: 'Dunoon – Omuramba – Century City', system: 'myciti', type: 'trunk', color: '#E53935', stations: ['mc-dunoon', 'mc-omuramba', 'mc-centurycity'], path: [{ lat: -33.8140, lng: 18.5470 }, { lat: -33.8350, lng: 18.5380 }, { lat: -33.8890, lng: 18.5120 }] },
   
   // Direct Routes
   { id: 'mc-D01', name: 'D01', description: 'Khayelitsha East – Civic Centre', system: 'myciti', type: 'direct', color: '#1E88E5', stations: ['mc-khayelitsha-east', 'mc-civic'] },
