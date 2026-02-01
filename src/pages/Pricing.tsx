@@ -89,9 +89,9 @@ const Pricing = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-4">
-                  <div className="text-5xl font-bold text-primary">R59</div>
+                  <div className="text-5xl font-bold text-primary">R69</div>
                   <p className="text-sm text-muted-foreground mt-2">one-time payment • 30 days access</p>
-                  <p className="text-xs text-primary font-semibold mt-3">3x longer than Weekly Pass</p>
+                  <p className="text-xs text-primary font-semibold mt-3">6x longer than Weekly Pass</p>
                 </div>
 
                 <div className="space-y-3">
