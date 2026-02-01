@@ -124,6 +124,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
 
+      <AIAssistantBubble />
+
       <footer className="border-t bg-gradient-to-b from-white/50 to-white/30 backdrop-blur mt-auto">
         <div className="container mx-auto px-4 py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
