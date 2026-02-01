@@ -225,15 +225,22 @@ const AccommodationsTab = () => {
       });
 
       if (allDuplicateIds.length === 0) return;
-      const { error } = await supabase.from("accommodations").delete().in("id", allDuplicateIds);
-      if (error) throw error;
+      
+      // Delete in batches of 50 to avoid query limits
+      for (let i = 0; i < allDuplicateIds.length; i += 50) {
+        const batch = allDuplicateIds.slice(i, i + 50);
+        const { error } = await supabase.from("accommodations").delete().in("id", batch);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-accommodations"] });
       toast.success("Successfully deleted all duplicate listings");
+      setDeleteAllDuplicatesDialogOpen(false);
     },
-    onError: () => {
-      toast.error("Failed to delete duplicate listings");
+    onError: (error: any) => {
+      console.error("Delete duplicates error:", error);
+      toast.error(`Failed to delete duplicates: ${error.message || "Unknown error"}`);
     },
   });
 
@@ -313,7 +320,7 @@ const AccommodationsTab = () => {
       </div>
 
       {duplicateEntries.length > 0 && (
-        <div className="mb-4 p-4 bg-yellow-50 border rounded-lg">
+        <div className="mb-4 p-4 bg-accent/10 border border-accent/30 rounded-lg">
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold">Duplicate Properties Detected</h3>
@@ -737,10 +744,12 @@ const AccommodationsTab = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete All Duplicate Listings?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete all duplicate accommodations, keeping only the oldest record for each property (name + address combination). This action cannot be undone.
-              <div className="mt-2 p-2 bg-muted rounded text-sm">
-                {duplicateEntries.length} duplicate properties detected • Will delete multiple entries per property
+            <AlertDialogDescription asChild>
+              <div>
+                This will permanently delete all duplicate accommodations, keeping only the oldest record for each property (name + address combination). This action cannot be undone.
+                <div className="mt-2 p-2 bg-muted rounded text-sm">
+                  {duplicateEntries.length} duplicate properties detected • Will delete multiple entries per property
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>

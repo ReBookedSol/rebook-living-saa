@@ -21,6 +21,7 @@ import LandlordDashboard from "./pages/landlord/Dashboard";
 import AddListing from "./pages/landlord/AddListing";
 import LandlordPayment from "./pages/landlord/Payment";
 import PaymentResult from "./pages/PaymentResult";
+import Notifications from "./pages/Notifications";
 
 import NotFound from "./pages/NotFound";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
@@ -80,6 +81,7 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/campus" element={<Campus />} />
             <Route path="/campus-guide" element={<ReBookedCampus />} />
             <Route path="/university/:id" element={<UniversityProfile />} />
