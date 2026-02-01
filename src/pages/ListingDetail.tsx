@@ -20,7 +20,7 @@ import { ReviewsList } from "@/components/ReviewsList";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getPlaceData, getUserTier } from "@/lib/placeCache";
-import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
+import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import type { GoogleReview } from "@/types/place-cache";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
