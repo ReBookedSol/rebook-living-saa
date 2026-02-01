@@ -503,8 +503,26 @@ export default function Travel() {
     // Generate route recommendations
     const recommendations = [];
 
-    // PUTCO option
-    if (originData.region !== "gautrain") {
+    // Check if both origin and destination are in Western Cape (MyCiTi areas)
+    const isWesternCapeRoute = originData.region in MYCITI_WESTERN_CAPE && destData.transport === "MyCiTi";
+
+    if (isWesternCapeRoute) {
+      // MyCiTi option
+      const originRegion = MYCITI_WESTERN_CAPE[originData.region as keyof typeof MYCITI_WESTERN_CAPE];
+      recommendations.push({
+        type: "MyCiTi Bus",
+        icon: Bus,
+        steps: [
+          `Board MyCiTi bus from ${originData.name}`,
+          `Travel via ${originRegion.name}`,
+          `Arrive at ${destData.nearestMyCiTi || destData.name}`,
+        ],
+        estimatedCost: "R15 - R22",
+        estimatedTime: "35 - 50 min",
+        pros: ["Most affordable", "Regular service"],
+      });
+    } else if (originData.region !== "gautrain" && originData.region in PUTCO_ROUTES) {
+      // PUTCO option
       const region = PUTCO_ROUTES[originData.region as keyof typeof PUTCO_ROUTES];
       if (region) {
         recommendations.push({
@@ -521,21 +539,23 @@ export default function Travel() {
       }
     }
 
-    // Gautrain option
-    recommendations.push({
-      type: "Gautrain",
-      icon: Train,
-      steps: [
-        originData.region === "gautrain"
-          ? `Board Gautrain at ${originData.name}`
-          : `Get to nearest Gautrain station (taxi/bus)`,
-        `Take Gautrain to ${destData.nearestGautrain}`,
-        "Walk or taxi to campus",
-      ],
-      estimatedCost: "R80 - R150",
-      estimatedTime: "30 - 60 min",
-      pros: ["Fastest option"],
-    });
+    // Gautrain option (if applicable)
+    if (destData.transport === "Gautrain" || destData.nearestGautrain) {
+      recommendations.push({
+        type: "Gautrain",
+        icon: Train,
+        steps: [
+          originData.region === "gautrain"
+            ? `Board Gautrain at ${originData.name}`
+            : `Get to nearest Gautrain station (taxi/bus)`,
+          `Take Gautrain to ${destData.nearestGautrain}`,
+          "Walk or taxi to campus",
+        ],
+        estimatedCost: "R80 - R150",
+        estimatedTime: "30 - 60 min",
+        pros: ["Fastest option"],
+      });
+    }
 
     // Uber option
     recommendations.push({
