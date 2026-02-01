@@ -1113,6 +1113,7 @@ const ListingDetail = () => {
                                   type="reviews"
                                   totalCount={totalReviews}
                                   compact
+                                  buttonText={`Read all ${totalReviews} reviews`}
                                 />
                               </div>
                             )}
