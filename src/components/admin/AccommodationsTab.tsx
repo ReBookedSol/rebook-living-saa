@@ -189,6 +189,7 @@ const AccommodationsTab = () => {
 
   const [selectedDuplicateKey, setSelectedDuplicateKey] = useState<string | null>(null);
   const [duplicateDeleteDialogOpen, setDuplicateDeleteDialogOpen] = useState(false);
+  const [deleteAllDuplicatesDialogOpen, setDeleteAllDuplicatesDialogOpen] = useState(false);
 
   const deleteDuplicatesMutation = useMutation({
     mutationFn: async ({ key, keepId }: { key: string; keepId: string }) => {
