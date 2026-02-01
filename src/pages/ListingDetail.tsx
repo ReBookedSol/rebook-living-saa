@@ -290,6 +290,7 @@ const ListingDetail = () => {
 
   const [googleReviews, setGoogleReviews] = useState<GoogleReview[]>([]);
   const [googlePhotos, setGooglePhotos] = useState<string[]>([]);
+  const [totalGooglePhotos, setTotalGooglePhotos] = useState<number>(0);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
