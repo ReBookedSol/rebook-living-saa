@@ -333,19 +333,25 @@ const AccommodationsTab = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {duplicateEntries.map(([key, list]) => (
-              <div key={key} className="flex items-center justify-between bg-white p-3 rounded border">
-                <div>
-                  <div className="font-medium">{list[0].property_name}</div>
-                  <div className="text-xs text-muted-foreground">{list.length} entries</div>
+            {duplicateEntries.map(([key, list]) => {
+              const sorted = [...list].sort((a, b) =>
+                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+              );
+              const oldestId = sorted[0].id;
+              return (
+                <div key={key} className="flex items-center justify-between bg-white p-3 rounded border">
+                  <div>
+                    <div className="font-medium">{list[0].property_name}</div>
+                    <div className="text-xs text-muted-foreground">{list.length} entries (will keep oldest)</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => { setSelectedDuplicateKey(key); setDuplicateDeleteDialogOpen(true); }}>
+                      Delete duplicates
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" onClick={() => { setSelectedDuplicateKey(key); setDuplicateDeleteDialogOpen(true); }}>
-                    Delete duplicates
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
