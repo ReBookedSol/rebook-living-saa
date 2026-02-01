@@ -44,39 +44,62 @@ const formatGautrainStation = (station: typeof gautrainStations[0]) => ({
 // Gautrain stations - now using comprehensive data from transitData
 const GAUTRAIN_STATIONS = gautrainStations.map(formatGautrainStation);
 
-// PUTCO Routes data - organize comprehensive data by region
-const createPutcoRoute = (routeData: typeof putcoRoutes[0]) => ({
-  id: routeData.name,
-  from: routeData.description.split(' to ')[0],
-  to: routeData.description.split(' to ')[1] || '',
-  fare: "Variable",
-  time: "~30-90min"
-});
-
+// PUTCO Routes data - simplified regions with core stations
 const PUTCO_ROUTES = {
   soshanguve: {
     name: "Soshanguve (S101-S120)",
     description: "Routes connecting Soshanguve to Pretoria and surrounds",
     image: "/images/soshanguve-fares-table.jpg",
     color: "bg-primary",
-    routes: putcoRoutes.filter(r => r.id.startsWith('pt-S1')).slice(0, 8).map(createPutcoRoute),
-    stations: putcoStations.filter(s => ['pt-f4', 'pt-transfer', 'pt-xxentrance', 'pt-orchards', 'pt-midrand'].some(id => s.id.includes(id))).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "S101", from: "Block F4", to: "Zone XX Entrance", fare: "R17.00", time: "~25min" },
+      { id: "S102", from: "Block F4", to: "Orchards", fare: "R22.00", time: "~40min" },
+      { id: "S103", from: "Block F4", to: "Marabastad", fare: "R24.00", time: "~45min" },
+      { id: "S105", from: "Block F4", to: "Centurion Gateway", fare: "R42.00", time: "~60min" },
+      { id: "S106", from: "Block F4", to: "Midrand", fare: "R45.00", time: "~75min" },
+    ],
+    stations: [
+      { name: "Soshanguve F4", lat: -25.4780, lng: 28.0920 },
+      { name: "Transfer Station", lat: -25.5120, lng: 28.1050 },
+      { name: "Orchards", lat: -25.7380, lng: 28.2050 },
+      { name: "Midrand", lat: -25.9930, lng: 28.1264 },
+    ],
   },
   ekangala: {
     name: "Ekangala & Mpumalanga (E201-E224)",
     description: "Long-distance routes from Mpumalanga to Pretoria",
     image: "/images/ekangala-fares.jpg",
     color: "bg-accent",
-    routes: putcoRoutes.filter(r => r.id.startsWith('pt-E')).slice(0, 8).map(createPutcoRoute),
-    stations: putcoStations.filter(s => ['pt-ekangala', 'pt-zithobeni', 'pt-langkloof', 'pt-rayton', 'pt-springs'].some(id => s.id.includes(id))).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "E201", from: "Waterkloof Dennilton", to: "Langkloof", fare: "R23.00", time: "~40min" },
+      { id: "E202", from: "Waterkloof Dennilton", to: "Zithobeni", fare: "R36.00", time: "~50min" },
+      { id: "E210", from: "Ekangala Block F", to: "Zithobeni", fare: "R22.00", time: "~30min" },
+      { id: "E217", from: "Ekangala Block F", to: "Midrand", fare: "R54.00", time: "~90min" },
+    ],
+    stations: [
+      { name: "Ekangala Block F", lat: -25.6920, lng: 28.7580 },
+      { name: "Zithobeni", lat: -25.6780, lng: 28.7420 },
+      { name: "Langkloof", lat: -25.5680, lng: 28.8250 },
+      { name: "Waterkloof Dennilton", lat: -25.3150, lng: 29.2250 },
+    ],
   },
   tshwane: {
     name: "Tshwane & Mpumalanga (T301-T354)",
     description: "Routes within Tshwane and Mpumalanga provinces",
     image: "",
     color: "bg-secondary",
-    routes: putcoRoutes.filter(r => r.id.startsWith('pt-T3')).slice(0, 10).map(createPutcoRoute),
-    stations: putcoStations.filter(s => ['pt-groblersdal', 'pt-rathoke', 'pt-vaalbank', 'pt-kwamhlanga', 'pt-pebblerock', 'pt-dennilton', 'pt-onderstepoort', 'pt-orchards'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "T301", from: "Groblersdal", to: "Rathoke", fare: "Variable", time: "~40min" },
+      { id: "T305", from: "Groblersdal", to: "Pebblerock", fare: "Variable", time: "~60min" },
+      { id: "T309", from: "Groblersdal", to: "Midrand", fare: "Variable", time: "~80min" },
+      { id: "T330", from: "Waterkloof Dennilton", to: "Midrand", fare: "Variable", time: "~70min" },
+    ],
+    stations: [
+      { name: "Groblersdal", lat: -25.1750, lng: 29.3980 },
+      { name: "Pebblerock", lat: -25.5180, lng: 28.5280 },
+      { name: "Waterkloof Dennilton", lat: -25.3150, lng: 29.2250 },
+      { name: "Onderstepoort", lat: -25.6480, lng: 28.1780 },
+    ],
   },
 };
 
