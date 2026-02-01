@@ -24,26 +24,31 @@ import {
 } from "lucide-react";
 import GautrainInfo from "@/components/GautrainInfo";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import {
+  gautrainStations,
+  mycitiStations,
+  putcoStations,
+  gautrainRoutes,
+  mycitiRoutes,
+  putcoRoutes
+} from "@/lib/transitData";
 
-// Gautrain stations with coordinates
-const GAUTRAIN_STATIONS = [
-  { name: "OR Tambo International", lat: -26.1367, lng: 28.2311, code: "ORT" },
-  { name: "Rhodesfield", lat: -26.1428, lng: 28.2147, code: "RHO" },
-  { name: "Marlboro", lat: -26.0917, lng: 28.1106, code: "MAR" },
-  { name: "Sandton", lat: -26.1067, lng: 28.0561, code: "SAN" },
-  { name: "Rosebank", lat: -26.1467, lng: 28.0436, code: "ROS" },
-  { name: "Park", lat: -26.1847, lng: 28.0436, code: "PAR" },
-  { name: "Midrand", lat: -25.9947, lng: 28.1264, code: "MID" },
-  { name: "Centurion", lat: -25.8589, lng: 28.1897, code: "CEN" },
-  { name: "Pretoria", lat: -25.7544, lng: 28.1889, code: "PRE" },
-  { name: "Hatfield", lat: -25.7489, lng: 28.2381, code: "HAT" },
-];
+// Helper to convert transit stations to map-compatible format
+const formatGautrainStation = (station: typeof gautrainStations[0]) => ({
+  name: station.name,
+  lat: station.lat,
+  lng: station.lng,
+  code: station.id.replace('gt-', '').toUpperCase().substring(0, 3),
+});
 
-// PUTCO Routes data with enhanced information
+// Gautrain stations - now using comprehensive data from transitData
+const GAUTRAIN_STATIONS = gautrainStations.map(formatGautrainStation);
+
+// PUTCO Routes data - simplified regions with core stations
 const PUTCO_ROUTES = {
   soshanguve: {
-    name: "Soshanguve",
-    description: "Routes connecting Soshanguve to Pretoria CBD and surrounds",
+    name: "Soshanguve (S101-S120)",
+    description: "Routes connecting Soshanguve to Pretoria and surrounds",
     image: "/images/soshanguve-fares-table.jpg",
     color: "bg-primary",
     routes: [
@@ -54,47 +59,46 @@ const PUTCO_ROUTES = {
       { id: "S106", from: "Block F4", to: "Midrand", fare: "R45.00", time: "~75min" },
     ],
     stations: [
-      { name: "Soshanguve Block F4", lat: -25.4833, lng: 28.0833 },
-      { name: "Soshanguve Block H", lat: -25.5000, lng: 28.1000 },
-      { name: "Rosslyn", lat: -25.7167, lng: 28.0667 },
-      { name: "Pretoria CBD", lat: -25.7479, lng: 28.1881 },
+      { name: "Soshanguve F4", lat: -25.4780, lng: 28.0920 },
+      { name: "Transfer Station", lat: -25.5120, lng: 28.1050 },
+      { name: "Orchards", lat: -25.7380, lng: 28.2050 },
+      { name: "Midrand", lat: -25.9930, lng: 28.1264 },
     ],
   },
   ekangala: {
-    name: "Ekangala & Bronkhorstspruit",
+    name: "Ekangala & Mpumalanga (E201-E224)",
     description: "Long-distance routes from Mpumalanga to Pretoria",
     image: "/images/ekangala-fares.jpg",
     color: "bg-accent",
     routes: [
-      { id: "E101", from: "Ekangala", to: "Bronkhorstspruit", fare: "R15.00", time: "~20min" },
-      { id: "E102", from: "Ekangala", to: "Mamelodi", fare: "R35.00", time: "~50min" },
-      { id: "E103", from: "Ekangala", to: "Pretoria CBD", fare: "R45.00", time: "~75min" },
-      { id: "E104", from: "Bronkhorstspruit", to: "Pretoria CBD", fare: "R38.00", time: "~60min" },
+      { id: "E201", from: "Waterkloof Dennilton", to: "Langkloof", fare: "R23.00", time: "~40min" },
+      { id: "E202", from: "Waterkloof Dennilton", to: "Zithobeni", fare: "R36.00", time: "~50min" },
+      { id: "E210", from: "Ekangala Block F", to: "Zithobeni", fare: "R22.00", time: "~30min" },
+      { id: "E217", from: "Ekangala Block F", to: "Midrand", fare: "R54.00", time: "~90min" },
     ],
     stations: [
-      { name: "Ekangala Main", lat: -25.6833, lng: 28.7500 },
-      { name: "Bronkhorstspruit", lat: -25.8000, lng: 28.7333 },
-      { name: "Mamelodi", lat: -25.7000, lng: 28.3500 },
+      { name: "Ekangala Block F", lat: -25.6920, lng: 28.7580 },
+      { name: "Zithobeni", lat: -25.6780, lng: 28.7420 },
+      { name: "Langkloof", lat: -25.5680, lng: 28.8250 },
+      { name: "Waterkloof Dennilton", lat: -25.3150, lng: 29.2250 },
     ],
   },
   tshwane: {
-    name: "Tshwane Metro",
-    description: "Routes within Tshwane: Atteridgeville, Mamelodi, Mabopane, Ga-Rankuwa",
+    name: "Tshwane & Mpumalanga (T301-T354)",
+    description: "Routes within Tshwane and Mpumalanga provinces",
     image: "",
     color: "bg-secondary",
     routes: [
-      { id: "T101", from: "Atteridgeville", to: "Pretoria CBD", fare: "R18.00", time: "~20min" },
-      { id: "T102", from: "Mamelodi", to: "Pretoria CBD", fare: "R22.00", time: "~30min" },
-      { id: "T103", from: "Mabopane", to: "Pretoria CBD", fare: "R28.00", time: "~45min" },
-      { id: "T104", from: "Ga-Rankuwa", to: "Pretoria CBD", fare: "R26.00", time: "~40min" },
-      { id: "T105", from: "Hammanskraal", to: "Pretoria CBD", fare: "R32.00", time: "~55min" },
+      { id: "T301", from: "Groblersdal", to: "Rathoke", fare: "Variable", time: "~40min" },
+      { id: "T305", from: "Groblersdal", to: "Pebblerock", fare: "Variable", time: "~60min" },
+      { id: "T309", from: "Groblersdal", to: "Midrand", fare: "Variable", time: "~80min" },
+      { id: "T330", from: "Waterkloof Dennilton", to: "Midrand", fare: "Variable", time: "~70min" },
     ],
     stations: [
-      { name: "Atteridgeville", lat: -25.7667, lng: 28.0833 },
-      { name: "Mamelodi", lat: -25.7000, lng: 28.3500 },
-      { name: "Mabopane", lat: -25.5000, lng: 28.1000 },
-      { name: "Ga-Rankuwa", lat: -25.6167, lng: 28.0167 },
-      { name: "Hammanskraal", lat: -25.4000, lng: 28.2833 },
+      { name: "Groblersdal", lat: -25.1750, lng: 29.3980 },
+      { name: "Pebblerock", lat: -25.5180, lng: 28.5280 },
+      { name: "Waterkloof Dennilton", lat: -25.3150, lng: 29.2250 },
+      { name: "Onderstepoort", lat: -25.6480, lng: 28.1780 },
     ],
   },
 };
@@ -102,122 +106,121 @@ const PUTCO_ROUTES = {
 // MyCiTi Western Cape Network - Cape Town Bus Rapid Transit System
 const MYCITI_WESTERN_CAPE = {
   waterfront: {
-    name: "Waterfront & CBD Core",
+    name: "Waterfront & CBD Core (T01, T02, D01-D05)",
     description: "Central hub connecting Waterfront, CBD (Civic Centre), and city center",
     color: "bg-blue-500",
     routes: [
       { id: "T01", type: "Trunk", from: "Dunoon", to: "Waterfront", fare: "R18.00", time: "~45min" },
       { id: "T02", type: "Trunk", from: "Atlantis", to: "Civic Centre", fare: "R22.00", time: "~60min" },
-      { id: "D05", type: "Direct", from: "Khayelitsha", to: "Civic Centre", fare: "R15.00", time: "~40min" },
-      { id: "101", type: "Area", from: "Waterfront", to: "CBD", fare: "R8.00", time: "~10min" },
+      { id: "D01", type: "Direct", from: "Khayelitsha East", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D05", type: "Direct", from: "Dunoon", to: "Waterfront", fare: "R18.00", time: "~50min" },
     ],
     stations: [
-      { name: "Civic Centre", lat: -33.9249, lng: 18.4241 },
-      { name: "Waterfront", lat: -33.9036, lng: 18.4222 },
-      { name: "Convention Centre", lat: -33.9045, lng: 18.4218 },
-      { name: "St George's", lat: -33.9105, lng: 18.4175 },
-      { name: "Hanover St", lat: -33.9135, lng: 18.4195 },
-      { name: "The Castle", lat: -33.9087, lng: 18.4199 },
+      { name: "Civic Centre", lat: -33.9198, lng: 18.4240 },
+      { name: "Waterfront", lat: -33.9035, lng: 18.4200 },
+      { name: "Gardens", lat: -33.9330, lng: 18.4130 },
+      { name: "Adderley", lat: -33.9210, lng: 18.4230 },
     ],
   },
   seapoint: {
-    name: "Sea Point & Atlantic Seaboard",
-    description: "Coastal routes: Sea Point, Camps Bay, Hout Bay, Llandudno",
+    name: "Sea Point & Atlantic Seaboard (104-109, 118)",
+    description: "Coastal routes: Sea Point, Camps Bay, Hout Bay",
     color: "bg-cyan-500",
     routes: [
-      { id: "T03", type: "Trunk", from: "Camps Bay", to: "Civic Centre", fare: "R18.00", time: "~35min" },
-      { id: "T04", type: "Trunk", from: "Hout Bay", to: "Civic Centre", fare: "R22.00", time: "~45min" },
-      { id: "109", type: "Area", from: "Sea Point", to: "Camps Bay", fare: "R8.00", time: "~15min" },
+      { id: "104", type: "Area", from: "Sea Point", to: "Waterfront", fare: "R8.00", time: "~20min" },
+      { id: "105", type: "Area", from: "Sea Point", to: "Fresnaye", fare: "R8.00", time: "~15min" },
+      { id: "108", type: "Area", from: "Hangberg", to: "Adderley", fare: "R8.00", time: "~30min" },
+      { id: "109", type: "Area", from: "Hout Bay", to: "Adderley", fare: "R8.00", time: "~35min" },
     ],
     stations: [
-      { name: "Sea Point", lat: -33.9301, lng: 18.3880 },
-      { name: "Camps Bay", lat: -33.9446, lng: 18.3767 },
-      { name: "Hout Bay", lat: -34.0358, lng: 18.3633 },
-      { name: "Imizamo Yethu", lat: -34.0385, lng: 18.3641 },
-      { name: "Llandudno", lat: -34.0576, lng: 18.3422 },
+      { name: "Sea Point", lat: -33.9170, lng: 18.3850 },
+      { name: "Camps Bay", lat: -33.9510, lng: 18.3770 },
+      { name: "Hout Bay", lat: -34.0440, lng: 18.3530 },
+      { name: "Hangberg", lat: -34.0480, lng: 18.3460 },
     ],
   },
   southernsuburbs: {
-    name: "Southern Suburbs (Wynberg, Claremont, Constantia)",
-    description: "Routes through Wynberg, Claremont, Constantia, and Retreat",
+    name: "Southern Suburbs (101-113)",
+    description: "Routes through Gardens, Vredehoek, and surrounding areas",
     color: "bg-green-500",
     routes: [
-      { id: "D03", type: "Direct", from: "Wynberg", to: "Civic Centre", fare: "R15.00", time: "~30min" },
-      { id: "214", type: "Area", from: "Wynberg", to: "Constantia", fare: "R8.00", time: "~20min" },
-      { id: "216", type: "Area", from: "Claremont", to: "Constantia", fare: "R8.00", time: "~15min" },
+      { id: "101", type: "Area", from: "Vredehoek", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+      { id: "102", type: "Area", from: "Salt River", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+      { id: "103", type: "Area", from: "Oranjezicht", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+      { id: "111", type: "Area", from: "Vredehoek", to: "Civic Centre", fare: "R8.00", time: "~15min" },
     ],
     stations: [
-      { name: "Wynberg", lat: -34.0156, lng: 18.4724 },
-      { name: "Claremont", lat: -33.9649, lng: 18.4622 },
-      { name: "Constantia", lat: -34.0231, lng: 18.4064 },
-      { name: "Retreat", lat: -34.0775, lng: 18.4539 },
+      { name: "Vredehoek", lat: -33.9380, lng: 18.4280 },
+      { name: "Gardens", lat: -33.9330, lng: 18.4130 },
+      { name: "Oranjezicht", lat: -33.9350, lng: 18.4180 },
+      { name: "Kloof Street", lat: -33.9290, lng: 18.4120 },
     ],
   },
-  falsebay: {
-    name: "False Bay Coast (Simon's Town, Fish Hoek, Muizenberg)",
-    description: "Scenic routes along False Bay coast to Simon's Town",
+  tableview: {
+    name: "Table View & Milnerton (T01, T02, 213-223)",
+    description: "Northern coastal routes through Table View and Milnerton",
     color: "bg-teal-500",
     routes: [
-      { id: "234", type: "Area", from: "Muizenberg", to: "Simon's Town", fare: "R12.00", time: "~25min" },
-      { id: "235", type: "Area", from: "Fish Hoek", to: "Muizenberg", fare: "R8.00", time: "~15min" },
-      { id: "236", type: "Area", from: "Simon's Town", to: "Kalk Bay", fare: "R8.00", time: "~10min" },
+      { id: "T01", type: "Trunk", from: "Dunoon", to: "Table View", fare: "R18.00", time: "~35min" },
+      { id: "213", type: "Area", from: "Sunningdale", to: "Table View", fare: "R8.00", time: "~15min" },
+      { id: "214", type: "Area", from: "Parklands", to: "Duynefontein", fare: "R8.00", time: "~20min" },
+      { id: "216", type: "Area", from: "Sunningdale", to: "Big Bay", fare: "R8.00", time: "~15min" },
     ],
     stations: [
-      { name: "Simon's Town", lat: -34.1927, lng: 18.4366 },
-      { name: "Fish Hoek", lat: -34.1367, lng: 18.4540 },
-      { name: "Muizenberg", lat: -34.0877, lng: 18.4822 },
-      { name: "Kalk Bay", lat: -34.1128, lng: 18.4535 },
+      { name: "Table View", lat: -33.8280, lng: 18.4880 },
+      { name: "Milnerton", lat: -33.8680, lng: 18.4980 },
+      { name: "Sunningdale", lat: -33.8080, lng: 18.4760 },
+      { name: "Parklands", lat: -33.8180, lng: 18.4920 },
     ],
   },
   southernfreeway: {
-    name: "Khayelitsha & Mitchells Plain",
-    description: "High-demand routes connecting Khayelitsha and Mitchells Plain to CBD",
+    name: "Khayelitsha & Mitchells Plain (D01-D04)",
+    description: "High-demand direct routes to Khayelitsha and Mitchells Plain",
     color: "bg-orange-500",
     routes: [
-      { id: "D05", type: "Direct", from: "Khayelitsha East", to: "Civic Centre", fare: "R15.00", time: "~40min" },
-      { id: "D06", type: "Direct", from: "Khayelitsha West", to: "Civic Centre", fare: "R15.00", time: "~40min" },
-      { id: "D07", type: "Direct", from: "Mitchells Plain East", to: "Civic Centre", fare: "R15.00", time: "~35min" },
-      { id: "261", type: "Area", from: "Khayelitsha", to: "Mitchells Plain", fare: "R8.00", time: "~20min" },
+      { id: "D01", type: "Direct", from: "Khayelitsha East", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D02", type: "Direct", from: "Khayelitsha West", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D03", type: "Direct", from: "Mitchells Plain East", to: "Civic Centre", fare: "R15.00", time: "~35min" },
+      { id: "D04", type: "Direct", from: "Kapteinsklip", to: "Civic Centre", fare: "R15.00", time: "~35min" },
     ],
     stations: [
-      { name: "Khayelitsha", lat: -34.3534, lng: 18.6458 },
-      { name: "Mitchells Plain", lat: -34.1289, lng: 18.6344 },
-      { name: "Lentegeur", lat: -34.1753, lng: 18.6264 },
-      { name: "Tafelsig", lat: -34.2367, lng: 18.6447 },
+      { name: "Khayelitsha East", lat: -34.0350, lng: 18.6780 },
+      { name: "Khayelitsha West", lat: -34.0280, lng: 18.6450 },
+      { name: "Mitchells Plain East", lat: -34.0420, lng: 18.6180 },
+      { name: "Kapteinsklip", lat: -34.0540, lng: 18.5980 },
     ],
   },
-  northernsuburbs: {
-    name: "Northern Suburbs (Table View, Milnerton, Parow, Bellville)",
-    description: "Routes through northern suburbs and business areas",
+  dunoon: {
+    name: "Dunoon & Century City (T01, T04, D08)",
+    description: "Routes through Dunoon interchange to Century City and beyond",
     color: "bg-purple-500",
     routes: [
       { id: "T01", type: "Trunk", from: "Dunoon", to: "Table View", fare: "R18.00", time: "~35min" },
-      { id: "D08", type: "Direct", from: "Century City", to: "Civic Centre", fare: "R18.00", time: "~30min" },
-      { id: "235", type: "Area", from: "Milnerton", to: "Table View", fare: "R8.00", time: "~15min" },
-      { id: "246", type: "Area", from: "Bellville", to: "Parow", fare: "R8.00", time: "~10min" },
+      { id: "T04", type: "Trunk", from: "Dunoon", to: "Century City", fare: "R18.00", time: "~35min" },
+      { id: "D08", type: "Direct", from: "Dunoon", to: "Century City", fare: "R18.00", time: "~30min" },
     ],
     stations: [
-      { name: "Table View", lat: -33.8470, lng: 18.4676 },
-      { name: "Milnerton", lat: -33.8873, lng: 18.4886 },
-      { name: "Parow", lat: -33.8745, lng: 18.6164 },
-      { name: "Bellville", lat: -33.9143, lng: 18.6356 },
-      { name: "Century City", lat: -33.9289, lng: 18.7386 },
+      { name: "Dunoon", lat: -33.8140, lng: 18.5470 },
+      { name: "Century City", lat: -33.8890, lng: 18.5120 },
+      { name: "Montague Gardens", lat: -33.8550, lng: 18.5280 },
+      { name: "Omuramba", lat: -33.8350, lng: 18.5380 },
     ],
   },
   atlantis: {
-    name: "Atlantis Branch",
+    name: "Atlantis Branch (T02, T03, 231-244)",
     description: "Extended service to Atlantis, Melkbosstrand, and West Coast",
     color: "bg-indigo-500",
     routes: [
       { id: "T02", type: "Trunk", from: "Atlantis", to: "Table View", fare: "R22.00", time: "~60min" },
-      { id: "231", type: "Area", from: "Atlantis", to: "Melkbosstrand", fare: "R12.00", time: "~20min" },
-      { id: "233", type: "Area", from: "Atlantis", to: "Atlantis Industria", fare: "R8.00", time: "~10min" },
+      { id: "T03", type: "Trunk", from: "Atlantis", to: "Century City", fare: "R22.00", time: "~55min" },
+      { id: "234", type: "Area", from: "Mamre", to: "Atlantis", fare: "R8.00", time: "~15min" },
+      { id: "237", type: "Area", from: "Robinvale", to: "Atlantis", fare: "R8.00", time: "~15min" },
     ],
     stations: [
-      { name: "Atlantis", lat: -33.6330, lng: 18.3549 },
-      { name: "Melkbosstrand", lat: -33.5873, lng: 18.3434 },
-      { name: "Mamre", lat: -33.5965, lng: 18.3748 },
-      { name: "Atlantis Industria", lat: -33.6427, lng: 18.3782 },
+      { name: "Atlantis", lat: -33.5640, lng: 18.4890 },
+      { name: "Melkbosstrand", lat: -33.7250, lng: 18.4400 },
+      { name: "Mamre", lat: -33.5190, lng: 18.4630 },
+      { name: "Pella", lat: -33.5070, lng: 18.5260 },
     ],
   },
 };
@@ -423,8 +426,24 @@ export default function Travel() {
       polylinesRef.current.push(gautrainLine);
     }
 
-    // Add MyCiTi Western Cape stations
+    // Add MyCiTi Western Cape stations with route lines
     if (transportSystem === "myciti") {
+      // Draw route polylines first (so they appear behind stations)
+      mycitiRoutes.forEach((route) => {
+        // Draw routes that have path data defined
+        if (route.path && route.path.length >= 2) {
+          const polyline = new google.maps.Polyline({
+            path: route.path,
+            geodesic: true,
+            strokeColor: route.color,
+            strokeOpacity: 0.75,
+            strokeWeight: 4,
+            map: mapInstanceRef.current,
+          });
+          polylinesRef.current.push(polyline);
+        }
+      });
+
       // Show all regions or just the selected region
       const regionsToShow = showAllRoutes
         ? Object.entries(MYCITI_WESTERN_CAPE)
@@ -436,8 +455,8 @@ export default function Travel() {
         if (!region?.stations) return;
 
         const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
-        const fillColor = isHighlighted ? "#3b82f6" : "#9ca3af";
-        const scale = isHighlighted ? 8 : 6;
+        const fillColor = isHighlighted ? "#1E88E5" : "#B0BEC5";
+        const scale = isHighlighted ? 10 : 7;
 
         region.stations.forEach((station) => {
           const marker = new google.maps.Marker({
@@ -447,15 +466,15 @@ export default function Travel() {
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: fillColor,
-              fillOpacity: isHighlighted ? 1 : 0.6,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
+              fillOpacity: 1,
+              strokeColor: "#FFFFFF",
+              strokeWeight: 3,
               scale: scale,
             },
           });
 
           const infoWindow = new google.maps.InfoWindow({
-            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">MyCiTi ${region.name}</span></div>`,
+            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">MyCiTi Station</span></div>`,
           });
 
           marker.addListener("click", () => {
@@ -467,6 +486,23 @@ export default function Travel() {
         });
       });
     } else {
+      // Add PUTCO stations with route lines
+      // Draw PUTCO route polylines first
+      putcoRoutes.forEach((route) => {
+        // Draw routes that have path data defined
+        if (route.path && route.path.length >= 2) {
+          const polyline = new google.maps.Polyline({
+            path: route.path,
+            geodesic: true,
+            strokeColor: route.color,
+            strokeOpacity: 0.75,
+            strokeWeight: 4,
+            map: mapInstanceRef.current,
+          });
+          polylinesRef.current.push(polyline);
+        }
+      });
+
       // Add PUTCO stations - show all regions or just the selected region
       const regionsToShow = showAllRoutes
         ? Object.entries(PUTCO_ROUTES)
@@ -478,8 +514,8 @@ export default function Travel() {
         if (!region?.stations) return;
 
         const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
-        const fillColor = isHighlighted ? "#f59e0b" : "#fed7aa";
-        const fillOpacity = isHighlighted ? 1 : 0.6;
+        const fillColor = isHighlighted ? "#FB8C00" : "#B0BEC5";
+        const scale = isHighlighted ? 10 : 7;
 
         region.stations.forEach((station) => {
           const marker = new google.maps.Marker({
@@ -487,17 +523,17 @@ export default function Travel() {
             map: mapInstanceRef.current,
             title: station.name,
             icon: {
-              path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+              path: google.maps.SymbolPath.CIRCLE,
               fillColor: fillColor,
-              fillOpacity: fillOpacity,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-              scale: 6,
+              fillOpacity: 1,
+              strokeColor: "#FFFFFF",
+              strokeWeight: 3,
+              scale: scale,
             },
           });
 
           const infoWindow = new google.maps.InfoWindow({
-            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">PUTCO ${region.name}</span></div>`,
+            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">PUTCO Bus Station</span></div>`,
           });
 
           marker.addListener("click", () => {
