@@ -29,6 +29,9 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     const response = await fetch(`${SUPABASE_URL}/functions/v1/get-config`, {
       method: "GET",
       headers: {
@@ -36,8 +39,10 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
         Authorization: session ? `Bearer ${session.access_token}` : "",
         apikey: SUPABASE_API_KEY,
       },
-      signal: AbortSignal.timeout(5000), // 5 second timeout
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.debug("Edge Function get-config not available or returned error:", response.status);
