@@ -7,6 +7,9 @@ let cachedApiKey: string | null = null;
 let cacheTime = 0;
 const CACHE_DURATION = 1000 * 60 * 60; // Cache for 1 hour
 
+// Global promise to ensure script is only loaded once
+let scriptLoadingPromise: Promise<boolean> | null = null;
+
 /**
  * Fetch Google Places API key from Supabase secrets via Edge Function
  */
