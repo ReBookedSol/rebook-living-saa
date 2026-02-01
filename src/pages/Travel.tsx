@@ -81,71 +81,64 @@ const PUTCO_ROUTES = {
 };
 
 // MyCiTi Western Cape Network - Cape Town Bus Rapid Transit System
+const createMyCiTiRoute = (routeData: typeof mycitiRoutes[0]) => ({
+  id: routeData.name,
+  type: routeData.type.charAt(0).toUpperCase() + routeData.type.slice(1),
+  from: routeData.description.split(' – ')[0] || '',
+  to: routeData.description.split(' – ')[1] || '',
+  fare: "R8-22",
+  time: "~20-45min"
+});
+
 const MYCITI_WESTERN_CAPE = {
   waterfront: {
     name: "Waterfront & CBD Core (T01, T02, D01-D05)",
     description: "Central hub connecting Waterfront, CBD (Civic Centre), and city center",
     color: "bg-blue-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-T01', 'mc-T02', 'mc-D01', 'mc-D02', 'mc-D03', 'mc-D04', 'mc-D05'].includes(r.id))
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R15-22", time: "~40-60min" })),
-    stations: mycitiStations.filter(s => ['mc-civic', 'mc-waterfront', 'mc-gardens', 'mc-oranjezicht', 'mc-vredehoek'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: mycitiRoutes.filter(r => ['mc-T01', 'mc-T02', 'mc-D01', 'mc-D02', 'mc-D03', 'mc-D04', 'mc-D05'].includes(r.id)).map(createMyCiTiRoute),
+    stations: mycitiStations.filter(s => ['mc-civic', 'mc-waterfront', 'mc-gardens', 'mc-oranjezicht', 'mc-vredehoek', 'mc-kloofstreet', 'mc-adderley'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   seapoint: {
     name: "Sea Point & Atlantic Seaboard (104-109, 118)",
     description: "Coastal routes: Sea Point, Camps Bay, Hout Bay",
     color: "bg-cyan-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-104', 'mc-105', 'mc-106', 'mc-107', 'mc-108', 'mc-109', 'mc-118'].includes(r.id))
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R8-18", time: "~15-45min" })),
-    stations: mycitiStations.filter(s => ['mc-seapoint', 'mc-campsbay', 'mc-houtbay', 'mc-fresnaye', 'mc-adderley'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: mycitiRoutes.filter(r => ['mc-104', 'mc-105', 'mc-106', 'mc-107', 'mc-108', 'mc-109', 'mc-118'].includes(r.id)).map(createMyCiTiRoute),
+    stations: mycitiStations.filter(s => ['mc-seapoint', 'mc-campsbay', 'mc-houtbay', 'mc-fresnaye', 'mc-adderley', 'mc-hangberg', 'mc-imizamoyethu'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   southernsuburbs: {
     name: "Southern Suburbs (101-113, 216)",
     description: "Routes through Gardens, Vredehoek, and surrounding areas",
     color: "bg-green-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-101', 'mc-102', 'mc-103', 'mc-111', 'mc-113'].includes(r.id))
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R8", time: "~10-20min" })),
-    stations: mycitiStations.filter(s => ['mc-gardens', 'mc-vredehoek', 'mc-oranjezicht', 'mc-kloofstreet', 'mc-saltriverrail'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: mycitiRoutes.filter(r => ['mc-101', 'mc-102', 'mc-103', 'mc-111', 'mc-113'].includes(r.id)).map(createMyCiTiRoute),
+    stations: mycitiStations.filter(s => ['mc-gardens', 'mc-vredehoek', 'mc-oranjezicht', 'mc-kloofstreet', 'mc-saltriverrail', 'mc-walmerestate', 'mc-fresnaye'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   tableview: {
-    name: "Table View & Milnerton (T01, T02, 213-216, 223)",
+    name: "Table View & Milnerton (T01, T02, 213-223)",
     description: "Northern coastal routes through Table View and Milnerton",
     color: "bg-teal-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-T01', 'mc-T02', 'mc-213', 'mc-214', 'mc-215', 'mc-216', 'mc-223'].includes(r.id))
-      .slice(0, 6)
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R8-22", time: "~15-35min" })),
-    stations: mycitiStations.filter(s => ['mc-tableview', 'mc-milnerton', 'mc-sunningdale', 'mc-parklands', 'mc-melkbosstrand'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: mycitiRoutes.filter(r => ['mc-T01', 'mc-T02', 'mc-213', 'mc-214', 'mc-215', 'mc-216', 'mc-223'].includes(r.id)).slice(0, 6).map(createMyCiTiRoute),
+    stations: mycitiStations.filter(s => ['mc-tableview', 'mc-milnerton', 'mc-sunningdale', 'mc-parklands', 'mc-melkbosstrand', 'mc-bigbay', 'mc-centurycity'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   southernfreeway: {
     name: "Khayelitsha & Mitchells Plain (D01-D04)",
     description: "High-demand direct routes to Khayelitsha and Mitchells Plain",
     color: "bg-orange-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-D01', 'mc-D02', 'mc-D03', 'mc-D04'].includes(r.id))
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R15", time: "~35-40min" })),
+    routes: mycitiRoutes.filter(r => ['mc-D01', 'mc-D02', 'mc-D03', 'mc-D04'].includes(r.id)).map(createMyCiTiRoute),
     stations: mycitiStations.filter(s => ['mc-khayelitsha-east', 'mc-khayelitsha-west', 'mc-mitchellsplain-east', 'mc-mitchellsplain-tc', 'mc-kapteinsklip'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   dunoon: {
     name: "Dunoon & Century City (T01, T04, D08)",
     description: "Routes through Dunoon interchange to Century City and beyond",
     color: "bg-purple-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-T01', 'mc-T04', 'mc-D08'].includes(r.id))
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R18", time: "~30-35min" })),
-    stations: mycitiStations.filter(s => ['mc-dunoon', 'mc-centurycity', 'mc-montagugardens', 'mc-omuramba'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: mycitiRoutes.filter(r => ['mc-T01', 'mc-T04', 'mc-D08'].includes(r.id)).map(createMyCiTiRoute),
+    stations: mycitiStations.filter(s => ['mc-dunoon', 'mc-centurycity', 'mc-montagugardens', 'mc-omuramba', 'mc-parklands', 'mc-tableview'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   atlantis: {
-    name: "Atlantis Branch (T02, T03, 231-237, 244)",
+    name: "Atlantis Branch (T02, T03, 231-244)",
     description: "Extended service to Atlantis, Melkbosstrand, and West Coast",
     color: "bg-indigo-500",
-    routes: mycitiRoutes
-      .filter(r => ['mc-T02', 'mc-T03', 'mc-231', 'mc-233', 'mc-234', 'mc-235', 'mc-236', 'mc-237', 'mc-244'].includes(r.id))
-      .slice(0, 7)
-      .map(r => ({ id: r.name, type: r.type.charAt(0).toUpperCase() + r.type.slice(1), from: r.description.split(' – ')[0] || '', to: r.description.split(' – ')[1] || '', fare: "R8-22", time: "~10-60min" })),
-    stations: mycitiStations.filter(s => ['mc-atlantis', 'mc-melkbosstrand', 'mc-mamre', 'mc-pella', 'mc-saxonsea', 'mc-sherwood', 'mc-robinvale', 'mc-avondale', 'mc-duynefontein'].includes(s.id)).slice(0, 5).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: mycitiRoutes.filter(r => ['mc-T02', 'mc-T03', 'mc-231', 'mc-233', 'mc-234', 'mc-235', 'mc-236', 'mc-237', 'mc-244'].includes(r.id)).slice(0, 7).map(createMyCiTiRoute),
+    stations: mycitiStations.filter(s => ['mc-atlantis', 'mc-melkbosstrand', 'mc-mamre', 'mc-pella', 'mc-saxonsea', 'mc-sherwood', 'mc-robinvale', 'mc-avondale', 'mc-duynefontein'].includes(s.id)).slice(0, 6).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
 };
 
