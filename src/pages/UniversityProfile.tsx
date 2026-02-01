@@ -365,12 +365,15 @@ const UniversityProfile: React.FC = () => {
                     <Calculator className="h-5 w-5 mr-2" />
                     APS Calculator
                   </Button>
-                  <Button size="lg" variant="outline" className="border-2 hover:border-primary hover:text-primary w-full sm:w-auto" asChild>
-                    <Link to="">
-                      <Globe className="h-5 w-5 mr-2" />
-                      Visit University Profile
-                    </Link>
-                  </Button>
+                  {university.website && (
+                    <Button size="lg" variant="outline" className="border-2 hover:border-primary hover:text-primary w-full sm:w-auto" asChild>
+                      <a href={university.website} target="_blank" rel="noopener noreferrer">
+                        <Globe className="h-5 w-5 mr-2" />
+                        <span className="hidden sm:inline">University Website</span>
+                        <span className="sm:hidden">Website</span>
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </div>
 
