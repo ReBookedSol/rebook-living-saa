@@ -160,8 +160,8 @@ export default function Travel() {
                         <CollapsibleTrigger asChild>
                           <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                <MapPin className="w-4 h-4 text-blue-600" />
+                              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                                <MapPin className="w-4 h-4 text-emerald-600" />
                               </div>
                               <div>
                                 <p className="font-medium text-sm">{route.university}</p>
