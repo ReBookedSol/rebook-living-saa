@@ -422,41 +422,74 @@ export default function Travel() {
       polylinesRef.current.push(gautrainLine);
     }
 
-    // Add PUTCO stations for selected region
-    const region = PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES];
-    if (region?.stations) {
-      region.stations.forEach((station) => {
-        const marker = new google.maps.Marker({
-          position: { lat: station.lat, lng: station.lng },
-          map: mapInstanceRef.current,
-          title: station.name,
-          icon: {
-            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            fillColor: "#f59e0b",
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 2,
-            scale: 6,
-          },
-        });
+    // Add MyCiTi Western Cape stations for selected region
+    if (transportSystem === "myciti") {
+      const region = MYCITI_WESTERN_CAPE[selectedRegion as keyof typeof MYCITI_WESTERN_CAPE];
+      if (region?.stations) {
+        region.stations.forEach((station) => {
+          const marker = new google.maps.Marker({
+            position: { lat: station.lat, lng: station.lng },
+            map: mapInstanceRef.current,
+            title: station.name,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "#3b82f6",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2,
+              scale: 8,
+            },
+          });
 
-        const infoWindow = new google.maps.InfoWindow({
-          content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">PUTCO ${region.name}</span></div>`,
-        });
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">MyCiTi ${region.name}</span></div>`,
+          });
 
-        marker.addListener("click", () => {
-          infoWindow.open(mapInstanceRef.current, marker);
-        });
+          marker.addListener("click", () => {
+            infoWindow.open(mapInstanceRef.current, marker);
+          });
 
-        markersRef.current.push(marker);
-        bounds.extend({ lat: station.lat, lng: station.lng });
-      });
+          markersRef.current.push(marker);
+          bounds.extend({ lat: station.lat, lng: station.lng });
+        });
+      }
+    } else {
+      // Add PUTCO stations for selected region
+      const region = PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES];
+      if (region?.stations) {
+        region.stations.forEach((station) => {
+          const marker = new google.maps.Marker({
+            position: { lat: station.lat, lng: station.lng },
+            map: mapInstanceRef.current,
+            title: station.name,
+            icon: {
+              path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+              fillColor: "#f59e0b",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2,
+              scale: 6,
+            },
+          });
+
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">PUTCO ${region.name}</span></div>`,
+          });
+
+          marker.addListener("click", () => {
+            infoWindow.open(mapInstanceRef.current, marker);
+          });
+
+          markersRef.current.push(marker);
+          bounds.extend({ lat: station.lat, lng: station.lng });
+        });
+      }
     }
 
     if (markersRef.current.length > 0) {
       mapInstanceRef.current.fitBounds(bounds);
     }
-  }, [selectedRegion, mapLoaded, showGautrain]);
+  }, [selectedRegion, mapLoaded, showGautrain, transportSystem]);
 
   // Route planner logic
   const calculateRoute = () => {
