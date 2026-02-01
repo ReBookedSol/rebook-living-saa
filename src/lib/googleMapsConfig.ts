@@ -17,9 +17,18 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
     return cachedApiKey;
   }
 
+  // First, try environment variable (available in dev/build)
+  const envApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API_KEY;
+  if (envApiKey) {
+    cachedApiKey = envApiKey;
+    cacheTime = Date.now();
+    return envApiKey;
+  }
+
+  // Try to fetch from Edge Function (production)
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    
+
     const response = await fetch(`${SUPABASE_URL}/functions/v1/get-config`, {
       method: "GET",
       headers: {
@@ -27,10 +36,11 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
         Authorization: session ? `Bearer ${session.access_token}` : "",
         apikey: SUPABASE_API_KEY,
       },
+      signal: AbortSignal.timeout(5000), // 5 second timeout
     });
 
     if (!response.ok) {
-      console.warn("Failed to fetch API key from Edge Function:", response.status);
+      console.debug("Edge Function get-config not available or returned error:", response.status);
       return null;
     }
 
@@ -42,7 +52,7 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
     }
     return null;
   } catch (error) {
-    console.warn("Failed to fetch Google Maps API key:", error);
+    console.debug("Failed to fetch from Edge Function (this is OK if not deployed):", error instanceof Error ? error.message : error);
     return null;
   }
 }
