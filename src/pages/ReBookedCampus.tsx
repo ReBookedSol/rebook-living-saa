@@ -213,10 +213,6 @@ const UniversityCard = ({ university }: { university: any }) => {
           <Button
             size="sm"
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 mt-auto"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
             asChild
           >
             <Link to={`/university/${university.id}`}>
