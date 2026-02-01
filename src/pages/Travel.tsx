@@ -614,9 +614,29 @@ export default function Travel() {
                 <Card className="lg:col-span-1">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">Routes</CardTitle>
-                    <CardDescription>Select region to view</CardDescription>
+                    <CardDescription>Select transport system and region</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
+                    {/* Transport System Toggle */}
+                    <div className="flex gap-2">
+                      <Button
+                        variant={transportSystem === "myciti" ? "default" : "outline"}
+                        className="flex-1 text-xs"
+                        onClick={() => setTransportSystem("myciti")}
+                      >
+                        <Bus className="w-3 h-3 mr-1" />
+                        MyCiTi
+                      </Button>
+                      <Button
+                        variant={transportSystem === "putco" ? "default" : "outline"}
+                        className="flex-1 text-xs"
+                        onClick={() => setTransportSystem("putco")}
+                      >
+                        <Bus className="w-3 h-3 mr-1" />
+                        PUTCO
+                      </Button>
+                    </div>
+
                     {/* Gautrain Toggle */}
                     <Button
                       variant={showGautrain ? "default" : "outline"}
@@ -624,22 +644,41 @@ export default function Travel() {
                       onClick={() => setShowGautrain(!showGautrain)}
                     >
                       <Train className="w-4 h-4 mr-2" />
-                      Gautrain Network
+                      Show Gautrain
                     </Button>
 
                     <div className="border-t pt-3 mt-3">
-                      <p className="text-sm font-medium mb-2 text-muted-foreground">PUTCO Regions</p>
-                      {Object.entries(PUTCO_ROUTES).map(([key, region]) => (
-                        <Button
-                          key={key}
-                          variant={selectedRegion === key ? "secondary" : "ghost"}
-                          className="w-full justify-start mb-1"
-                          onClick={() => setSelectedRegion(key)}
-                        >
-                          <Bus className="w-4 h-4 mr-2" />
-                          {region.name}
-                        </Button>
-                      ))}
+                      <p className="text-sm font-medium mb-2 text-muted-foreground">
+                        {transportSystem === "myciti" ? "MyCiTi Regions" : "PUTCO Regions"}
+                      </p>
+                      {transportSystem === "myciti" ? (
+                        Object.entries(MYCITI_WESTERN_CAPE).map(([key, region]) => (
+                          <Button
+                            key={key}
+                            variant={selectedRegion === key ? "secondary" : "ghost"}
+                            className="w-full justify-start mb-1 text-xs"
+                            onClick={() => setSelectedRegion(key)}
+                          >
+                            <Bus className="w-4 h-4 mr-2" />
+                            {region.name}
+                          </Button>
+                        ))
+                      ) : (
+                        Object.entries(PUTCO_ROUTES).map(([key, region]) => (
+                          <Button
+                            key={key}
+                            variant={selectedRegion === key ? "secondary" : "ghost"}
+                            className="w-full justify-start mb-1"
+                            onClick={() => {
+                              setTransportSystem("putco");
+                              setSelectedRegion(key);
+                            }}
+                          >
+                            <Bus className="w-4 h-4 mr-2" />
+                            {region.name}
+                          </Button>
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>
