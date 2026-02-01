@@ -7,17 +7,22 @@ import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import React, { useState, useCallback } from "react";
-import { Info, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { Info, Sparkles, ChevronDown, ChevronUp, Lock } from "lucide-react";
 import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
 import { AIAccommodationAssistant } from "@/components/AIAccommodationAssistant";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const { accessLevel, isLoading: accessLoading } = useAccessControl();
+  const isPaidUser = accessLevel === "paid";
 
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
@@ -180,21 +185,40 @@ const Browse = () => {
       <div className="container mx-auto px-4 py-8">
         <SearchBar />
 
-        {/* AI Assistant Toggle */}
-        <Collapsible open={showAIAssistant} onOpenChange={setShowAIAssistant} className="mt-4">
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                AI Accommodation Assistant
-              </span>
-              {showAIAssistant ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
-            <AIAccommodationAssistant />
-          </CollapsibleContent>
-        </Collapsible>
+        {/* AI Assistant Toggle - Only show for free users as upgrade prompt */}
+        {!isPaidUser && (
+          <Collapsible open={showAIAssistant} onOpenChange={setShowAIAssistant} className="mt-4">
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between border-primary/20 hover:border-primary/40">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  AI Accommodation Assistant
+                  <Lock className="w-3 h-3 text-muted-foreground" />
+                </span>
+                {showAIAssistant ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4">
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-background">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Unlock AI-Powered Search
+                  </CardTitle>
+                  <CardDescription>
+                    Get intelligent recommendations, compare listings, and chat with our AI assistant
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <UpgradePrompt 
+                    type="general"
+                    buttonText="Upgrade to Pro for AI Features"
+                  />
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         <Alert className="mt-4 mb-8 bg-muted/50 border-muted">
           <Info className="h-4 w-4 flex-shrink-0" />
