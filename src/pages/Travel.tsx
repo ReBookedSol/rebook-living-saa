@@ -690,14 +690,18 @@ export default function Travel() {
               </div>
 
               {/* Legend */}
-              <div className="flex flex-wrap gap-4 justify-center text-sm">
+              <div className="flex flex-wrap gap-4 justify-center text-sm bg-muted/50 p-4 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-primary" />
-                  <span>Gautrain Station</span>
+                  <div className="w-3 h-3 rounded-full bg-blue-500" />
+                  <span>MyCiTi Station</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-accent" />
+                  <div className="w-3 h-3 rounded-full bg-amber-500" />
                   <span>PUTCO Stop</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-600" />
+                  <span>Gautrain Station</span>
                 </div>
               </div>
             </TabsContent>
