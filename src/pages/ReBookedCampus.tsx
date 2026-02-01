@@ -161,16 +161,16 @@ const UniversityCard = ({ university }: { university: any }) => {
 
   return (
     <div onClick={() => navigate(`/university/${university.id}`)}>
-      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border border-slate-200 shadow-sm h-full bg-white">
+      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border border-slate-200 shadow-sm h-full bg-white flex flex-col">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-14 h-14 bg-white border border-slate-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {logoUrl ? (
                   <img
                     src={logoUrl}
                     alt={`${university.name} logo`}
-                    className="w-10 h-10 object-contain"
+                    className="w-12 h-12 object-contain"
                     onError={(e) => {
                       const img = e.currentTarget;
                       img.style.display = "none";
@@ -180,7 +180,7 @@ const UniversityCard = ({ university }: { university: any }) => {
                   />
                 ) : null}
                 <span
-                  className={`w-10 h-10 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg`}
+                  className={`w-12 h-12 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg`}
                 >
                   {abbrev || university.name?.substring(0, 3)?.toUpperCase()}
                 </span>
@@ -189,19 +189,19 @@ const UniversityCard = ({ university }: { university: any }) => {
                 <CardTitle className="text-base group-hover:text-primary transition-colors line-clamp-2">
                   {university.name}
                 </CardTitle>
-                <CardDescription className="flex items-center gap-1 mt-1 text-xs">
+                <CardDescription className="flex items-center gap-1 mt-1 text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                   <MapPin className="w-3 h-3 flex-shrink-0" />
                   <span className="truncate">{university.location || "Location TBA"}</span>
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="secondary" className="flex-shrink-0 text-xs bg-slate-100 text-slate-700">
+            <Badge variant="secondary" className="flex-shrink-0 text-xs bg-slate-100 text-slate-700 whitespace-nowrap">
               {university.type || "University"}
             </Badge>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 flex-1 flex flex-col">
           <p className="text-sm text-muted-foreground line-clamp-2">
             {university.overview || "Learn more about this university"}
           </p>
@@ -227,23 +227,21 @@ const UniversityCard = ({ university }: { university: any }) => {
             )}
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            <Button
-              size="sm"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              asChild
-            >
-              <Link to={`/university/${university.id}`}>
-                <Globe className="w-4 h-4" />
-                Visit University Profile
-                <ChevronRight className="w-3 h-3" />
-              </Link>
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 mt-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            asChild
+          >
+            <Link to={`/university/${university.id}`}>
+              <Globe className="w-4 h-4" />
+              <span>Visit University Profile</span>
+              <ChevronRight className="w-3 h-3" />
+            </Link>
+          </Button>
         </CardContent>
       </Card>
     </div>
