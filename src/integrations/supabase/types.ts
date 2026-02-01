@@ -107,6 +107,50 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_logs: {
+        Row: {
+          accommodation_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          page_path: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          accommodation_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          accommodation_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_notifications: {
         Row: {
           admin_id: string
@@ -555,6 +599,59 @@ export type Database = {
           },
         ]
       }
+      listing_analytics_daily: {
+        Row: {
+          accommodation_id: string
+          avg_time_seconds: number | null
+          clicks: number | null
+          created_at: string
+          date: string
+          favorites: number | null
+          id: string
+          messages: number | null
+          shares: number | null
+          unique_views: number | null
+          updated_at: string
+          views: number | null
+        }
+        Insert: {
+          accommodation_id: string
+          avg_time_seconds?: number | null
+          clicks?: number | null
+          created_at?: string
+          date?: string
+          favorites?: number | null
+          id?: string
+          messages?: number | null
+          shares?: number | null
+          unique_views?: number | null
+          updated_at?: string
+          views?: number | null
+        }
+        Update: {
+          accommodation_id?: string
+          avg_time_seconds?: number | null
+          clicks?: number | null
+          created_at?: string
+          date?: string
+          favorites?: number | null
+          id?: string
+          messages?: number | null
+          shares?: number | null
+          unique_views?: number | null
+          updated_at?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_analytics_daily_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           created_at: string | null
@@ -617,6 +714,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          accommodation_id: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          priority: string | null
+          target_user_id: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          accommodation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          priority?: string | null
+          target_user_id?: string | null
+          title: string
+          type?: string
+        }
+        Update: {
+          accommodation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          priority?: string | null
+          target_user_id?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offerwall_completions: {
         Row: {
@@ -1092,6 +1239,41 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          notification_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          notification_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          notification_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_payments: {
         Row: {
