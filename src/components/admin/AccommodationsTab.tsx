@@ -317,9 +317,19 @@ const AccommodationsTab = () => {
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold">Duplicate Properties Detected</h3>
-              <p className="text-sm text-muted-foreground">Multiple accommodations share the same property name. You can remove duplicates while keeping one record.</p>
+              <p className="text-sm text-muted-foreground">Multiple accommodations share the same property name and address. You can remove duplicates while keeping the oldest record.</p>
             </div>
-            <div className="text-sm text-muted-foreground">{duplicateEntries.length} duplicated names</div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">{duplicateEntries.length} duplicated properties</div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeleteAllDuplicatesDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete All Duplicates
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
