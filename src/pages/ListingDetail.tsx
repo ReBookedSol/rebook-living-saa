@@ -840,7 +840,7 @@ const ListingDetail = () => {
                     )}
                   </div>
 
-                  {listing.amenities && listing.amenities.length > 0 && (
+                  {listing.amenities && Array.isArray(listing.amenities) && listing.amenities.length > 0 && (
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Amenities</h3>
                       <div className="flex flex-wrap gap-2">
@@ -853,7 +853,7 @@ const ListingDetail = () => {
                     </div>
                   )}
 
-                  {listing.certified_universities && listing.certified_universities.length > 0 && (
+                  {listing.certified_universities && Array.isArray(listing.certified_universities) && listing.certified_universities.length > 0 && (
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Accredited For</h3>
                       <div className="space-y-1">
