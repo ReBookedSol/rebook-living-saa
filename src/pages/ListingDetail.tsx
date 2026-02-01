@@ -587,11 +587,16 @@ const ListingDetail = () => {
 
                 {/* Main title and location */}
                 <div>
-                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name}</h1>
-                  <div className="flex items-start gap-1 text-muted-foreground mb-3">
-                    <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm md:text-base">{listing.address}, {listing.city}</span>
-                  </div>
+                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name || "Listing"}</h1>
+                  {listing.address && (
+                    <div className="flex items-start gap-1 text-muted-foreground mb-3">
+                      <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm md:text-base">
+                        {listing.address}
+                        {listing.city && `, ${listing.city}`}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-1.5">
                     <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
                     <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>
