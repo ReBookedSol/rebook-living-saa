@@ -319,14 +319,17 @@ const ListingDetail = () => {
   });
 
   // Use cached photos/reviews if available, otherwise fall back to Google Maps API
-  const allPhotos = placeCache?.photos?.length ? placeCache.photos : 
+  const allPhotos = placeCache?.photos?.length ? placeCache.photos :
                     (passedImages && passedImages.length > 0 ? passedImages : googlePhotos);
-  
+
   // Use server-side tiered photos if available, otherwise use cached/fetched images
   const photos = (tieredPhotos && tieredPhotos.length > 0) ? tieredPhotos : allPhotos;
   const allReviews = placeCache?.reviews?.length ? placeCache.reviews : googleReviews;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
-  const totalPhotos = placeCache?.photo_count || allPhotos?.length || 0;
+
+  // Calculate total photos: prioritize placeCache count, then fall back to totalGooglePhotos or allPhotos length
+  // This ensures we show unlock prompt for fetched photos even if only 3 are displayed
+  const totalPhotos = placeCache?.photo_count || totalGooglePhotos || allPhotos?.length || 0;
   const totalReviews = placeCache?.review_count || allReviews?.length || 0;
   const hasMorePhotos = !isPaidUser && totalPhotos > FREE_TIER_LIMITS.MAX_PHOTOS;
   const hasMoreReviews = !isPaidUser && totalReviews > FREE_TIER_LIMITS.MAX_REVIEWS;
