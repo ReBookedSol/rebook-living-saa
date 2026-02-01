@@ -75,6 +75,35 @@ Deno.serve(async (req) => {
     const body: PlaceCacheRequest = await req.json();
     const { place_id, address, property_name, city, user_tier = "free", action = "listing" } = body;
 
+    // Input validation
+    if (!["free", "pro"].includes(user_tier)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Invalid user_tier. Must be 'free' or 'pro'",
+          photos: [],
+          reviews: [],
+          photo_count: 0,
+          review_count: 0
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!["browse", "listing"].includes(action)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Invalid action. Must be 'browse' or 'listing'",
+          photos: [],
+          reviews: [],
+          photo_count: 0,
+          review_count: 0
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("Place cache request:", { place_id, address, property_name, user_tier, action });
 
     // Get cache stats for monitoring
