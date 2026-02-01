@@ -26,17 +26,36 @@ serve(async (req) => {
     console.log('Offerwall callback received');
 
     // Parse the callback payload
-    const payload: OfferwallCallbackPayload = await req.json();
+    let payload: OfferwallCallbackPayload;
+    const contentType = req.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      payload = await req.json();
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await req.text();
+      const params = new URLSearchParams(formData);
+      payload = Object.fromEntries(params) as unknown as OfferwallCallbackPayload;
+    } else {
+      // Try parsing as query parameters
+      const url = new URL(req.url);
+      payload = Object.fromEntries(url.searchParams) as unknown as OfferwallCallbackPayload;
+    }
+
     console.log('Callback payload:', { ...payload, signature: '***' });
 
-    // Validate required fields
-    if (!payload.user_id) {
-      console.error('Missing user_id in callback');
+    // Normalize user_id - check for common variations
+    const userId = payload.user_id || payload.userId || payload['user-id'] || payload.uid;
+
+    if (!userId) {
+      console.error('Missing user_id in callback. Payload:', payload);
       return new Response(
-        JSON.stringify({ error: 'Missing user_id' }),
+        JSON.stringify({ error: 'Missing user_id. Expected: user_id, userId, user-id, or uid' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Update payload to use normalized user_id
+    payload.user_id = userId;
 
     // TODO: Verify signature from offerwall provider
     // This is crucial for security - implement based on your provider's documentation
