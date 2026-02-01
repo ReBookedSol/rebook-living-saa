@@ -40,7 +40,7 @@ const PaymentsTab = () => {
   const [grantForm, setGrantForm] = useState({
     email: "",
     paymentType: "weekly" as "weekly" | "monthly",
-    days: 7,
+    days: 5,
   });
   const queryClient = useQueryClient();
 
@@ -140,7 +140,7 @@ const PaymentsTab = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-payments"] });
       queryClient.invalidateQueries({ queryKey: ["payment-stats"] });
       setGrantDialogOpen(false);
-      setGrantForm({ email: "", paymentType: "weekly", days: 7 });
+      setGrantForm({ email: "", paymentType: "weekly", days: 5 });
     },
     onError: (error: Error) => {
       toast.error(error.message);

@@ -16,6 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getUniversitiesWithTrainAccess } from "@/lib/gautrain";
 
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -108,7 +109,9 @@ const Browse = () => {
       }
 
       if (nearTrainParam) {
-        query = query.contains("amenities", ["Public Transport Access"]);
+        // Get all universities with train station access (Gautrain or MyCiTi)
+        const trainAccessUniversities = getUniversitiesWithTrainAccess();
+        query = query.in("university", trainAccessUniversities);
       }
 
       if (selectedGender && selectedGender !== "all") {

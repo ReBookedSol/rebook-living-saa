@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Search, Menu, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIAssistantBubble } from "@/components/AIAssistantBubble";
@@ -128,8 +129,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4">
                   ReBooked Campus
                 </Link>
-                <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4">
+                <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4 flex items-center gap-2">
                   Travel
+                  <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
                 </Link>
                 {isLoggedIn && (
                   <Link to="/notifications" className="relative text-base font-medium hover:underline underline-offset-4">
@@ -167,8 +169,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/travel" className="cursor-pointer">
+                      <Link to="/travel" className="cursor-pointer flex items-center gap-2">
                         Travel
+                        <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

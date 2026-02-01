@@ -113,6 +113,18 @@ const SearchBar = ({ compact = false }) => {
     }, 100);
   };
 
+  const handleClearFilters = () => {
+    setLocation("");
+    setUniversity("All Universities");
+    setProvince("All Provinces");
+    setMaxCost("");
+    setMinRating(0);
+    setAmenities([]);
+    setNsfasOnly(false);
+    setNearTrain(false);
+    navigate("/browse");
+  };
+
   if (compact) {
     return (
       <div className="bg-card p-4 rounded-lg shadow-md border">
@@ -151,6 +163,10 @@ const SearchBar = ({ compact = false }) => {
         <div className={`flex flex-col sm:flex-row items-stretch sm:items-end md:items-center gap-2 md:gap-4 md:col-span-2 transition-all duration-500 ${showAdvanced ? 'md:justify-end' : 'md:justify-center'}`}>
           <Button onClick={() => setShowAdvanced((v) => !v)} variant="outline" className="w-full sm:w-auto text-sm sm:text-base px-3 py-2">
             {showAdvanced ? 'Hide Filters' : 'Show Filters'}
+          </Button>
+
+          <Button onClick={handleClearFilters} variant="ghost" className="w-full sm:w-auto text-sm sm:text-base px-3 py-2 text-muted-foreground hover:text-foreground">
+            Clear All
           </Button>
 
           <Button onClick={handleSearch} className="w-full sm:flex-1 bg-primary hover:bg-primary-hover text-sm sm:text-base">

@@ -20,7 +20,7 @@ import { ReviewsList } from "@/components/ReviewsList";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getPlaceData, getUserTier } from "@/lib/placeCache";
-import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
+import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import type { GoogleReview } from "@/types/place-cache";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
@@ -290,6 +290,7 @@ const ListingDetail = () => {
 
   const [googleReviews, setGoogleReviews] = useState<GoogleReview[]>([]);
   const [googlePhotos, setGooglePhotos] = useState<string[]>([]);
+  const [totalGooglePhotos, setTotalGooglePhotos] = useState<number>(0);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number>(0);
   const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
@@ -318,14 +319,17 @@ const ListingDetail = () => {
   });
 
   // Use cached photos/reviews if available, otherwise fall back to Google Maps API
-  const allPhotos = placeCache?.photos?.length ? placeCache.photos : 
+  const allPhotos = placeCache?.photos?.length ? placeCache.photos :
                     (passedImages && passedImages.length > 0 ? passedImages : googlePhotos);
-  
+
   // Use server-side tiered photos if available, otherwise use cached/fetched images
   const photos = (tieredPhotos && tieredPhotos.length > 0) ? tieredPhotos : allPhotos;
   const allReviews = placeCache?.reviews?.length ? placeCache.reviews : googleReviews;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
-  const totalPhotos = placeCache?.photo_count || allPhotos?.length || 0;
+
+  // Calculate total photos: prioritize placeCache count, then fall back to totalGooglePhotos or allPhotos length
+  // This ensures we show unlock prompt for fetched photos even if only 3 are displayed
+  const totalPhotos = placeCache?.photo_count || totalGooglePhotos || allPhotos?.length || 0;
   const totalReviews = placeCache?.review_count || allReviews?.length || 0;
   const hasMorePhotos = !isPaidUser && totalPhotos > FREE_TIER_LIMITS.MAX_PHOTOS;
   const hasMoreReviews = !isPaidUser && totalReviews > FREE_TIER_LIMITS.MAX_REVIEWS;
@@ -464,6 +468,8 @@ const ListingDetail = () => {
                     const maxGooglePhotos = isPaidUser ? 10 : 3;
                     const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
                     setGooglePhotos(photoUrls);
+                    // Track total available photos from Google for unlock prompt logic
+                    setTotalGooglePhotos(detail.photos.length);
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }
@@ -809,16 +815,21 @@ const ListingDetail = () => {
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">University</h3>
                       <p className="text-foreground text-sm font-medium">{listing.university}</p>
                       {listing.university && (
-                        <div className="mt-2">
-                          {isGautrainAccessible(listing.university) ? (
-                            <div className="flex items-center gap-2">
-                              <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
-                                <Train className="w-3 h-3" />
-                                {getGautrainStation(listing.university)}
-                              </Badge>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-muted-foreground">{getGautrainStation(listing.university) || 'Not on Gautrain line'}</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          {isGautrainAccessible(listing.university) && (
+                            <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                              <Train className="w-3 h-3" />
+                              {getGautrainStation(listing.university)}
+                            </Badge>
+                          )}
+                          {isMycitiAccessible(listing.university) && (
+                            <Badge className="bg-blue-100 text-blue-700 flex items-center gap-1">
+                              <Train className="w-3 h-3" />
+                              {getMycitiStation(listing.university)}
+                            </Badge>
+                          )}
+                          {!isGautrainAccessible(listing.university) && !isMycitiAccessible(listing.university) && (
+                            <p className="text-xs text-muted-foreground">Not on major transit networks</p>
                           )}
                         </div>
                       )}
@@ -940,13 +951,6 @@ const ListingDetail = () => {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Ad Card */}
-              {!isPaidUser && (
-                <div className="my-6">
-                  <Ad density="compact" />
-                </div>
-              )}
             </div>
 
             {/* Sidebar */}
@@ -1093,6 +1097,13 @@ const ListingDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Ad Card */}
+              {!isPaidUser && (
+                <div className="mt-6">
+                  <Ad density="compact" />
+                </div>
+              )}
 
             </div>
           </div>

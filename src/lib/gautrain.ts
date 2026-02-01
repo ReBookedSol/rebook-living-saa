@@ -92,3 +92,90 @@ export const isGautrainAccessible = (universityName: string): boolean => {
   if (!station) return false;
   return !station.includes("Not on Gautrain");
 };
+
+// ============================================
+// MyCiTi (Cape Town) Train Station Mapping
+// ============================================
+
+export const UNIVERSITY_MYCITI_MAPPING: Record<string, string> = {
+  // Cape Town Universities
+  "University of Cape Town": "Waterfront Station",
+  "UCT": "Waterfront Station",
+
+  "Stellenbosch University": "Civic Centre Station",
+  "SU": "Civic Centre Station",
+
+  "Cape Peninsula University of Technology": "Civic Centre Station",
+  "CPUT": "Civic Centre Station",
+
+  // Other Western Cape Universities
+  "University of the Western Cape": "Civic Centre Station",
+  "UWC": "Civic Centre Station",
+};
+
+/**
+ * Get the nearest MyCiTi station for a given university (Cape Town)
+ * @param universityName - Name of the university
+ * @returns The nearest MyCiTi station name, or null if not found or not in Cape Town
+ */
+export const getMycitiStation = (universityName: string): string | null => {
+  if (!universityName) return null;
+
+  // Normalize the input
+  const normalized = universityName.trim();
+
+  // Try exact match first
+  if (UNIVERSITY_MYCITI_MAPPING[normalized]) {
+    return UNIVERSITY_MYCITI_MAPPING[normalized];
+  }
+
+  // Try case-insensitive match
+  const lowerCased = normalized.toLowerCase();
+  for (const [key, station] of Object.entries(UNIVERSITY_MYCITI_MAPPING)) {
+    if (key.toLowerCase() === lowerCased) {
+      return station;
+    }
+  }
+
+  // Try partial match
+  for (const [key, station] of Object.entries(UNIVERSITY_MYCITI_MAPPING)) {
+    if (key.toLowerCase().includes(lowerCased) || lowerCased.includes(key.toLowerCase())) {
+      return station;
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Check if a university is on the MyCiTi line (Cape Town)
+ * @param universityName - Name of the university
+ * @returns True if the university has MyCiTi access
+ */
+export const isMycitiAccessible = (universityName: string): boolean => {
+  const station = getMycitiStation(universityName);
+  return !!station;
+};
+
+/**
+ * Check if a university has any train station access (Gautrain or MyCiTi)
+ * @param universityName - Name of the university
+ * @returns True if the university has access to any train network
+ */
+export const hasTrainAccess = (universityName: string): boolean => {
+  return isGautrainAccessible(universityName) || isMycitiAccessible(universityName);
+};
+
+/**
+ * Get all universities with train station access
+ * @returns Array of university names with train access
+ */
+export const getUniversitiesWithTrainAccess = (): string[] => {
+  const allUniversities = [...Object.keys(UNIVERSITY_GAUTRAIN_MAPPING), ...Object.keys(UNIVERSITY_MYCITI_MAPPING)];
+  // Remove duplicates and filter out entries with "Not on" text
+  return [...new Set(allUniversities)].filter(uni => {
+    const gautrainStation = getGautrainStation(uni);
+    const mycitiStation = getMycitiStation(uni);
+    return (gautrainStation && !gautrainStation.includes("Not on")) || mycitiStation;
+  });
+};

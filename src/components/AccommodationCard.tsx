@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
-import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
+import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 
 interface AccommodationCardProps {
@@ -346,14 +346,21 @@ const AccommodationCard = ({
                   {university}
                 </div>
                 {university && (
-                  <div className="flex items-center gap-1.5">
-                    {isGautrainAccessible(university) ? (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {isGautrainAccessible(university) && (
                       <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 flex items-center gap-1">
                         <Train className="w-3 h-3" />
                         {getGautrainStation(university)}
                       </Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">{getGautrainStation(university) || 'Not on Gautrain'}</span>
+                    )}
+                    {isMycitiAccessible(university) && (
+                      <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 flex items-center gap-1">
+                        <Train className="w-3 h-3" />
+                        {getMycitiStation(university)}
+                      </Badge>
+                    )}
+                    {!isGautrainAccessible(university) && !isMycitiAccessible(university) && (
+                      <span className="text-xs text-muted-foreground">No transit network</span>
                     )}
                   </div>
                 )}
