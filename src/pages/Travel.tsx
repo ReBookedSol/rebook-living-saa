@@ -104,64 +104,124 @@ const PUTCO_ROUTES = {
 };
 
 // MyCiTi Western Cape Network - Cape Town Bus Rapid Transit System
-const createMyCiTiRoute = (routeData: typeof mycitiRoutes[0]) => ({
-  id: routeData.name,
-  type: routeData.type.charAt(0).toUpperCase() + routeData.type.slice(1),
-  from: routeData.description.split(' – ')[0] || '',
-  to: routeData.description.split(' – ')[1] || '',
-  fare: "R8-22",
-  time: "~20-45min"
-});
-
 const MYCITI_WESTERN_CAPE = {
   waterfront: {
     name: "Waterfront & CBD Core (T01, T02, D01-D05)",
     description: "Central hub connecting Waterfront, CBD (Civic Centre), and city center",
     color: "bg-blue-500",
-    routes: mycitiRoutes.filter(r => ['mc-T01', 'mc-T02', 'mc-D01', 'mc-D02', 'mc-D03', 'mc-D04', 'mc-D05'].includes(r.id)).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-civic', 'mc-waterfront', 'mc-gardens', 'mc-oranjezicht', 'mc-vredehoek', 'mc-kloofstreet', 'mc-adderley'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "T01", type: "Trunk", from: "Dunoon", to: "Waterfront", fare: "R18.00", time: "~45min" },
+      { id: "T02", type: "Trunk", from: "Atlantis", to: "Civic Centre", fare: "R22.00", time: "~60min" },
+      { id: "D01", type: "Direct", from: "Khayelitsha East", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D05", type: "Direct", from: "Dunoon", to: "Waterfront", fare: "R18.00", time: "~50min" },
+    ],
+    stations: [
+      { name: "Civic Centre", lat: -33.9198, lng: 18.4240 },
+      { name: "Waterfront", lat: -33.9035, lng: 18.4200 },
+      { name: "Gardens", lat: -33.9330, lng: 18.4130 },
+      { name: "Adderley", lat: -33.9210, lng: 18.4230 },
+    ],
   },
   seapoint: {
     name: "Sea Point & Atlantic Seaboard (104-109, 118)",
     description: "Coastal routes: Sea Point, Camps Bay, Hout Bay",
     color: "bg-cyan-500",
-    routes: mycitiRoutes.filter(r => ['mc-104', 'mc-105', 'mc-106', 'mc-107', 'mc-108', 'mc-109', 'mc-118'].includes(r.id)).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-seapoint', 'mc-campsbay', 'mc-houtbay', 'mc-fresnaye', 'mc-adderley', 'mc-hangberg', 'mc-imizamoyethu'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "104", type: "Area", from: "Sea Point", to: "Waterfront", fare: "R8.00", time: "~20min" },
+      { id: "105", type: "Area", from: "Sea Point", to: "Fresnaye", fare: "R8.00", time: "~15min" },
+      { id: "108", type: "Area", from: "Hangberg", to: "Adderley", fare: "R8.00", time: "~30min" },
+      { id: "109", type: "Area", from: "Hout Bay", to: "Adderley", fare: "R8.00", time: "~35min" },
+    ],
+    stations: [
+      { name: "Sea Point", lat: -33.9170, lng: 18.3850 },
+      { name: "Camps Bay", lat: -33.9510, lng: 18.3770 },
+      { name: "Hout Bay", lat: -34.0440, lng: 18.3530 },
+      { name: "Hangberg", lat: -34.0480, lng: 18.3460 },
+    ],
   },
   southernsuburbs: {
-    name: "Southern Suburbs (101-113, 216)",
+    name: "Southern Suburbs (101-113)",
     description: "Routes through Gardens, Vredehoek, and surrounding areas",
     color: "bg-green-500",
-    routes: mycitiRoutes.filter(r => ['mc-101', 'mc-102', 'mc-103', 'mc-111', 'mc-113'].includes(r.id)).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-gardens', 'mc-vredehoek', 'mc-oranjezicht', 'mc-kloofstreet', 'mc-saltriverrail', 'mc-walmerestate', 'mc-fresnaye'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "101", type: "Area", from: "Vredehoek", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+      { id: "102", type: "Area", from: "Salt River", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+      { id: "103", type: "Area", from: "Oranjezicht", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+      { id: "111", type: "Area", from: "Vredehoek", to: "Civic Centre", fare: "R8.00", time: "~15min" },
+    ],
+    stations: [
+      { name: "Vredehoek", lat: -33.9380, lng: 18.4280 },
+      { name: "Gardens", lat: -33.9330, lng: 18.4130 },
+      { name: "Oranjezicht", lat: -33.9350, lng: 18.4180 },
+      { name: "Kloof Street", lat: -33.9290, lng: 18.4120 },
+    ],
   },
   tableview: {
     name: "Table View & Milnerton (T01, T02, 213-223)",
     description: "Northern coastal routes through Table View and Milnerton",
     color: "bg-teal-500",
-    routes: mycitiRoutes.filter(r => ['mc-T01', 'mc-T02', 'mc-213', 'mc-214', 'mc-215', 'mc-216', 'mc-223'].includes(r.id)).slice(0, 6).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-tableview', 'mc-milnerton', 'mc-sunningdale', 'mc-parklands', 'mc-melkbosstrand', 'mc-bigbay', 'mc-centurycity'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "T01", type: "Trunk", from: "Dunoon", to: "Table View", fare: "R18.00", time: "~35min" },
+      { id: "213", type: "Area", from: "Sunningdale", to: "Table View", fare: "R8.00", time: "~15min" },
+      { id: "214", type: "Area", from: "Parklands", to: "Duynefontein", fare: "R8.00", time: "~20min" },
+      { id: "216", type: "Area", from: "Sunningdale", to: "Big Bay", fare: "R8.00", time: "~15min" },
+    ],
+    stations: [
+      { name: "Table View", lat: -33.8280, lng: 18.4880 },
+      { name: "Milnerton", lat: -33.8680, lng: 18.4980 },
+      { name: "Sunningdale", lat: -33.8080, lng: 18.4760 },
+      { name: "Parklands", lat: -33.8180, lng: 18.4920 },
+    ],
   },
   southernfreeway: {
     name: "Khayelitsha & Mitchells Plain (D01-D04)",
     description: "High-demand direct routes to Khayelitsha and Mitchells Plain",
     color: "bg-orange-500",
-    routes: mycitiRoutes.filter(r => ['mc-D01', 'mc-D02', 'mc-D03', 'mc-D04'].includes(r.id)).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-khayelitsha-east', 'mc-khayelitsha-west', 'mc-mitchellsplain-east', 'mc-mitchellsplain-tc', 'mc-kapteinsklip'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "D01", type: "Direct", from: "Khayelitsha East", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D02", type: "Direct", from: "Khayelitsha West", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D03", type: "Direct", from: "Mitchells Plain East", to: "Civic Centre", fare: "R15.00", time: "~35min" },
+      { id: "D04", type: "Direct", from: "Kapteinsklip", to: "Civic Centre", fare: "R15.00", time: "~35min" },
+    ],
+    stations: [
+      { name: "Khayelitsha East", lat: -34.0350, lng: 18.6780 },
+      { name: "Khayelitsha West", lat: -34.0280, lng: 18.6450 },
+      { name: "Mitchells Plain East", lat: -34.0420, lng: 18.6180 },
+      { name: "Kapteinsklip", lat: -34.0540, lng: 18.5980 },
+    ],
   },
   dunoon: {
     name: "Dunoon & Century City (T01, T04, D08)",
     description: "Routes through Dunoon interchange to Century City and beyond",
     color: "bg-purple-500",
-    routes: mycitiRoutes.filter(r => ['mc-T01', 'mc-T04', 'mc-D08'].includes(r.id)).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-dunoon', 'mc-centurycity', 'mc-montagugardens', 'mc-omuramba', 'mc-parklands', 'mc-tableview'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "T01", type: "Trunk", from: "Dunoon", to: "Table View", fare: "R18.00", time: "~35min" },
+      { id: "T04", type: "Trunk", from: "Dunoon", to: "Century City", fare: "R18.00", time: "~35min" },
+      { id: "D08", type: "Direct", from: "Dunoon", to: "Century City", fare: "R18.00", time: "~30min" },
+    ],
+    stations: [
+      { name: "Dunoon", lat: -33.8140, lng: 18.5470 },
+      { name: "Century City", lat: -33.8890, lng: 18.5120 },
+      { name: "Montague Gardens", lat: -33.8550, lng: 18.5280 },
+      { name: "Omuramba", lat: -33.8350, lng: 18.5380 },
+    ],
   },
   atlantis: {
     name: "Atlantis Branch (T02, T03, 231-244)",
     description: "Extended service to Atlantis, Melkbosstrand, and West Coast",
     color: "bg-indigo-500",
-    routes: mycitiRoutes.filter(r => ['mc-T02', 'mc-T03', 'mc-231', 'mc-233', 'mc-234', 'mc-235', 'mc-236', 'mc-237', 'mc-244'].includes(r.id)).slice(0, 7).map(createMyCiTiRoute),
-    stations: mycitiStations.filter(s => ['mc-atlantis', 'mc-melkbosstrand', 'mc-mamre', 'mc-pella', 'mc-saxonsea', 'mc-sherwood', 'mc-robinvale', 'mc-avondale', 'mc-duynefontein'].includes(s.id)).slice(0, 6).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: [
+      { id: "T02", type: "Trunk", from: "Atlantis", to: "Table View", fare: "R22.00", time: "~60min" },
+      { id: "T03", type: "Trunk", from: "Atlantis", to: "Century City", fare: "R22.00", time: "~55min" },
+      { id: "234", type: "Area", from: "Mamre", to: "Atlantis", fare: "R8.00", time: "~15min" },
+      { id: "237", type: "Area", from: "Robinvale", to: "Atlantis", fare: "R8.00", time: "~15min" },
+    ],
+    stations: [
+      { name: "Atlantis", lat: -33.5640, lng: 18.4890 },
+      { name: "Melkbosstrand", lat: -33.7250, lng: 18.4400 },
+      { name: "Mamre", lat: -33.5190, lng: 18.4630 },
+      { name: "Pella", lat: -33.5070, lng: 18.5260 },
+    ],
   },
 };
 
