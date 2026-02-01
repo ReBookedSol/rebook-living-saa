@@ -113,6 +113,18 @@ const SearchBar = ({ compact = false }) => {
     }, 100);
   };
 
+  const handleClearFilters = () => {
+    setLocation("");
+    setUniversity("All Universities");
+    setProvince("All Provinces");
+    setMaxCost("");
+    setMinRating(0);
+    setAmenities([]);
+    setNsfasOnly(false);
+    setNearTrain(false);
+    navigate("/browse");
+  };
+
   if (compact) {
     return (
       <div className="bg-card p-4 rounded-lg shadow-md border">
