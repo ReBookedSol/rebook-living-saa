@@ -322,10 +322,11 @@ const ORIGINS = [
 ];
 
 export default function Travel() {
-  const [selectedRegion, setSelectedRegion] = useState<string>("soshanguve");
+  const [selectedRegion, setSelectedRegion] = useState<string>("waterfront");
+  const [transportSystem, setTransportSystem] = useState<"gautrain" | "putco" | "myciti">("myciti");
   const [activeTab, setActiveTab] = useState("map");
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [showGautrain, setShowGautrain] = useState(true);
+  const [showGautrain, setShowGautrain] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
