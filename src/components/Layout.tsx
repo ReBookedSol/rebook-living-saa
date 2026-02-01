@@ -4,14 +4,8 @@ import { Home, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { DeveloperModeBanner } from "@/components/DeveloperModeBanner";
-import { initializeProductionMode } from "@/lib/productionMode";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  // Initialize production mode on first render
-  useEffect(() => {
-    initializeProductionMode();
-  }, []);
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
