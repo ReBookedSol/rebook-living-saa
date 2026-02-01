@@ -216,24 +216,17 @@ const UniversityProfile: React.FC = () => {
     return progs.filter(isEligibleForProgram);
   };
 
-  // Get logo URL with multiple fallback strategies
+  // Get logo URL from shared mapping
   const getLogoUrl = () => {
     if (!university) return undefined;
 
     // Try database logo first
     if (university.logo) return university.logo;
 
-    // Try ID-based lookup (lowercase)
-    if (id && UNIVERSITY_LOGOS[id.toLowerCase()]) return UNIVERSITY_LOGOS[id.toLowerCase()];
+    // Try university name lookup
+    if (UNIVERSITY_LOGOS[university.name]) return UNIVERSITY_LOGOS[university.name];
 
-    // Try uppercase abbreviation
-    const abbrev = university.abbreviation?.toUpperCase();
-    if (abbrev && UNIVERSITY_LOGOS[abbrev]) return UNIVERSITY_LOGOS[abbrev];
-
-    // Try lowercase abbreviation
-    const abbrLower = university.abbreviation?.toLowerCase();
-    if (abbrLower && UNIVERSITY_LOGOS[abbrLower]) return UNIVERSITY_LOGOS[abbrLower];
-
+    // No logo available - will fallback to text abbreviation
     return undefined;
   };
 
