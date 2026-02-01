@@ -725,7 +725,7 @@ const ListingDetail = () => {
                     {hasMorePhotos && (
                       <div className="flex items-center gap-2 ml-auto">
                         <Badge variant="secondary" className="text-xs">
-                          {FREE_TIER_LIMITS.MAX_PHOTOS} of {totalPhotos}
+                          More Photos Available
                         </Badge>
                       </div>
                     )}
@@ -753,7 +753,7 @@ const ListingDetail = () => {
                             type="photos"
                             totalCount={totalPhotos}
                             compact
-                            buttonText={`Unlock ${totalPhotos - FREE_TIER_LIMITS.MAX_PHOTOS} more photos`}
+                            buttonText="Unlock More Photos"
                           />
                         </div>
                       )}
@@ -1060,7 +1060,7 @@ const ListingDetail = () => {
                                   type="reviews"
                                   totalCount={totalReviews}
                                   compact
-                                  buttonText={`Read all ${totalReviews} reviews`}
+                                  buttonText="View More Reviews"
                                 />
                               </div>
                             )}
