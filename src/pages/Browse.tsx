@@ -226,7 +226,7 @@ const Browse = () => {
         <Alert className="mt-4 mb-8 bg-muted/50 border-muted">
           <Info className="h-4 w-4 flex-shrink-0" />
           <AlertDescription className="text-xs sm:text-sm">
-            We try our best to ensure all information is correct and accurate. We advise doing some of your own research as well on the accommodation before making any actions.
+            We aim for accuracy, but please do your own research before making any decisions.
           </AlertDescription>
         </Alert>
         
