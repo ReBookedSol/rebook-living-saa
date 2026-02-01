@@ -10,12 +10,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const googleMapsApiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    const googlePlacesApiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
 
     return new Response(
       JSON.stringify({
         success: true,
-        googleMapsApiKey: googleMapsApiKey || null,
+        googlePlacesApiKey: googlePlacesApiKey || null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
@@ -25,11 +25,11 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-        googleMapsApiKey: null,
+        googlePlacesApiKey: null,
       }),
-      { 
+      {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
       }
     );
   }
