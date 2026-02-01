@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
-import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
+import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 
 interface AccommodationCardProps {
