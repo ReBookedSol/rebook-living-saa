@@ -125,6 +125,16 @@ const SearchBar = ({ compact = false }) => {
     navigate("/browse");
   };
 
+  const hasActiveFilters =
+    location ||
+    university !== "All Universities" ||
+    province !== "All Provinces" ||
+    maxCost ||
+    minRating > 0 ||
+    amenities.length > 0 ||
+    nsfasOnly ||
+    nearTrain;
+
   if (compact) {
     return (
       <div className="bg-card p-4 rounded-lg shadow-md border">
