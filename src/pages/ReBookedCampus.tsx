@@ -128,22 +128,13 @@ const APSCalculator = () => {
 const UniversityCard = ({ university }: { university: any }) => {
   const navigate = useNavigate();
 
-  // Get logo with multiple fallback strategies
+  // Get logo from shared mapping
   const getLogoUrl = () => {
     // Try database logo first
     if (university.logo) return university.logo;
 
-    // Try uppercase abbreviation
-    const abbrev = university.abbreviation?.toUpperCase();
-    if (abbrev && UNIVERSITY_LOGOS[abbrev]) return UNIVERSITY_LOGOS[abbrev];
-
-    // Try lowercase abbreviation
-    const abbrLower = university.abbreviation?.toLowerCase();
-    if (abbrLower && UNIVERSITY_LOGOS[abbrLower]) return UNIVERSITY_LOGOS[abbrLower];
-
-    // Try to match by university name
-    const nameKey = university.name?.split(" ").slice(0, 2).join("").toUpperCase();
-    if (nameKey && UNIVERSITY_LOGOS[nameKey]) return UNIVERSITY_LOGOS[nameKey];
+    // Try university name lookup
+    if (UNIVERSITY_LOGOS[university.name]) return UNIVERSITY_LOGOS[university.name];
 
     return null;
   };
