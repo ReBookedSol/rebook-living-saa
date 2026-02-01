@@ -99,6 +99,129 @@ const PUTCO_ROUTES = {
   },
 };
 
+// MyCiTi Western Cape Network - Cape Town Bus Rapid Transit System
+const MYCITI_WESTERN_CAPE = {
+  waterfront: {
+    name: "Waterfront & CBD Core",
+    description: "Central hub connecting Waterfront, CBD (Civic Centre), and city center",
+    color: "bg-blue-500",
+    routes: [
+      { id: "T01", type: "Trunk", from: "Dunoon", to: "Waterfront", fare: "R18.00", time: "~45min" },
+      { id: "T02", type: "Trunk", from: "Atlantis", to: "Civic Centre", fare: "R22.00", time: "~60min" },
+      { id: "D05", type: "Direct", from: "Khayelitsha", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "101", type: "Area", from: "Waterfront", to: "CBD", fare: "R8.00", time: "~10min" },
+    ],
+    stations: [
+      { name: "Civic Centre", lat: -33.9249, lng: 18.4241 },
+      { name: "Waterfront", lat: -33.9036, lng: 18.4222 },
+      { name: "Convention Centre", lat: -33.9045, lng: 18.4218 },
+      { name: "St George's", lat: -33.9105, lng: 18.4175 },
+      { name: "Hanover St", lat: -33.9135, lng: 18.4195 },
+      { name: "The Castle", lat: -33.9087, lng: 18.4199 },
+    ],
+  },
+  seapoint: {
+    name: "Sea Point & Atlantic Seaboard",
+    description: "Coastal routes: Sea Point, Camps Bay, Hout Bay, Llandudno",
+    color: "bg-cyan-500",
+    routes: [
+      { id: "T03", type: "Trunk", from: "Camps Bay", to: "Civic Centre", fare: "R18.00", time: "~35min" },
+      { id: "T04", type: "Trunk", from: "Hout Bay", to: "Civic Centre", fare: "R22.00", time: "~45min" },
+      { id: "109", type: "Area", from: "Sea Point", to: "Camps Bay", fare: "R8.00", time: "~15min" },
+    ],
+    stations: [
+      { name: "Sea Point", lat: -33.9301, lng: 18.3880 },
+      { name: "Camps Bay", lat: -33.9446, lng: 18.3767 },
+      { name: "Hout Bay", lat: -34.0358, lng: 18.3633 },
+      { name: "Imizamo Yethu", lat: -34.0385, lng: 18.3641 },
+      { name: "Llandudno", lat: -34.0576, lng: 18.3422 },
+    ],
+  },
+  southernsuburbs: {
+    name: "Southern Suburbs (Wynberg, Claremont, Constantia)",
+    description: "Routes through Wynberg, Claremont, Constantia, and Retreat",
+    color: "bg-green-500",
+    routes: [
+      { id: "D03", type: "Direct", from: "Wynberg", to: "Civic Centre", fare: "R15.00", time: "~30min" },
+      { id: "214", type: "Area", from: "Wynberg", to: "Constantia", fare: "R8.00", time: "~20min" },
+      { id: "216", type: "Area", from: "Claremont", to: "Constantia", fare: "R8.00", time: "~15min" },
+    ],
+    stations: [
+      { name: "Wynberg", lat: -34.0156, lng: 18.4724 },
+      { name: "Claremont", lat: -33.9649, lng: 18.4622 },
+      { name: "Constantia", lat: -34.0231, lng: 18.4064 },
+      { name: "Retreat", lat: -34.0775, lng: 18.4539 },
+    ],
+  },
+  falsebay: {
+    name: "False Bay Coast (Simon's Town, Fish Hoek, Muizenberg)",
+    description: "Scenic routes along False Bay coast to Simon's Town",
+    color: "bg-teal-500",
+    routes: [
+      { id: "234", type: "Area", from: "Muizenberg", to: "Simon's Town", fare: "R12.00", time: "~25min" },
+      { id: "235", type: "Area", from: "Fish Hoek", to: "Muizenberg", fare: "R8.00", time: "~15min" },
+      { id: "236", type: "Area", from: "Simon's Town", to: "Kalk Bay", fare: "R8.00", time: "~10min" },
+    ],
+    stations: [
+      { name: "Simon's Town", lat: -34.1927, lng: 18.4366 },
+      { name: "Fish Hoek", lat: -34.1367, lng: 18.4540 },
+      { name: "Muizenberg", lat: -34.0877, lng: 18.4822 },
+      { name: "Kalk Bay", lat: -34.1128, lng: 18.4535 },
+    ],
+  },
+  southernfreeway: {
+    name: "Khayelitsha & Mitchells Plain",
+    description: "High-demand routes connecting Khayelitsha and Mitchells Plain to CBD",
+    color: "bg-orange-500",
+    routes: [
+      { id: "D05", type: "Direct", from: "Khayelitsha East", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D06", type: "Direct", from: "Khayelitsha West", to: "Civic Centre", fare: "R15.00", time: "~40min" },
+      { id: "D07", type: "Direct", from: "Mitchells Plain East", to: "Civic Centre", fare: "R15.00", time: "~35min" },
+      { id: "261", type: "Area", from: "Khayelitsha", to: "Mitchells Plain", fare: "R8.00", time: "~20min" },
+    ],
+    stations: [
+      { name: "Khayelitsha", lat: -34.3534, lng: 18.6458 },
+      { name: "Mitchells Plain", lat: -34.1289, lng: 18.6344 },
+      { name: "Lentegeur", lat: -34.1753, lng: 18.6264 },
+      { name: "Tafelsig", lat: -34.2367, lng: 18.6447 },
+    ],
+  },
+  northernsuburbs: {
+    name: "Northern Suburbs (Table View, Milnerton, Parow, Bellville)",
+    description: "Routes through northern suburbs and business areas",
+    color: "bg-purple-500",
+    routes: [
+      { id: "T01", type: "Trunk", from: "Dunoon", to: "Table View", fare: "R18.00", time: "~35min" },
+      { id: "D08", type: "Direct", from: "Century City", to: "Civic Centre", fare: "R18.00", time: "~30min" },
+      { id: "235", type: "Area", from: "Milnerton", to: "Table View", fare: "R8.00", time: "~15min" },
+      { id: "246", type: "Area", from: "Bellville", to: "Parow", fare: "R8.00", time: "~10min" },
+    ],
+    stations: [
+      { name: "Table View", lat: -33.8470, lng: 18.4676 },
+      { name: "Milnerton", lat: -33.8873, lng: 18.4886 },
+      { name: "Parow", lat: -33.8745, lng: 18.6164 },
+      { name: "Bellville", lat: -33.9143, lng: 18.6356 },
+      { name: "Century City", lat: -33.9289, lng: 18.7386 },
+    ],
+  },
+  atlantis: {
+    name: "Atlantis Branch",
+    description: "Extended service to Atlantis, Melkbosstrand, and West Coast",
+    color: "bg-indigo-500",
+    routes: [
+      { id: "T02", type: "Trunk", from: "Atlantis", to: "Table View", fare: "R22.00", time: "~60min" },
+      { id: "231", type: "Area", from: "Atlantis", to: "Melkbosstrand", fare: "R12.00", time: "~20min" },
+      { id: "233", type: "Area", from: "Atlantis", to: "Atlantis Industria", fare: "R8.00", time: "~10min" },
+    ],
+    stations: [
+      { name: "Atlantis", lat: -33.6330, lng: 18.3549 },
+      { name: "Melkbosstrand", lat: -33.5873, lng: 18.3434 },
+      { name: "Mamre", lat: -33.5965, lng: 18.3748 },
+      { name: "Atlantis Industria", lat: -33.6427, lng: 18.3782 },
+    ],
+  },
+};
+
 // Transport comparison data
 const TRANSPORT_OPTIONS = [
   {
