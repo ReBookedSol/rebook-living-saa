@@ -238,12 +238,12 @@ export const putcoStations: Station[] = [
 // ============================================
 export const putcoRoutes: Route[] = [
   // Soshanguve Routes (S101-S120)
-  { id: 'pt-S101', name: 'S101', description: 'F4 to XX Entrance', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-xxentrance'] },
-  { id: 'pt-S102', name: 'S102', description: 'F4 to Orchards', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-orchards'] },
-  { id: 'pt-S103', name: 'S103', description: 'F4 to Marabastad', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-marabastad'] },
-  { id: 'pt-S104', name: 'S104', description: 'F4 to Balebogeng', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-balebogeng'] },
-  { id: 'pt-S105', name: 'S105', description: 'F4 to Centurion Gateway', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-centurion-gw'] },
-  { id: 'pt-S106', name: 'S106', description: 'F4 to Midrand', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-midrand'] },
+  { id: 'pt-S101', name: 'S101', description: 'F4 to XX Entrance', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-xxentrance'], path: [{ lat: -25.4780, lng: 28.0920 }, { lat: -25.5280, lng: 28.1180 }] },
+  { id: 'pt-S102', name: 'S102', description: 'F4 to Orchards', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-orchards'], path: [{ lat: -25.4780, lng: 28.0920 }, { lat: -25.7380, lng: 28.2050 }] },
+  { id: 'pt-S103', name: 'S103', description: 'F4 to Marabastad', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-marabastad'], path: [{ lat: -25.4780, lng: 28.0920 }, { lat: -25.7440, lng: 28.1780 }] },
+  { id: 'pt-S104', name: 'S104', description: 'F4 to Balebogeng', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-balebogeng'], path: [{ lat: -25.4780, lng: 28.0920 }, { lat: -25.7650, lng: 28.2180 }] },
+  { id: 'pt-S105', name: 'S105', description: 'F4 to Centurion Gateway', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-centurion-gw'], path: [{ lat: -25.4780, lng: 28.0920 }, { lat: -25.6000, lng: 28.1500 }, { lat: -25.8550, lng: 28.1890 }] },
+  { id: 'pt-S106', name: 'S106', description: 'F4 to Midrand', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-f4', 'pt-midrand'], path: [{ lat: -25.4780, lng: 28.0920 }, { lat: -25.7200, lng: 28.1500 }, { lat: -25.9930, lng: 28.1264 }] },
   { id: 'pt-S107', name: 'S107', description: 'Transfer to Orchards', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-transfer', 'pt-orchards'] },
   { id: 'pt-S108', name: 'S108', description: 'Transfer to Marabastad', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-transfer', 'pt-marabastad'] },
   { id: 'pt-S109', name: 'S109', description: 'Transfer to Balebogeng', system: 'putco', type: 'bus', color: '#FB8C00', stations: ['pt-transfer', 'pt-balebogeng'] },
