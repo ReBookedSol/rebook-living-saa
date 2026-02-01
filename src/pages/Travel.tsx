@@ -429,48 +429,19 @@ export default function Travel() {
     // Add MyCiTi Western Cape stations with route lines
     if (transportSystem === "myciti") {
       // Draw route polylines first (so they appear behind stations)
-      const routeColors: { [key: string]: string } = {
-        T01: "#E53935", T02: "#E53935", T03: "#E53935", T04: "#E53935", // Trunk - Red
-        D01: "#1E88E5", D02: "#1E88E5", D03: "#1E88E5", D04: "#1E88E5", D05: "#1E88E5", D08: "#1E88E5", // Direct - Blue
-        101: "#43A047", 102: "#43A047", 103: "#43A047", 104: "#43A047", 105: "#43A047", 106: "#43A047", 107: "#43A047", 108: "#43A047", 109: "#43A047", 111: "#43A047", 113: "#43A047", 118: "#43A047", // Area - Green
-        213: "#43A047", 214: "#43A047", 215: "#43A047", 216: "#43A047", 223: "#43A047",
-        231: "#43A047", 233: "#43A047", 234: "#43A047", 235: "#43A047", 236: "#43A047", 237: "#43A047", 244: "#43A047", 245: "#43A047", 246: "#43A047",
-      };
-
-      // Draw routes with polylines
-      Object.entries(MYCITI_WESTERN_CAPE).forEach(([regionKey, region]) => {
-        if (!region?.routes) return;
-
-        region.routes.forEach((route) => {
-          const routeColor = routeColors[route.id as keyof typeof routeColors] || "#1E88E5";
-          const routePath: { lat: number; lng: number }[] = [];
-
-          // Find stations for this route and build path
-          route.id.split(",").forEach((part) => {
-            const stationName = part.trim();
-            region.stations?.forEach((station) => {
-              if (station.name.toLowerCase().includes(stationName.toLowerCase()) ||
-                  stationName.toLowerCase().includes(station.name.toLowerCase())) {
-                if (!routePath.find(p => p.lat === station.lat && p.lng === station.lng)) {
-                  routePath.push({ lat: station.lat, lng: station.lng });
-                }
-              }
-            });
+      mycitiRoutes.forEach((route) => {
+        // Draw routes that have path data defined
+        if (route.path && route.path.length >= 2) {
+          const polyline = new google.maps.Polyline({
+            path: route.path,
+            geodesic: true,
+            strokeColor: route.color,
+            strokeOpacity: 0.75,
+            strokeWeight: 4,
+            map: mapInstanceRef.current,
           });
-
-          // If we have at least 2 points, draw the line
-          if (routePath.length >= 2) {
-            const polyline = new google.maps.Polyline({
-              path: routePath,
-              geodesic: true,
-              strokeColor: routeColor,
-              strokeOpacity: 0.7,
-              strokeWeight: 3,
-              map: mapInstanceRef.current,
-            });
-            polylinesRef.current.push(polyline);
-          }
-        });
+          polylinesRef.current.push(polyline);
+        }
       });
 
       // Show all regions or just the selected region
