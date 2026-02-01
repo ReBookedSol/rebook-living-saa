@@ -45,39 +45,38 @@ const formatGautrainStation = (station: typeof gautrainStations[0]) => ({
 const GAUTRAIN_STATIONS = gautrainStations.map(formatGautrainStation);
 
 // PUTCO Routes data - organize comprehensive data by region
+const createPutcoRoute = (routeData: typeof putcoRoutes[0]) => ({
+  id: routeData.name,
+  from: routeData.description.split(' to ')[0],
+  to: routeData.description.split(' to ')[1] || '',
+  fare: "Variable",
+  time: "~30-90min"
+});
+
 const PUTCO_ROUTES = {
   soshanguve: {
     name: "Soshanguve (S101-S120)",
     description: "Routes connecting Soshanguve to Pretoria and surrounds",
     image: "/images/soshanguve-fares-table.jpg",
     color: "bg-primary",
-    routes: putcoRoutes
-      .filter(r => r.id.includes('S1'))
-      .slice(0, 8)
-      .map(r => ({ id: r.name, from: r.description.split(' to ')[0], to: r.description.split(' to ')[1] || '', fare: "Variable", time: "~30-60min" })),
-    stations: putcoStations.filter(s => s.id.includes('pt-f4') || s.id.includes('pt-transfer') || s.id.includes('pt-xxentrance') || s.id.includes('pt-orchards') || s.id.includes('pt-midrand')).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: putcoRoutes.filter(r => r.id.startsWith('pt-S1')).slice(0, 8).map(createPutcoRoute),
+    stations: putcoStations.filter(s => ['pt-f4', 'pt-transfer', 'pt-xxentrance', 'pt-orchards', 'pt-midrand'].some(id => s.id.includes(id))).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   ekangala: {
     name: "Ekangala & Mpumalanga (E201-E224)",
     description: "Long-distance routes from Mpumalanga to Pretoria",
     image: "/images/ekangala-fares.jpg",
     color: "bg-accent",
-    routes: putcoRoutes
-      .filter(r => r.id.includes('E2') || r.id.includes('E1'))
-      .slice(0, 8)
-      .map(r => ({ id: r.name, from: r.description.split(' to ')[0], to: r.description.split(' to ')[1] || '', fare: "Variable", time: "~40-90min" })),
-    stations: putcoStations.filter(s => s.id.includes('pt-ekangala') || s.id.includes('pt-zithobeni') || s.id.includes('pt-langkloof') || s.id.includes('pt-rayton')).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: putcoRoutes.filter(r => r.id.startsWith('pt-E')).slice(0, 8).map(createPutcoRoute),
+    stations: putcoStations.filter(s => ['pt-ekangala', 'pt-zithobeni', 'pt-langkloof', 'pt-rayton', 'pt-springs'].some(id => s.id.includes(id))).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
   tshwane: {
     name: "Tshwane & Mpumalanga (T301-T354)",
     description: "Routes within Tshwane and Mpumalanga provinces",
     image: "",
     color: "bg-secondary",
-    routes: putcoRoutes
-      .filter(r => r.id.includes('T3'))
-      .slice(0, 10)
-      .map(r => ({ id: r.name, from: r.description.split(' to ')[0], to: r.description.split(' to ')[1] || '', fare: "Variable", time: "~50-90min" })),
-    stations: putcoStations.filter(s => ['pt-groblersdal', 'pt-rathoke', 'pt-vaalbank', 'pt-kwamhlanga', 'pt-pebblerock', 'pt-dennilton', 'pt-onderstepoort'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
+    routes: putcoRoutes.filter(r => r.id.startsWith('pt-T3')).slice(0, 10).map(createPutcoRoute),
+    stations: putcoStations.filter(s => ['pt-groblersdal', 'pt-rathoke', 'pt-vaalbank', 'pt-kwamhlanga', 'pt-pebblerock', 'pt-dennilton', 'pt-onderstepoort', 'pt-orchards'].includes(s.id)).map(s => ({ name: s.name, lat: s.lat, lng: s.lng })),
   },
 };
 
