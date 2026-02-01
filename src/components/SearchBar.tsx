@@ -108,9 +108,9 @@ const SearchBar = ({ compact = false }) => {
     setTimeout(() => {
       const firstListing = document.querySelector('[data-listings-container]');
       if (firstListing) {
-        firstListing.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        firstListing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-    }, 100);
+    }, 300);
   };
 
   const handleClearFilters = () => {
