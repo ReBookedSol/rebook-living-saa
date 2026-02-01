@@ -96,9 +96,9 @@ export default function Travel() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-blue-50/50 to-white">
+      <div className="min-h-screen bg-gradient-to-b from-emerald-50/30 to-white">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12">
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-12">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
