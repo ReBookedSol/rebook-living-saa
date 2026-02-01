@@ -775,6 +775,15 @@ const ListingDetail = () => {
                         ))}
                       </div>
 
+                      {!isPaidUser && (
+                        <div className="mt-6 p-4 bg-muted/50 rounded-lg flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">Upgrade to see all photos and unlock more features</p>
+                          <Link to="/pricing" className="ml-4">
+                            <Button size="sm" className="whitespace-nowrap">Upgrade</Button>
+                          </Link>
+                        </div>
+                      )}
+
                       {hasMorePhotos && (
                         <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                           <UpgradePrompt
