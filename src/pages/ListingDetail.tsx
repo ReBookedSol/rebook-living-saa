@@ -468,6 +468,8 @@ const ListingDetail = () => {
                     const maxGooglePhotos = isPaidUser ? 10 : 3;
                     const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
                     setGooglePhotos(photoUrls);
+                    // Track total available photos from Google for unlock prompt logic
+                    setTotalGooglePhotos(detail.photos.length);
                   } catch (err) {
                     console.warn('Failed to extract photo urls', err);
                   }
