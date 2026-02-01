@@ -4,14 +4,9 @@ import { Home, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { DeveloperModeBanner } from "@/components/DeveloperModeBanner";
-import { initializeProductionMode } from "@/lib/productionMode";
+import { AIAssistantBubble } from "@/components/AIAssistantBubble";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  // Initialize production mode on first render
-  useEffect(() => {
-    initializeProductionMode();
-  }, []);
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -76,8 +71,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <DeveloperModeBanner />
-      <div className="min-h-screen flex flex-col pt-24">
+      <div className="min-h-screen flex flex-col pt-20">
         <nav className="fixed top-8 left-0 right-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
@@ -129,6 +123,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <main className="flex-1">
         {children}
       </main>
+
+      <AIAssistantBubble />
 
       <footer className="border-t bg-gradient-to-b from-white/50 to-white/30 backdrop-blur mt-auto">
         <div className="container mx-auto px-4 py-12 md:py-16">

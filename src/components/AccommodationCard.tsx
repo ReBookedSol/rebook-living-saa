@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Heart, Share, Building2, Lock } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Heart, Share, Building2, Lock, Train } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
+import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
 
 interface AccommodationCardProps {
   id: string;
@@ -365,8 +366,22 @@ const AccommodationCard = ({
 
             {/* University and Rating Row */}
             <div className="flex items-center justify-between">
-              <div className="text-xs text-muted-foreground font-medium">
-                {university}
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-muted-foreground font-medium">
+                  {university}
+                </div>
+                {university && (
+                  <div className="flex items-center gap-1.5">
+                    {isGautrainAccessible(university) ? (
+                      <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                        <Train className="w-3 h-3" />
+                        {getGautrainStation(university)}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{getGautrainStation(university) || 'Not on Gautrain'}</span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 {[0,1,2,3,4].map((i) => {

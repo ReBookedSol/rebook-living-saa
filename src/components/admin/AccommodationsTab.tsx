@@ -175,8 +175,10 @@ const AccommodationsTab = () => {
   const duplicatesMap = useMemo(() => {
     const map = new Map<string, any[]>();
     accommodations?.forEach((acc: any) => {
-      const key = (acc.property_name || "").trim().toLowerCase();
-      if (!key) return;
+      const name = (acc.property_name || "").trim().toLowerCase();
+      const address = (acc.address || "").trim().toLowerCase();
+      const key = `${name}|${address}`;
+      if (!name || !address) return;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(acc);
     });
@@ -187,6 +189,7 @@ const AccommodationsTab = () => {
 
   const [selectedDuplicateKey, setSelectedDuplicateKey] = useState<string | null>(null);
   const [duplicateDeleteDialogOpen, setDuplicateDeleteDialogOpen] = useState(false);
+  const [deleteAllDuplicatesDialogOpen, setDeleteAllDuplicatesDialogOpen] = useState(false);
 
   const deleteDuplicatesMutation = useMutation({
     mutationFn: async ({ key, keepId }: { key: string; keepId: string }) => {
@@ -204,6 +207,33 @@ const AccommodationsTab = () => {
     },
     onError: () => {
       toast.error("Failed to delete duplicates");
+    },
+  });
+
+  const deleteAllDuplicatesMutation = useMutation({
+    mutationFn: async () => {
+      const allDuplicateIds: string[] = [];
+      duplicateEntries.forEach(([, items]) => {
+        // Sort by created_at to keep the oldest
+        const sorted = [...items].sort((a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+        // Keep the first (oldest), delete the rest
+        sorted.slice(1).forEach((item: any) => {
+          allDuplicateIds.push(item.id);
+        });
+      });
+
+      if (allDuplicateIds.length === 0) return;
+      const { error } = await supabase.from("accommodations").delete().in("id", allDuplicateIds);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-accommodations"] });
+      toast.success("Successfully deleted all duplicate listings");
+    },
+    onError: () => {
+      toast.error("Failed to delete duplicate listings");
     },
   });
 
@@ -287,25 +317,41 @@ const AccommodationsTab = () => {
           <div className="flex items-center justify-between mb-2">
             <div>
               <h3 className="font-semibold">Duplicate Properties Detected</h3>
-              <p className="text-sm text-muted-foreground">Multiple accommodations share the same property name. You can remove duplicates while keeping one record.</p>
+              <p className="text-sm text-muted-foreground">Multiple accommodations share the same property name and address. You can remove duplicates while keeping the oldest record.</p>
             </div>
-            <div className="text-sm text-muted-foreground">{duplicateEntries.length} duplicated names</div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">{duplicateEntries.length} duplicated properties</div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeleteAllDuplicatesDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete All Duplicates
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {duplicateEntries.map(([key, list]) => (
-              <div key={key} className="flex items-center justify-between bg-white p-3 rounded border">
-                <div>
-                  <div className="font-medium">{list[0].property_name}</div>
-                  <div className="text-xs text-muted-foreground">{list.length} entries</div>
+            {duplicateEntries.map(([key, list]) => {
+              const sorted = [...list].sort((a, b) =>
+                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+              );
+              const oldestId = sorted[0].id;
+              return (
+                <div key={key} className="flex items-center justify-between bg-white p-3 rounded border">
+                  <div>
+                    <div className="font-medium">{list[0].property_name}</div>
+                    <div className="text-xs text-muted-foreground">{list.length} entries (will keep oldest)</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => { setSelectedDuplicateKey(key); setDuplicateDeleteDialogOpen(true); }}>
+                      Delete duplicates
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" onClick={() => { setSelectedDuplicateKey(key); setDuplicateDeleteDialogOpen(true); }}>
-                    Delete duplicates
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -640,7 +686,7 @@ const AccommodationsTab = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete duplicate entries?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete all duplicate records for the selected property name but keep one record. This action cannot be undone.
+              This will delete all duplicate records for the selected property but keep the oldest record. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -649,7 +695,11 @@ const AccommodationsTab = () => {
               onClick={() => {
                 if (!selectedDuplicateKey) return;
                 const items = duplicatesMap.get(selectedDuplicateKey) || [];
-                const keepId = items[0]?.id;
+                // Sort by created_at to keep the oldest
+                const sorted = [...items].sort((a, b) =>
+                  new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                );
+                const keepId = sorted[0]?.id;
                 if (!keepId) return;
                 deleteDuplicatesMutation.mutate({ key: selectedDuplicateKey, keepId });
               }}
@@ -677,6 +727,30 @@ const AccommodationsTab = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Duplicates Confirmation */}
+      <AlertDialog open={deleteAllDuplicatesDialogOpen} onOpenChange={setDeleteAllDuplicatesDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete All Duplicate Listings?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all duplicate accommodations, keeping only the oldest record for each property (name + address combination). This action cannot be undone.
+              <div className="mt-2 p-2 bg-muted rounded text-sm">
+                {duplicateEntries.length} duplicate properties detected • Will delete multiple entries per property
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteAllDuplicatesMutation.mutate()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete All Duplicates
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

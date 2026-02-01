@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Star, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock, Image, Car, Footprints } from "lucide-react";
+import { MapPin, Star, Phone, Mail, CheckCircle, ArrowLeft, Flag, Heart, Share, Building2, Lock, Image, Car, Footprints, Train } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
@@ -20,6 +20,7 @@ import { ReviewsList } from "@/components/ReviewsList";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getPlaceData, getUserTier } from "@/lib/placeCache";
+import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
 import type { GoogleReview } from "@/types/place-cache";
 
 const ListingDetail = () => {
@@ -129,18 +130,30 @@ const ListingDetail = () => {
     prompt('Copy link', url);
   };
 
-  const { data: listing, isLoading } = useQuery({
+  const { data: listing, isLoading, error: queryError } = useQuery({
     queryKey: ["accommodation", id],
     queryFn: async () => {
+      if (!id) throw new Error("No accommodation ID provided");
+
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching accommodation:", error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("Accommodation not found");
+      }
+
       return data;
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Fetch photos with tier-based limits enforced at database level
@@ -525,14 +538,26 @@ const ListingDetail = () => {
     );
   }
 
-  if (!listing) {
+  if (!isLoading && !listing) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">Listing not found</h1>
-          <Link to={returnPath}>
-            <Button>Back</Button>
-          </Link>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="py-8 text-center">
+              <h1 className="text-2xl font-bold mb-2 text-foreground">Listing not found</h1>
+              <p className="text-muted-foreground mb-6">
+                {queryError
+                  ? `Error: ${queryError.message}`
+                  : "The accommodation you're looking for doesn't exist or has been removed."}
+              </p>
+              <Link to={returnPath}>
+                <Button variant="outline" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to listings
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </Layout>
     );
@@ -816,6 +841,20 @@ const ListingDetail = () => {
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-1">University</h3>
                       <p className="text-foreground text-sm font-medium">{listing.university}</p>
+                      {listing.university && (
+                        <div className="mt-2">
+                          {isGautrainAccessible(listing.university) ? (
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                                <Train className="w-3 h-3" />
+                                {getGautrainStation(listing.university)}
+                              </Badge>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">{getGautrainStation(listing.university) || 'Not on Gautrain line'}</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                     {listing.units && (
                       <div>
@@ -825,7 +864,7 @@ const ListingDetail = () => {
                     )}
                   </div>
 
-                  {listing.amenities && listing.amenities.length > 0 && (
+                  {listing.amenities && Array.isArray(listing.amenities) && listing.amenities.length > 0 && (
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Amenities</h3>
                       <div className="flex flex-wrap gap-2">
@@ -838,7 +877,7 @@ const ListingDetail = () => {
                     </div>
                   )}
 
-                  {listing.certified_universities && listing.certified_universities.length > 0 && (
+                  {listing.certified_universities && Array.isArray(listing.certified_universities) && listing.certified_universities.length > 0 && (
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Accredited For</h3>
                       <div className="space-y-1">
