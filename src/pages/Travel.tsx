@@ -1,161 +1,193 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Train, 
   Bus, 
   Car, 
   MapPin, 
-  DollarSign, 
   Clock,
-  Users,
-  Zap,
-  Leaf,
   ChevronRight,
-  Map as MapIcon
+  Map as MapIcon,
+  Navigation,
+  Wallet,
+  Info,
+  ArrowRight,
+  Lightbulb,
+  GraduationCap
 } from "lucide-react";
 import GautrainInfo from "@/components/GautrainInfo";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 
-// PUTCO Routes data based on uploaded PDFs
+// Gautrain stations with coordinates
+const GAUTRAIN_STATIONS = [
+  { name: "OR Tambo International", lat: -26.1367, lng: 28.2311, code: "ORT" },
+  { name: "Rhodesfield", lat: -26.1428, lng: 28.2147, code: "RHO" },
+  { name: "Marlboro", lat: -26.0917, lng: 28.1106, code: "MAR" },
+  { name: "Sandton", lat: -26.1067, lng: 28.0561, code: "SAN" },
+  { name: "Rosebank", lat: -26.1467, lng: 28.0436, code: "ROS" },
+  { name: "Park", lat: -26.1847, lng: 28.0436, code: "PAR" },
+  { name: "Midrand", lat: -25.9947, lng: 28.1264, code: "MID" },
+  { name: "Centurion", lat: -25.8589, lng: 28.1897, code: "CEN" },
+  { name: "Pretoria", lat: -25.7544, lng: 28.1889, code: "PRE" },
+  { name: "Hatfield", lat: -25.7489, lng: 28.2381, code: "HAT" },
+];
+
+// PUTCO Routes data with enhanced information
 const PUTCO_ROUTES = {
   soshanguve: {
     name: "Soshanguve",
-    image: "/images/soshanguve-fares.jpg",
+    description: "Routes connecting Soshanguve to Pretoria CBD and surrounds",
+    image: "/images/soshanguve-fares-table.jpg",
+    color: "bg-primary",
     routes: [
-      { name: "Block BB - Pretoria", fare: "R28.40", distance: "~35km" },
-      { name: "Block H - Pretoria", fare: "R26.20", distance: "~32km" },
-      { name: "Block L - Pretoria", fare: "R25.00", distance: "~30km" },
-      { name: "Rosslyn - Pretoria", fare: "R18.50", distance: "~20km" },
+      { id: "S101", from: "Block F4", to: "Zone XX Entrance", fare: "R17.00", time: "~25min" },
+      { id: "S102", from: "Block F4", to: "Orchards", fare: "R22.00", time: "~40min" },
+      { id: "S103", from: "Block F4", to: "Marabastad", fare: "R24.00", time: "~45min" },
+      { id: "S105", from: "Block F4", to: "Centurion Gateway", fare: "R42.00", time: "~60min" },
+      { id: "S106", from: "Block F4", to: "Midrand", fare: "R45.00", time: "~75min" },
     ],
     stations: [
-      { name: "Soshanguve Block BB", lat: -25.4833, lng: 28.0833 },
+      { name: "Soshanguve Block F4", lat: -25.4833, lng: 28.0833 },
       { name: "Soshanguve Block H", lat: -25.5000, lng: 28.1000 },
       { name: "Rosslyn", lat: -25.7167, lng: 28.0667 },
+      { name: "Pretoria CBD", lat: -25.7479, lng: 28.1881 },
     ],
   },
   ekangala: {
-    name: "Ekangala",
+    name: "Ekangala & Bronkhorstspruit",
+    description: "Long-distance routes from Mpumalanga to Pretoria",
     image: "/images/ekangala-fares.jpg",
+    color: "bg-accent",
     routes: [
-      { name: "Ekangala - Pretoria CBD", fare: "R45.00", distance: "~65km" },
-      { name: "Ekangala - Bronkhorstspruit", fare: "R15.00", distance: "~15km" },
-      { name: "Ekangala - Mamelodi", fare: "R35.00", distance: "~45km" },
+      { id: "E101", from: "Ekangala", to: "Bronkhorstspruit", fare: "R15.00", time: "~20min" },
+      { id: "E102", from: "Ekangala", to: "Mamelodi", fare: "R35.00", time: "~50min" },
+      { id: "E103", from: "Ekangala", to: "Pretoria CBD", fare: "R45.00", time: "~75min" },
+      { id: "E104", from: "Bronkhorstspruit", to: "Pretoria CBD", fare: "R38.00", time: "~60min" },
     ],
     stations: [
       { name: "Ekangala Main", lat: -25.6833, lng: 28.7500 },
       { name: "Bronkhorstspruit", lat: -25.8000, lng: 28.7333 },
+      { name: "Mamelodi", lat: -25.7000, lng: 28.3500 },
     ],
   },
-  tam: {
-    name: "Tshwane Area",
-    image: "", // No image for this region
+  tshwane: {
+    name: "Tshwane Metro",
+    description: "Routes within Tshwane: Atteridgeville, Mamelodi, Mabopane, Ga-Rankuwa",
+    image: "",
+    color: "bg-secondary",
     routes: [
-      { name: "Atteridgeville - Pretoria", fare: "R18.00", distance: "~12km" },
-      { name: "Mamelodi - Pretoria", fare: "R22.00", distance: "~25km" },
-      { name: "Mabopane - Pretoria", fare: "R28.00", distance: "~35km" },
-      { name: "Ga-Rankuwa - Pretoria", fare: "R26.00", distance: "~30km" },
+      { id: "T101", from: "Atteridgeville", to: "Pretoria CBD", fare: "R18.00", time: "~20min" },
+      { id: "T102", from: "Mamelodi", to: "Pretoria CBD", fare: "R22.00", time: "~30min" },
+      { id: "T103", from: "Mabopane", to: "Pretoria CBD", fare: "R28.00", time: "~45min" },
+      { id: "T104", from: "Ga-Rankuwa", to: "Pretoria CBD", fare: "R26.00", time: "~40min" },
+      { id: "T105", from: "Hammanskraal", to: "Pretoria CBD", fare: "R32.00", time: "~55min" },
     ],
     stations: [
       { name: "Atteridgeville", lat: -25.7667, lng: 28.0833 },
       { name: "Mamelodi", lat: -25.7000, lng: 28.3500 },
       { name: "Mabopane", lat: -25.5000, lng: 28.1000 },
       { name: "Ga-Rankuwa", lat: -25.6167, lng: 28.0167 },
+      { name: "Hammanskraal", lat: -25.4000, lng: 28.2833 },
     ],
   },
 };
 
-// Transportation cards data
-const TRANSPORT_METHODS = [
+// Transport comparison data
+const TRANSPORT_OPTIONS = [
   {
     name: "Gautrain",
     icon: Train,
     color: "from-primary to-primary/80",
-    image: "https://images.pexels.com/photos/8348559/pexels-photo-8348559.jpeg",
-    fare: "R76-124",
-    time: "15-25 mins",
-    frequency: "Every 15 mins",
-    availability: "5:30 AM - 11 PM",
-    pros: ["Fast & Reliable", "Most comfortable", "Set schedules"],
-    cons: ["Limited routes", "Higher cost"],
+    fareRange: "R76 - R124",
+    timeRange: "15-25 min",
+    frequency: "Every 12-20 min",
+    hours: "5:30 AM - 8:30 PM",
+    pros: ["Fastest option", "Air-conditioned", "Reliable schedule"],
+    cons: ["Limited stations", "Higher cost"],
   },
   {
-    name: "PUTCO Buses",
+    name: "PUTCO Bus",
     icon: Bus,
     color: "from-accent to-accent/80",
-    image: "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg",
-    fare: "R15-45",
-    time: "30-90 mins",
-    frequency: "Throughout day",
-    availability: "5 AM - 9 PM",
+    fareRange: "R15 - R45",
+    timeRange: "30-90 min",
+    frequency: "Peak hours",
+    hours: "5:00 AM - 8:00 PM",
     pros: ["Affordable", "Wide coverage", "SmartTap card"],
-    cons: ["Traffic dependent", "Less frequency"],
+    cons: ["Traffic dependent", "Peak hours only"],
   },
   {
-    name: "Uber & Bolt",
+    name: "Uber/Bolt",
     icon: Car,
-    color: "from-secondary to-secondary/80",
-    image: "https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg",
-    fare: "R50-150",
-    time: "15-30 mins",
+    color: "from-muted-foreground to-muted-foreground/80",
+    fareRange: "R50 - R200",
+    timeRange: "15-45 min",
     frequency: "On demand",
-    availability: "24/7",
-    pros: ["Door-to-door", "24/7 service", "Convenient"],
+    hours: "24/7",
+    pros: ["Door-to-door", "Always available", "Convenient"],
     cons: ["Surge pricing", "Most expensive"],
   },
   {
-    name: "Minibus Taxis",
+    name: "Minibus Taxi",
     icon: Bus,
-    color: "from-muted-foreground to-muted-foreground/80",
-    image: "https://images.pexels.com/photos/2396220/pexels-photo-2396220.jpeg",
-    fare: "R15-30",
-    time: "20-40 mins",
+    color: "from-secondary-foreground to-secondary-foreground/80",
+    fareRange: "R12 - R35",
+    timeRange: "20-60 min",
     frequency: "Throughout day",
-    availability: "6 AM - 10 PM",
-    pros: ["Most affordable", "Frequent", "Routes everywhere"],
-    cons: ["Less comfort", "No set schedule"],
+    hours: "5:00 AM - 9:00 PM",
+    pros: ["Cheapest option", "Very frequent", "Everywhere"],
+    cons: ["Crowded", "No fixed schedule"],
   },
 ];
 
-const UNIVERSITY_ROUTES = [
-  {
-    university: "University of Pretoria",
-    station: "Hatfield Gautrain",
-    routes: ["PUTCO Soshanguve", "Gautrain"],
-    distance: "5-35 km",
-  },
-  {
-    university: "Wits University",
-    station: "Park/Rosebank Gautrain",
-    routes: ["Gautrain", "Uber/Bolt"],
-    distance: "3-10 km",
-  },
-  {
-    university: "University of Johannesburg",
-    station: "Rosebank/Sandton",
-    routes: ["Gautrain", "PUTCO"],
-    distance: "5-12 km",
-  },
-  {
-    university: "TUT (Tshwane)",
-    station: "Pretoria/Centurion",
-    routes: ["PUTCO TAM", "Gautrain"],
-    distance: "8-15 km",
-  },
+// University destinations for route planner
+const DESTINATIONS = [
+  { id: "up", name: "University of Pretoria (Hatfield)", lat: -25.7545, lng: 28.2314, nearestGautrain: "Hatfield" },
+  { id: "wits", name: "Wits University", lat: -26.1929, lng: 28.0305, nearestGautrain: "Park" },
+  { id: "uj-auckland", name: "UJ Auckland Park", lat: -26.1836, lng: 28.0061, nearestGautrain: "Park" },
+  { id: "uj-doornfontein", name: "UJ Doornfontein", lat: -26.2022, lng: 28.0553, nearestGautrain: "Park" },
+  { id: "tut-pretoria", name: "TUT Pretoria", lat: -25.7319, lng: 28.1642, nearestGautrain: "Pretoria" },
+  { id: "tut-soshanguve", name: "TUT Soshanguve", lat: -25.4833, lng: 28.0833, nearestGautrain: "Pretoria" },
+  { id: "unisa", name: "UNISA Muckleneuk", lat: -25.7675, lng: 28.1983, nearestGautrain: "Pretoria" },
+  { id: "vut", name: "Vaal University of Technology", lat: -26.7117, lng: 27.8508, nearestGautrain: "Midrand" },
+];
+
+// Origin locations
+const ORIGINS = [
+  { id: "sosh-f4", name: "Soshanguve Block F4", region: "soshanguve" },
+  { id: "sosh-h", name: "Soshanguve Block H", region: "soshanguve" },
+  { id: "ekangala", name: "Ekangala", region: "ekangala" },
+  { id: "bronk", name: "Bronkhorstspruit", region: "ekangala" },
+  { id: "atteridge", name: "Atteridgeville", region: "tshwane" },
+  { id: "mamelodi", name: "Mamelodi", region: "tshwane" },
+  { id: "mabopane", name: "Mabopane", region: "tshwane" },
+  { id: "ga-rankuwa", name: "Ga-Rankuwa", region: "tshwane" },
+  { id: "sandton", name: "Sandton", region: "gautrain" },
+  { id: "midrand", name: "Midrand", region: "gautrain" },
+  { id: "centurion", name: "Centurion", region: "gautrain" },
 ];
 
 export default function Travel() {
-  const [selectedTransport, setSelectedTransport] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string>("soshanguve");
+  const [activeTab, setActiveTab] = useState("map");
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [showGautrain, setShowGautrain] = useState(true);
   const mapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<any[]>([]);
+  const polylinesRef = useRef<any[]>([]);
+
+  // Route Planner State
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [routeResult, setRouteResult] = useState<any>(null);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -166,23 +198,15 @@ export default function Travel() {
       const google = (window as any).google;
       if (!google?.maps) return;
 
-      // Center on Pretoria
       const map = new google.maps.Map(mapRef.current, {
         center: { lat: -25.7479, lng: 28.2293 },
         zoom: 10,
-        mapTypeControl: true,
+        mapTypeControl: false,
         streetViewControl: false,
+        fullscreenControl: true,
         styles: [
-          {
-            featureType: "transit.station.bus",
-            elementType: "all",
-            stylers: [{ visibility: "on" }],
-          },
-          {
-            featureType: "transit.station.rail",
-            elementType: "all",
-            stylers: [{ visibility: "on" }],
-          },
+          { featureType: "transit.station.bus", elementType: "all", stylers: [{ visibility: "on" }] },
+          { featureType: "transit.station.rail", elementType: "all", stylers: [{ visibility: "on" }] },
         ],
       });
 
@@ -193,328 +217,501 @@ export default function Travel() {
     initMap();
   }, []);
 
-  // Update markers when region changes
+  // Update map markers
   useEffect(() => {
     if (!mapLoaded || !mapInstanceRef.current) return;
 
     const google = (window as any).google;
     if (!google?.maps) return;
 
-    // Clear existing markers
-    markersRef.current.forEach((marker) => marker.setMap(null));
+    // Clear existing markers and polylines
+    markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
-
-    const region = PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES];
-    if (!region?.stations) return;
+    polylinesRef.current.forEach((p) => p.setMap(null));
+    polylinesRef.current = [];
 
     const bounds = new google.maps.LatLngBounds();
 
-    region.stations.forEach((station) => {
-      const marker = new google.maps.Marker({
-        position: { lat: station.lat, lng: station.lng },
-        map: mapInstanceRef.current,
-        title: station.name,
-        icon: {
-          url: "https://maps.google.com/mapfiles/ms/icons/bus.png",
-          scaledSize: new google.maps.Size(32, 32),
-        },
+    // Add Gautrain stations if enabled
+    if (showGautrain) {
+      GAUTRAIN_STATIONS.forEach((station) => {
+        const marker = new google.maps.Marker({
+          position: { lat: station.lat, lng: station.lng },
+          map: mapInstanceRef.current,
+          title: station.name,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "#059669",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+            scale: 10,
+          },
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<div class="p-2"><strong>🚆 ${station.name}</strong><br/><span class="text-xs">Gautrain Station</span></div>`,
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open(mapInstanceRef.current, marker);
+        });
+
+        markersRef.current.push(marker);
+        bounds.extend({ lat: station.lat, lng: station.lng });
       });
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `<div class="p-2"><strong>${station.name}</strong><br/>PUTCO ${region.name}</div>`,
+      // Draw Gautrain line
+      const gautrainPath = GAUTRAIN_STATIONS.map((s) => ({ lat: s.lat, lng: s.lng }));
+      const gautrainLine = new google.maps.Polyline({
+        path: gautrainPath,
+        geodesic: true,
+        strokeColor: "#059669",
+        strokeOpacity: 0.8,
+        strokeWeight: 4,
       });
+      gautrainLine.setMap(mapInstanceRef.current);
+      polylinesRef.current.push(gautrainLine);
+    }
 
-      marker.addListener("click", () => {
-        infoWindow.open(mapInstanceRef.current, marker);
+    // Add PUTCO stations for selected region
+    const region = PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES];
+    if (region?.stations) {
+      region.stations.forEach((station) => {
+        const marker = new google.maps.Marker({
+          position: { lat: station.lat, lng: station.lng },
+          map: mapInstanceRef.current,
+          title: station.name,
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+            fillColor: "#f59e0b",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+            scale: 6,
+          },
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">PUTCO ${region.name}</span></div>`,
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open(mapInstanceRef.current, marker);
+        });
+
+        markersRef.current.push(marker);
+        bounds.extend({ lat: station.lat, lng: station.lng });
       });
+    }
 
-      markersRef.current.push(marker);
-      bounds.extend({ lat: station.lat, lng: station.lng });
+    if (markersRef.current.length > 0) {
+      mapInstanceRef.current.fitBounds(bounds);
+    }
+  }, [selectedRegion, mapLoaded, showGautrain]);
+
+  // Route planner logic
+  const calculateRoute = () => {
+    if (!origin || !destination) return;
+
+    const originData = ORIGINS.find((o) => o.id === origin);
+    const destData = DESTINATIONS.find((d) => d.id === destination);
+
+    if (!originData || !destData) return;
+
+    // Generate route recommendations
+    const recommendations = [];
+
+    // PUTCO option
+    if (originData.region !== "gautrain") {
+      const region = PUTCO_ROUTES[originData.region as keyof typeof PUTCO_ROUTES];
+      if (region) {
+        recommendations.push({
+          type: "PUTCO Bus",
+          icon: Bus,
+          steps: [
+            `Take PUTCO ${region.name} bus to Pretoria CBD`,
+            destData.nearestGautrain ? `Transfer to Gautrain at Pretoria → ${destData.nearestGautrain}` : "Walk or taxi to campus",
+          ],
+          estimatedCost: "R25 - R50",
+          estimatedTime: "60 - 90 min",
+          pros: ["Most affordable"],
+        });
+      }
+    }
+
+    // Gautrain option
+    recommendations.push({
+      type: "Gautrain",
+      icon: Train,
+      steps: [
+        originData.region === "gautrain"
+          ? `Board Gautrain at ${originData.name}`
+          : `Get to nearest Gautrain station (taxi/bus)`,
+        `Take Gautrain to ${destData.nearestGautrain}`,
+        "Walk or taxi to campus",
+      ],
+      estimatedCost: "R80 - R150",
+      estimatedTime: "30 - 60 min",
+      pros: ["Fastest option"],
     });
 
-    // Add Pretoria CBD marker
-    const cbdMarker = new google.maps.Marker({
-      position: { lat: -25.7479, lng: 28.1881 },
-      map: mapInstanceRef.current,
-      title: "Pretoria CBD",
-      icon: {
-        url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-        scaledSize: new google.maps.Size(40, 40),
-      },
+    // Uber option
+    recommendations.push({
+      type: "Uber/Bolt",
+      icon: Car,
+      steps: ["Request ride from your location", "Direct trip to campus"],
+      estimatedCost: "R100 - R300",
+      estimatedTime: "30 - 60 min",
+      pros: ["Door-to-door", "No transfers"],
     });
-    markersRef.current.push(cbdMarker);
-    bounds.extend({ lat: -25.7479, lng: 28.1881 });
 
-    mapInstanceRef.current.fitBounds(bounds);
-  }, [selectedRegion, mapLoaded]);
+    setRouteResult({
+      origin: originData.name,
+      destination: destData.name,
+      recommendations,
+    });
+  };
 
   return (
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="relative h-[40vh] md:h-[50vh] overflow-hidden">
-          <img
-            src="https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg"
-            alt="Public Transport"
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/40" />
-          <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
-            <div className="max-w-2xl">
+        <section className="relative py-16 md:py-24 bg-gradient-to-br from-primary/10 via-background to-accent/5">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl">
               <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                <Navigation className="w-3 h-3 mr-1" />
                 Student Travel Guide
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Get Around SA
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+                Navigate SA <span className="text-primary">Smarter</span>
               </h1>
-              <p className="text-lg text-muted-foreground">
-                Compare transport options, view PUTCO routes, and find the best way to your campus
+              <p className="text-lg md:text-xl text-muted-foreground mb-8">
+                Find the best routes to your campus. Compare Gautrain, PUTCO buses, and more with real fares and times.
               </p>
+              <div className="flex flex-wrap gap-3">
+                <Button size="lg" onClick={() => setActiveTab("planner")}>
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Plan My Route
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => setActiveTab("map")}>
+                  <MapIcon className="w-4 h-4 mr-2" />
+                  View Map
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-12">
-          {/* Interactive Map Section */}
-          <section className="mb-16">
-            <div className="flex items-center gap-3 mb-6">
-              <MapIcon className="w-8 h-8 text-primary" />
-              <h2 className="text-3xl font-bold">PUTCO Bus Routes Map</h2>
-            </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+            <TabsList className="grid w-full max-w-md grid-cols-4 mx-auto">
+              <TabsTrigger value="map">
+                <MapIcon className="w-4 h-4 mr-2 hidden sm:inline" />
+                Map
+              </TabsTrigger>
+              <TabsTrigger value="planner">
+                <Navigation className="w-4 h-4 mr-2 hidden sm:inline" />
+                Planner
+              </TabsTrigger>
+              <TabsTrigger value="fares">
+                <Wallet className="w-4 h-4 mr-2 hidden sm:inline" />
+                Fares
+              </TabsTrigger>
+              <TabsTrigger value="gautrain">
+                <Train className="w-4 h-4 mr-2 hidden sm:inline" />
+                Gautrain
+              </TabsTrigger>
+            </TabsList>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Route Selector */}
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle className="text-lg">Select Region</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {Object.entries(PUTCO_ROUTES).map(([key, region]) => (
-                    <button
-                      key={key}
-                      onClick={() => setSelectedRegion(key)}
-                      className={`w-full p-4 rounded-lg border text-left transition-all ${
-                        selectedRegion === key
-                          ? "bg-primary/10 border-primary"
-                          : "bg-card hover:bg-muted border-border"
-                      }`}
+            {/* Map Tab */}
+            <TabsContent value="map" className="space-y-6">
+              <div className="grid lg:grid-cols-4 gap-6">
+                {/* Controls */}
+                <Card className="lg:col-span-1">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Routes</CardTitle>
+                    <CardDescription>Select region to view</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {/* Gautrain Toggle */}
+                    <Button
+                      variant={showGautrain ? "default" : "outline"}
+                      className="w-full justify-start"
+                      onClick={() => setShowGautrain(!showGautrain)}
                     >
-                      <div className="font-semibold">{region.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {region.routes.length} routes available
-                      </div>
-                    </button>
-                  ))}
-                </CardContent>
-              </Card>
+                      <Train className="w-4 h-4 mr-2" />
+                      Gautrain Network
+                    </Button>
 
-              {/* Map */}
-              <div className="lg:col-span-2">
-                <Card className="overflow-hidden">
-                  <div
-                    ref={mapRef}
-                    className="w-full h-[400px] bg-muted"
-                    style={{ minHeight: "400px" }}
-                  />
-                </Card>
-              </div>
-            </div>
-
-            {/* Route Details */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bus className="w-5 h-5 text-primary" />
-                  {PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES]?.name} Routes & Fares
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES]?.routes.map(
-                    (route, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-lg bg-muted/50 border border-border"
-                      >
-                        <div className="font-medium mb-2">{route.name}</div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-primary font-bold">{route.fare}</span>
-                          <span className="text-muted-foreground">{route.distance}</span>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {/* Fare Image */}
-                {PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES]?.image && (
-                  <div className="mt-6">
-                    <h4 className="font-semibold mb-3">Full Fare Table</h4>
-                    <img
-                      src={PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES].image}
-                      alt={`${PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES].name} fares`}
-                      className="w-full max-w-2xl rounded-lg border"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </section>
-
-          {/* Transport Methods */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">All Transport Options</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {TRANSPORT_METHODS.map((method) => {
-                const IconComponent = method.icon;
-                const isSelected = selectedTransport === method.name;
-
-                return (
-                  <Card
-                    key={method.name}
-                    className={`cursor-pointer transition-all hover:shadow-lg ${
-                      isSelected ? "ring-2 ring-primary" : ""
-                    }`}
-                    onClick={() =>
-                      setSelectedTransport(isSelected ? null : method.name)
-                    }
-                  >
-                    <div className="relative h-32 overflow-hidden rounded-t-lg">
-                      <img
-                        src={method.image}
-                        alt={method.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
-                        }}
-                      />
-                      <div className={`absolute inset-0 bg-gradient-to-br ${method.color} opacity-40`} />
-                    </div>
-
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <IconComponent className="w-5 h-5 text-primary" />
-                        <h3 className="font-bold">{method.name}</h3>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-                        <div>
-                          <span className="text-muted-foreground">Fare:</span>{" "}
-                          <span className="font-medium">{method.fare}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Time:</span>{" "}
-                          <span className="font-medium">{method.time}</span>
-                        </div>
-                      </div>
-
-                      <Badge variant="outline" className="text-xs">
-                        {method.availability}
-                      </Badge>
-
-                      {isSelected && (
-                        <div className="mt-4 pt-4 border-t space-y-2 animate-in fade-in">
-                          <div>
-                            <span className="text-xs font-semibold text-muted-foreground">Pros:</span>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {method.pros.map((pro, idx) => (
-                                <Badge key={idx} variant="secondary" className="text-xs">
-                                  ✓ {pro}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-xs font-semibold text-muted-foreground">Cons:</span>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {method.cons.map((con, idx) => (
-                                <Badge key={idx} variant="outline" className="text-xs">
-                                  {con}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Gautrain Section */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">Gautrain Network</h2>
-            <GautrainInfo showFareCalculator={true} />
-          </section>
-
-          {/* University Quick Links */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">Campus Connections</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {UNIVERSITY_ROUTES.map((uni) => (
-                <Card key={uni.university} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-5">
-                    <h3 className="font-bold mb-2">{uni.university}</h3>
-                    <div className="text-sm text-muted-foreground mb-3">
-                      <MapPin className="w-4 h-4 inline mr-1" />
-                      {uni.station}
-                    </div>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {uni.routes.map((route, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
-                          {route}
-                        </Badge>
+                    <div className="border-t pt-3 mt-3">
+                      <p className="text-sm font-medium mb-2 text-muted-foreground">PUTCO Regions</p>
+                      {Object.entries(PUTCO_ROUTES).map(([key, region]) => (
+                        <Button
+                          key={key}
+                          variant={selectedRegion === key ? "secondary" : "ghost"}
+                          className="w-full justify-start mb-1"
+                          onClick={() => setSelectedRegion(key)}
+                        >
+                          <Bus className="w-4 h-4 mr-2" />
+                          {region.name}
+                        </Button>
                       ))}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Distance: {uni.distance}
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </section>
 
-          {/* Tips Section */}
-          <section className="bg-primary/5 rounded-xl p-8 border border-primary/20">
-            <h2 className="text-2xl font-bold mb-6">Money-Saving Tips</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="flex gap-3">
-                <Zap className="w-6 h-6 text-primary flex-shrink-0" />
-                <div>
-                  <h4 className="font-semibold">PUTCO SmartTap Card</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Get discounted fares with the SmartTap card system
-                  </p>
+                {/* Map */}
+                <Card className="lg:col-span-3 overflow-hidden">
+                  <div ref={mapRef} className="w-full h-[500px] bg-muted" />
+                </Card>
+              </div>
+
+              {/* Legend */}
+              <div className="flex flex-wrap gap-4 justify-center text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-primary" />
+                  <span>Gautrain Station</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-accent" />
+                  <span>PUTCO Stop</span>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <Users className="w-6 h-6 text-primary flex-shrink-0" />
-                <div>
-                  <h4 className="font-semibold">Student Discounts</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Ask about student rates (up to 20% off on Gautrain)
-                  </p>
-                </div>
+            </TabsContent>
+
+            {/* Route Planner Tab */}
+            <TabsContent value="planner" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Navigation className="w-5 h-5 text-primary" />
+                    Route Planner
+                  </CardTitle>
+                  <CardDescription>
+                    Select your origin and destination to get transport recommendations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Where are you coming from?</Label>
+                      <Select value={origin} onValueChange={setOrigin}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select origin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ORIGINS.map((o) => (
+                            <SelectItem key={o.id} value={o.id}>
+                              {o.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Where are you going?</Label>
+                      <Select value={destination} onValueChange={setDestination}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select campus" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DESTINATIONS.map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              <div className="flex items-center gap-2">
+                                <GraduationCap className="w-4 h-4" />
+                                {d.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <Button onClick={calculateRoute} className="w-full sm:w-auto">
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Get Route Options
+                  </Button>
+
+                  {/* Results */}
+                  {routeResult && (
+                    <div className="space-y-4 pt-6 border-t">
+                      <h3 className="font-semibold text-lg">
+                        {routeResult.origin} → {routeResult.destination}
+                      </h3>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {routeResult.recommendations.map((rec: any, idx: number) => {
+                          const IconComponent = rec.icon;
+                          return (
+                            <Card key={idx} className="border-2 hover:border-primary transition-colors">
+                              <CardHeader className="pb-2">
+                                <CardTitle className="text-base flex items-center gap-2">
+                                  <IconComponent className="w-5 h-5 text-primary" />
+                                  {rec.type}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-3">
+                                <div className="space-y-1">
+                                  {rec.steps.map((step: string, stepIdx: number) => (
+                                    <div key={stepIdx} className="flex items-start gap-2 text-sm">
+                                      <span className="text-primary font-medium">{stepIdx + 1}.</span>
+                                      <span>{step}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="flex justify-between text-sm pt-2 border-t">
+                                  <div>
+                                    <p className="text-muted-foreground">Cost</p>
+                                    <p className="font-semibold text-primary">{rec.estimatedCost}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-muted-foreground">Time</p>
+                                    <p className="font-semibold">{rec.estimatedTime}</p>
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {rec.pros.map((pro: string, proIdx: number) => (
+                                    <Badge key={proIdx} variant="secondary" className="text-xs">
+                                      ✓ {pro}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Transport Comparison */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {TRANSPORT_OPTIONS.map((option) => {
+                  const IconComponent = option.icon;
+                  return (
+                    <Card key={option.name} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-2">
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${option.color} flex items-center justify-center mb-2`}>
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <CardTitle className="text-base">{option.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Fare</span>
+                          <span className="font-medium">{option.fareRange}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Time</span>
+                          <span className="font-medium">{option.timeRange}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Hours</span>
+                          <span className="font-medium text-xs">{option.hours}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
-              <div className="flex gap-3">
-                <Clock className="w-6 h-6 text-primary flex-shrink-0" />
-                <div>
-                  <h4 className="font-semibold">Off-Peak Travel</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Avoid 7-9 AM and 4-6 PM for cheaper ride-hailing
-                  </p>
-                </div>
+            </TabsContent>
+
+            {/* Fares Tab */}
+            <TabsContent value="fares" className="space-y-6">
+              <div className="grid lg:grid-cols-3 gap-6">
+                {Object.entries(PUTCO_ROUTES).map(([key, region]) => (
+                  <Card key={key}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Bus className="w-5 h-5 text-accent" />
+                        {region.name}
+                      </CardTitle>
+                      <CardDescription>{region.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {region.routes.map((route) => (
+                        <div
+                          key={route.id}
+                          className="flex justify-between items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{route.from}</p>
+                            <p className="text-xs text-muted-foreground flex items-center">
+                              <ArrowRight className="w-3 h-3 mx-1" />
+                              {route.to}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-primary">{route.fare}</p>
+                            <p className="text-xs text-muted-foreground">{route.time}</p>
+                          </div>
+                        </div>
+                      ))}
+
+                      {region.image && (
+                        <Button variant="outline" className="w-full mt-2" asChild>
+                          <a href={region.image} target="_blank" rel="noopener noreferrer">
+                            View Full Fare Table
+                          </a>
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </div>
-          </section>
+
+              {/* Tips */}
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Lightbulb className="w-5 h-5" />
+                    Money-Saving Tips
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Wallet className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Get a SmartTap Card</p>
+                        <p className="text-sm text-muted-foreground">Save up to 15% on PUTCO fares with prepaid trips</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Travel Off-Peak</p>
+                        <p className="text-sm text-muted-foreground">Gautrain is cheaper outside 6-8 AM and 4-6 PM</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Car className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Share Rides</p>
+                        <p className="text-sm text-muted-foreground">Split Uber/Bolt costs with classmates going the same way</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Gautrain Tab */}
+            <TabsContent value="gautrain">
+              <GautrainInfo showFareCalculator={true} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </Layout>
