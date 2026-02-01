@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Search, 
-  GraduationCap, 
-  Building2, 
-  MapPin, 
-  Globe, 
+import {
+  Search,
+  GraduationCap,
+  Building2,
+  MapPin,
+  Globe,
   Calculator,
   BookOpen,
   Users,
@@ -28,6 +28,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
 
 // APS Calculator Component
 const APSCalculator = () => {
