@@ -376,8 +376,6 @@ Format: [{"id": "...", "rank": 1, "reason": "..."}]`
 
       case "chat": {
         // Conversational chat with accommodation context
-        const { message, conversationHistory } = await req.json();
-
         if (!message) {
           return new Response(JSON.stringify({ error: "No message provided" }), {
             status: 400,
