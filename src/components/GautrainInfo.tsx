@@ -191,12 +191,34 @@ export const GautrainInfo = ({ showFareCalculator = true, highlightUniversity }:
               </div>
             </div>
 
-            {fare !== null && (
-              <div className="p-4 bg-white rounded-lg border border-blue-200 text-center">
-                <p className="text-sm text-muted-foreground mb-1">Single Trip Fare</p>
-                <p className="text-3xl font-bold text-blue-600">R{fare}</p>
-                <p className="text-xs text-muted-foreground mt-1">Valid for 2025</p>
+            {selectedFrom && selectedTo && fare !== null && (
+              <div className="p-4 bg-white rounded-lg border border-blue-200">
+                <div className="text-center mb-3">
+                  <p className="text-sm text-muted-foreground mb-1">Single Trip Fare</p>
+                  <p className="text-3xl font-bold text-blue-600">R{fare}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Valid for 2025</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div className="p-2 bg-muted rounded">
+                    <p className="font-medium">Peak Hour</p>
+                    <p>R{Math.ceil(fare * 1.2)}</p>
+                  </div>
+                  <div className="p-2 bg-muted rounded">
+                    <p className="font-medium">Monthly Pass</p>
+                    <p>~R{Math.ceil(fare * 20 * 0.85)}</p>
+                  </div>
+                </div>
               </div>
+            )}
+            {selectedFrom && selectedTo && fare === null && (
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200 text-center">
+                <p className="text-sm text-red-700">Unable to calculate fare for this route.</p>
+              </div>
+            )}
+            {!selectedFrom || !selectedTo && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Select both stations to calculate fare
+              </p>
             )}
           </CardContent>
         </Card>
