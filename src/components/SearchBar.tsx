@@ -165,6 +165,10 @@ const SearchBar = ({ compact = false }) => {
             {showAdvanced ? 'Hide Filters' : 'Show Filters'}
           </Button>
 
+          <Button onClick={handleClearFilters} variant="ghost" className="w-full sm:w-auto text-sm sm:text-base px-3 py-2 text-muted-foreground hover:text-foreground">
+            Clear All
+          </Button>
+
           <Button onClick={handleSearch} className="w-full sm:flex-1 bg-primary hover:bg-primary-hover text-sm sm:text-base">
             <Search className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Search Accommodation</span>
