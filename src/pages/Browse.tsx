@@ -225,7 +225,7 @@ const Browse = () => {
 
         <Alert className="mt-4 mb-8 bg-muted/50 border-muted">
           <Info className="h-4 w-4 flex-shrink-0" />
-          <AlertDescription className="text-xs sm:text-sm">
+          <AlertDescription className="text-xs sm:text-sm text-center">
             We aim for accuracy, but please do your own research before making any decisions.
           </AlertDescription>
         </Alert>
