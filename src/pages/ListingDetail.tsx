@@ -21,6 +21,7 @@ import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getPlaceData, getUserTier } from "@/lib/placeCache";
 import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
+import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import type { GoogleReview } from "@/types/place-cache";
 
 const ListingDetail = () => {
@@ -310,27 +311,16 @@ const ListingDetail = () => {
   const cacheAttributions = placeCache?.attributions;
 
   useEffect(() => {
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    if (!apiKey) return;
-
-    const existing = document.getElementById('google-maps-script');
-    if (existing) {
-      if ((window as any).google) {
+    const loadAndInit = async () => {
+      const success = await loadGoogleMapsScript();
+      if (success) {
         initMap();
       } else {
-        existing.addEventListener('load', initMap as any, { once: true } as any);
+        console.warn('Failed to load Google Maps');
       }
-      return;
-    }
+    };
 
-    const script = document.createElement('script');
-    script.id = 'google-maps-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => initMap();
-    script.onerror = () => console.warn('Failed to load Google Maps script');
-    document.head.appendChild(script);
+    loadAndInit();
 
     function initMap() {
       try {
@@ -524,7 +514,7 @@ const ListingDetail = () => {
     reportMutation.mutate(reportForm);
   };
 
-  if (isLoading) {
+  if (isLoading || accessLoading) {
     return (
       <Layout>
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -538,7 +528,7 @@ const ListingDetail = () => {
     );
   }
 
-  if (!isLoading && !listing) {
+  if (queryError || !listing) {
     return (
       <Layout>
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -547,7 +537,7 @@ const ListingDetail = () => {
               <h1 className="text-2xl font-bold mb-2 text-foreground">Listing not found</h1>
               <p className="text-muted-foreground mb-6">
                 {queryError
-                  ? `Error: ${queryError.message}`
+                  ? `Error: ${(queryError as any).message || "Failed to load listing"}`
                   : "The accommodation you're looking for doesn't exist or has been removed."}
               </p>
               <Link to={returnPath}>
@@ -597,14 +587,19 @@ const ListingDetail = () => {
 
                 {/* Main title and location */}
                 <div>
-                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name}</h1>
-                  <div className="flex items-start gap-1 text-muted-foreground mb-3">
-                    <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm md:text-base">{listing.address}, {listing.city}</span>
-                  </div>
+                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name || "Listing"}</h1>
+                  {listing.address && (
+                    <div className="flex items-start gap-1 text-muted-foreground mb-3">
+                      <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm md:text-base">
+                        {listing.address}
+                        {listing.city && `, ${listing.city}`}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-1.5">
-                    <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
-                    <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>
+                    {listing.type && <Badge variant="secondary" className="text-xs">{listing.type}</Badge>}
+                    {listing.gender_policy && <Badge variant="secondary" className="text-xs">{listing.gender_policy}</Badge>}
                     {listing.rooms_available && (
                       <Badge variant="secondary" className="text-xs">{listing.rooms_available} rooms</Badge>
                     )}
@@ -752,7 +747,9 @@ const ListingDetail = () => {
                       {hasMorePhotos && (
                         <>
                           <div className="mt-6 pt-4 md:mt-8 md:pt-6 border-t">
-                            <h4 className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">More photos locked</h4>
+                            <h4 className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                              {totalPhotos - FREE_TIER_LIMITS.MAX_PHOTOS} more photos locked
+                            </h4>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                               {(() => {
                                 // Generate 10 different stock house images
@@ -808,6 +805,7 @@ const ListingDetail = () => {
                               type="photos"
                               totalCount={totalPhotos}
                               compact
+                              buttonText={`Unlock all ${totalPhotos} photos`}
                             />
                           </div>
                         </>
@@ -987,26 +985,32 @@ const ListingDetail = () => {
               {/* Contact Card */}
               <Card className="border-0 shadow-md">
                 <CardContent className="p-4 md:p-6">
-                  <div className="mb-4 md:mb-6">
-                    <div className="text-3xl md:text-4xl font-bold text-primary mb-1">R{listing.monthly_cost?.toLocaleString()}</div>
-                    <p className="text-xs md:text-sm text-muted-foreground">per month</p>
-                  </div>
+                  {listing.monthly_cost !== null && listing.monthly_cost !== undefined && (
+                    <div className="mb-4 md:mb-6">
+                      <div className="text-3xl md:text-4xl font-bold text-primary mb-1">R{listing.monthly_cost.toLocaleString()}</div>
+                      <p className="text-xs md:text-sm text-muted-foreground">per month</p>
+                    </div>
+                  )}
 
                   <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 pb-4 md:pb-6 border-b">
-                    <div className="flex items-start gap-2 md:gap-3">
-                      <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
-                      <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
-                        <p className="font-medium text-xs md:text-sm break-all">{listing.contact_phone}</p>
+                    {listing.contact_phone && (
+                      <div className="flex items-start gap-2 md:gap-3">
+                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                          <p className="font-medium text-xs md:text-sm break-all">{listing.contact_phone}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-start gap-2 md:gap-3">
-                      <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
-                      <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground mb-0.5">Email</p>
-                        <p className="font-medium text-xs md:text-sm break-all">{listing.contact_email}</p>
+                    )}
+                    {listing.contact_email && (
+                      <div className="flex items-start gap-2 md:gap-3">
+                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                          <p className="font-medium text-xs md:text-sm break-all">{listing.contact_email}</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     {listing.contact_person && (
                       <div className="flex items-start gap-2 md:gap-3">
                         <p className="text-xs text-muted-foreground mb-0.5">Contact Person</p>
@@ -1016,18 +1020,22 @@ const ListingDetail = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <a href={`tel:${listing.contact_phone}`} className="block">
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
-                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
-                        Call Now
-                      </Button>
-                    </a>
-                    <a href={`mailto:${listing.contact_email}`} className="block">
-                      <Button variant="outline" className="w-full text-sm">
-                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
-                        Send Email
-                      </Button>
-                    </a>
+                    {listing.contact_phone && (
+                      <a href={`tel:${listing.contact_phone}`} className="block">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
+                          <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
+                          Call Now
+                        </Button>
+                      </a>
+                    )}
+                    {listing.contact_email && (
+                      <a href={`mailto:${listing.contact_email}`} className="block">
+                        <Button variant="outline" className="w-full text-sm">
+                          <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
+                          Send Email
+                        </Button>
+                      </a>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -1105,6 +1113,7 @@ const ListingDetail = () => {
                                   type="reviews"
                                   totalCount={totalReviews}
                                   compact
+                                  buttonText={`Read all ${totalReviews} reviews`}
                                 />
                               </div>
                             )}

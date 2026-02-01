@@ -11,6 +11,7 @@ import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
 import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
+import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 
 interface AccommodationCardProps {
   id: string;
@@ -212,46 +213,20 @@ const AccommodationCard = ({
       return;
     }
 
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    if (!apiKey) return;
-
     const loadGoogleMapsAndFetchPhoto = async () => {
       try {
-        const google = (window as any).google;
-
-        // Wait for Google Maps if not loaded
-        if (!google?.maps?.places) {
-          const existing = document.getElementById('google-maps-script-card');
-          if (!existing) {
-            const script = document.createElement('script');
-            script.id = 'google-maps-script-card';
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-
-            await new Promise<void>((resolve, reject) => {
-              script.onload = () => resolve();
-              script.onerror = () => reject(new Error('Failed to load Google Maps'));
-            });
-          } else {
-            await new Promise<void>((resolve) => {
-              const checkGoogle = setInterval(() => {
-                if ((window as any).google?.maps?.places) {
-                  clearInterval(checkGoogle);
-                  resolve();
-                }
-              }, 100);
-              setTimeout(() => {
-                clearInterval(checkGoogle);
-                resolve();
-              }, 5000);
-            });
-          }
+        // Load Google Maps script with the API key from Supabase secrets
+        const scriptLoaded = await loadGoogleMapsScript();
+        if (!scriptLoaded) {
+          console.warn('Failed to load Google Maps script');
+          return;
         }
 
         const ggl = (window as any).google;
-        if (!ggl?.maps?.places) return;
+        if (!ggl?.maps?.places) {
+          console.warn('Google Maps Places API not available');
+          return;
+        }
 
         const map = new ggl.maps.Map(document.createElement('div'), { zoom: 15 });
         const service = new ggl.maps.places.PlacesService(map);

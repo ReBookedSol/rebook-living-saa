@@ -3,18 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  MapPin, 
-  Navigation, 
-  Car, 
-  Footprints, 
-  Clock, 
+import {
+  MapPin,
+  Navigation,
+  Car,
+  Footprints,
+  Clock,
   Lock,
   Building2,
   Maximize2,
 } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 
 interface AccommodationMapProps {
   accommodationAddress: string;
@@ -50,13 +51,6 @@ export const AccommodationMap = ({
 
   useEffect(() => {
     if (!isPaidUser) {
-      setIsLoading(false);
-      return;
-    }
-
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    if (!apiKey) {
-      console.warn("Google Maps API key not configured");
       setIsLoading(false);
       return;
     }
@@ -189,22 +183,17 @@ export const AccommodationMap = ({
     };
 
     // Load Google Maps script
-    const existing = document.getElementById("google-maps-script");
-    if (existing) {
-      if ((window as any).google) {
+    const loadAndInit = async () => {
+      const success = await loadGoogleMapsScript();
+      if (success) {
         loadMap();
       } else {
-        existing.addEventListener("load", loadMap, { once: true });
+        console.warn("Failed to load Google Maps script");
+        setIsLoading(false);
       }
-    } else {
-      const script = document.createElement("script");
-      script.id = "google-maps-script";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = loadMap;
-      document.head.appendChild(script);
-    }
+    };
+
+    loadAndInit();
   }, [isPaidUser, accommodationAddress, accommodationName, universityName, city]);
 
   const showRoute = (mode: "driving" | "walking") => {
