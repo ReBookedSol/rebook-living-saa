@@ -423,10 +423,22 @@ export default function Travel() {
       polylinesRef.current.push(gautrainLine);
     }
 
-    // Add MyCiTi Western Cape stations for selected region
+    // Add MyCiTi Western Cape stations
     if (transportSystem === "myciti") {
-      const region = MYCITI_WESTERN_CAPE[selectedRegion as keyof typeof MYCITI_WESTERN_CAPE];
-      if (region?.stations) {
+      // Show all regions or just the selected region
+      const regionsToShow = showAllRoutes
+        ? Object.entries(MYCITI_WESTERN_CAPE)
+        : selectedRegion === "all"
+          ? Object.entries(MYCITI_WESTERN_CAPE)
+          : [[selectedRegion, MYCITI_WESTERN_CAPE[selectedRegion as keyof typeof MYCITI_WESTERN_CAPE]]];
+
+      regionsToShow.forEach(([regionKey, region]) => {
+        if (!region?.stations) return;
+
+        const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
+        const fillColor = isHighlighted ? "#3b82f6" : "#9ca3af";
+        const scale = isHighlighted ? 8 : 6;
+
         region.stations.forEach((station) => {
           const marker = new google.maps.Marker({
             position: { lat: station.lat, lng: station.lng },
@@ -434,11 +446,11 @@ export default function Travel() {
             title: station.name,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
-              fillColor: "#3b82f6",
-              fillOpacity: 1,
+              fillColor: fillColor,
+              fillOpacity: isHighlighted ? 1 : 0.6,
               strokeColor: "#ffffff",
               strokeWeight: 2,
-              scale: 8,
+              scale: scale,
             },
           });
 
@@ -453,7 +465,7 @@ export default function Travel() {
           markersRef.current.push(marker);
           bounds.extend({ lat: station.lat, lng: station.lng });
         });
-      }
+      });
     } else {
       // Add PUTCO stations for selected region
       const region = PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES];
