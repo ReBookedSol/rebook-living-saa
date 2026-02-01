@@ -867,46 +867,90 @@ export default function Travel() {
 
             {/* Fares Tab */}
             <TabsContent value="fares" className="space-y-6">
-              <div className="grid lg:grid-cols-3 gap-6">
-                {Object.entries(PUTCO_ROUTES).map(([key, region]) => (
-                  <Card key={key}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Bus className="w-5 h-5 text-accent" />
-                        {region.name}
-                      </CardTitle>
-                      <CardDescription>{region.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {region.routes.map((route) => (
-                        <div
-                          key={route.id}
-                          className="flex justify-between items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                        >
-                          <div>
-                            <p className="font-medium text-sm">{route.from}</p>
-                            <p className="text-xs text-muted-foreground flex items-center">
-                              <ArrowRight className="w-3 h-3 mx-1" />
-                              {route.to}
-                            </p>
+              {/* MyCiTi Fares */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">MyCiTi Western Cape Network</h3>
+                <div className="grid lg:grid-cols-3 gap-6">
+                  {Object.entries(MYCITI_WESTERN_CAPE).map(([key, region]) => (
+                    <Card key={key}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Bus className="w-5 h-5 text-blue-500" />
+                          {region.name}
+                        </CardTitle>
+                        <CardDescription>{region.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {region.routes.map((route) => (
+                          <div
+                            key={route.id}
+                            className="flex justify-between items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                          >
+                            <div>
+                              <p className="font-medium text-sm">
+                                {route.id} ({route.type})
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center">
+                                <ArrowRight className="w-3 h-3 mx-1" />
+                                {route.from} → {route.to}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-blue-500">{route.fare}</p>
+                              <p className="text-xs text-muted-foreground">{route.time}</p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-bold text-primary">{route.fare}</p>
-                            <p className="text-xs text-muted-foreground">{route.time}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
 
-                      {region.image && (
-                        <Button variant="outline" className="w-full mt-2" asChild>
-                          <a href={region.image} target="_blank" rel="noopener noreferrer">
-                            View Full Fare Table
-                          </a>
-                        </Button>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+              {/* PUTCO Fares */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">PUTCO Network (Gauteng)</h3>
+                <div className="grid lg:grid-cols-3 gap-6">
+                  {Object.entries(PUTCO_ROUTES).map(([key, region]) => (
+                    <Card key={key}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Bus className="w-5 h-5 text-accent" />
+                          {region.name}
+                        </CardTitle>
+                        <CardDescription>{region.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {region.routes.map((route) => (
+                          <div
+                            key={route.id}
+                            className="flex justify-between items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                          >
+                            <div>
+                              <p className="font-medium text-sm">{route.from}</p>
+                              <p className="text-xs text-muted-foreground flex items-center">
+                                <ArrowRight className="w-3 h-3 mx-1" />
+                                {route.to}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-primary">{route.fare}</p>
+                              <p className="text-xs text-muted-foreground">{route.time}</p>
+                            </div>
+                          </div>
+                        ))}
+
+                        {region.image && (
+                          <Button variant="outline" className="w-full mt-2" asChild>
+                            <a href={region.image} target="_blank" rel="noopener noreferrer">
+                              View Full Fare Table
+                            </a>
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
 
               {/* Tips */}
