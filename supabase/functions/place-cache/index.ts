@@ -202,12 +202,31 @@ Deno.serve(async (req) => {
       console.log("Fetching from Google Places API...");
 
       // Determine fetch limits based on user tier and cache status
-      // For free users on uncached listings: fetch only 3 photos instead of 10
-      const isFreeUserUncached = user_tier === "free" && !cacheHit;
-      const photoFetchLimit = isFreeUserUncached ? 3 : CACHE_LIMITS.photos;
-      const reviewFetchLimit = isFreeUserUncached ? 1 : CACHE_LIMITS.reviews;
+      let photoFetchLimit: number;
+      let reviewFetchLimit: number;
+      let cacheTierToSave: "free" | "pro" | "incomplete";
 
-      console.log("Fetch limits:", { photos: photoFetchLimit, reviews: reviewFetchLimit, isFreeUserUncached });
+      if (needsDeltaFetch) {
+        // Pro user visiting after free cache exists: fetch delta
+        const cachedPhotoCount = cachedPlace.photo_uris?.length || 0;
+        const cachedReviewCount = cachedPlace.reviews?.length || 0;
+        photoFetchLimit = 10 - cachedPhotoCount;
+        reviewFetchLimit = 5 - cachedReviewCount;
+        cacheTierToSave = "pro";
+        console.log("Delta-fetch mode:", { cachedPhotos: cachedPhotoCount, cachedReviews: cachedReviewCount, fetchPhotos: photoFetchLimit, fetchReviews: reviewFetchLimit });
+      } else if (user_tier === "free") {
+        // Free user on uncached listing: fetch limited set
+        photoFetchLimit = 3;
+        reviewFetchLimit = 1;
+        cacheTierToSave = "free";
+      } else {
+        // Pro user on uncached listing: fetch full set
+        photoFetchLimit = CACHE_LIMITS.photos;
+        reviewFetchLimit = CACHE_LIMITS.reviews;
+        cacheTierToSave = "pro";
+      }
+
+      console.log("Fetch limits:", { photos: photoFetchLimit, reviews: reviewFetchLimit, tierToSave: cacheTierToSave, isDeltaFetch: needsDeltaFetch });
 
       const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${resolvedPlaceId}&fields=photos,reviews,name,formatted_address&key=${googleApiKey}`;
       const detailsResp = await fetch(detailsUrl);
