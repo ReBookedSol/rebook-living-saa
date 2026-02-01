@@ -316,34 +316,34 @@ const ReBookedCampus = () => {
         <div className="container mx-auto px-4 py-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Modern Tab Navigation */}
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 gap-1 bg-white rounded-xl shadow-sm border border-slate-200 mb-8 p-1 h-auto">
+            <TabsList className="grid w-full grid-cols-4 gap-2 bg-white rounded-xl shadow-sm border border-slate-200 mb-8 p-2 h-auto">
               <TabsTrigger
                 value="overview"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Info className="h-4 w-4 sm:mr-2" />
+                <Info className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
               <TabsTrigger
                 value="apps"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Calculator className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">APS</span>
-                <span className="sm:hidden">APS</span>
+                <Calculator className="h-4 w-4" />
+                <span>APS</span>
               </TabsTrigger>
               <TabsTrigger
                 value="bursaries"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Coins className="h-4 w-4 sm:mr-2" />
+                <Coins className="h-4 w-4" />
                 <span className="hidden sm:inline">Bursaries</span>
+                <span className="sm:hidden">Funding</span>
               </TabsTrigger>
               <TabsTrigger
                 value="universities"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Building2 className="h-4 w-4 sm:mr-2" />
+                <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Universities</span>
                 <span className="sm:hidden">Unis</span>
               </TabsTrigger>
