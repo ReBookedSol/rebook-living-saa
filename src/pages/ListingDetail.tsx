@@ -538,14 +538,26 @@ const ListingDetail = () => {
     );
   }
 
-  if (!listing) {
+  if (!isLoading && !listing) {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">Listing not found</h1>
-          <Link to={returnPath}>
-            <Button>Back</Button>
-          </Link>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="py-8 text-center">
+              <h1 className="text-2xl font-bold mb-2 text-foreground">Listing not found</h1>
+              <p className="text-muted-foreground mb-6">
+                {queryError
+                  ? `Error: ${queryError.message}`
+                  : "The accommodation you're looking for doesn't exist or has been removed."}
+              </p>
+              <Link to={returnPath}>
+                <Button variant="outline" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to listings
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </Layout>
     );
