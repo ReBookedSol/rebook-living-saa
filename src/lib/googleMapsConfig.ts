@@ -8,8 +8,7 @@ let cacheTime = 0;
 const CACHE_DURATION = 1000 * 60 * 60; // Cache for 1 hour
 
 /**
- * Fetch Google Maps API key from Supabase Edge Function
- * Falls back to environment variable if available
+ * Fetch Google Places API key from Supabase secrets via Edge Function
  */
 export async function getGoogleMapsApiKey(): Promise<string | null> {
   // Return cached key if still valid
@@ -17,15 +16,7 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
     return cachedApiKey;
   }
 
-  // First, try environment variable (available in dev/build)
-  const envApiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API_KEY;
-  if (envApiKey) {
-    cachedApiKey = envApiKey;
-    cacheTime = Date.now();
-    return envApiKey;
-  }
-
-  // Try to fetch from Edge Function (production)
+  // Fetch from Edge Function which retrieves from Supabase secrets
   try {
     const { data: { session } } = await supabase.auth.getSession();
 
@@ -45,19 +36,23 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.debug("Edge Function get-config not available or returned error:", response.status);
+      console.warn("Failed to fetch config from Edge Function:", response.status);
       return null;
     }
 
     const data = await response.json();
-    if (data.success && data.googleMapsApiKey) {
-      cachedApiKey = data.googleMapsApiKey;
+    if (data.success && data.googlePlacesApiKey) {
+      cachedApiKey = data.googlePlacesApiKey;
       cacheTime = Date.now();
-      return data.googleMapsApiKey;
+      return data.googlePlacesApiKey;
+    }
+
+    if (!data.success) {
+      console.warn("Config fetch returned success: false", data.error);
     }
     return null;
   } catch (error) {
-    console.debug("Failed to fetch from Edge Function (this is OK if not deployed):", error instanceof Error ? error.message : error);
+    console.warn("Failed to fetch API key from Edge Function:", error instanceof Error ? error.message : error);
     return null;
   }
 }
