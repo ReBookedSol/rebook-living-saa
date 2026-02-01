@@ -467,9 +467,20 @@ export default function Travel() {
         });
       });
     } else {
-      // Add PUTCO stations for selected region
-      const region = PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES];
-      if (region?.stations) {
+      // Add PUTCO stations - show all regions or just the selected region
+      const regionsToShow = showAllRoutes
+        ? Object.entries(PUTCO_ROUTES)
+        : selectedRegion === "all"
+          ? Object.entries(PUTCO_ROUTES)
+          : [[selectedRegion, PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES]]];
+
+      regionsToShow.forEach(([regionKey, region]) => {
+        if (!region?.stations) return;
+
+        const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
+        const fillColor = isHighlighted ? "#f59e0b" : "#fed7aa";
+        const fillOpacity = isHighlighted ? 1 : 0.6;
+
         region.stations.forEach((station) => {
           const marker = new google.maps.Marker({
             position: { lat: station.lat, lng: station.lng },
@@ -477,8 +488,8 @@ export default function Travel() {
             title: station.name,
             icon: {
               path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-              fillColor: "#f59e0b",
-              fillOpacity: 1,
+              fillColor: fillColor,
+              fillOpacity: fillOpacity,
               strokeColor: "#ffffff",
               strokeWeight: 2,
               scale: 6,
@@ -496,7 +507,7 @@ export default function Travel() {
           markersRef.current.push(marker);
           bounds.extend({ lat: station.lat, lng: station.lng });
         });
-      }
+      });
     }
 
     if (markersRef.current.length > 0) {
