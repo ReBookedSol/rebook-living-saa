@@ -502,7 +502,7 @@ export default function Travel() {
     if (markersRef.current.length > 0) {
       mapInstanceRef.current.fitBounds(bounds);
     }
-  }, [selectedRegion, mapLoaded, showGautrain, transportSystem]);
+  }, [selectedRegion, mapLoaded, showGautrain, transportSystem, showAllRoutes]);
 
   // Route planner logic
   const calculateRoute = () => {
