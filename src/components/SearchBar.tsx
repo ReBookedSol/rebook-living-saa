@@ -275,7 +275,7 @@ const SearchBar = ({ compact = false }) => {
             </Popover>
           </div>
 
-          <div className="space-y-2 col-span-1 md:col-span-2">
+          <div className="space-y-2 col-span-1 md:col-span-2 flex flex-col md:flex-row md:items-end gap-4">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="nsfas"
@@ -288,6 +288,21 @@ const SearchBar = ({ compact = false }) => {
               >
                 <CheckCircle className="h-4 w-4 text-primary" />
                 NSFAS Accredited Only
+              </label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="nearTrain"
+                checked={nearTrain}
+                onCheckedChange={(checked) => setNearTrain(checked as boolean)}
+              />
+              <label
+                htmlFor="nearTrain"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+              >
+                <Train className="h-4 w-4 text-primary" />
+                Near Train Station
               </label>
             </div>
           </div>
