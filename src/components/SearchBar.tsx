@@ -108,9 +108,9 @@ const SearchBar = ({ compact = false }) => {
     setTimeout(() => {
       const firstListing = document.querySelector('[data-listings-container]');
       if (firstListing) {
-        firstListing.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        firstListing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-    }, 100);
+    }, 300);
   };
 
   const handleClearFilters = () => {
@@ -124,6 +124,16 @@ const SearchBar = ({ compact = false }) => {
     setNearTrain(false);
     navigate("/browse");
   };
+
+  const hasActiveFilters =
+    location ||
+    university !== "All Universities" ||
+    province !== "All Provinces" ||
+    maxCost ||
+    minRating > 0 ||
+    amenities.length > 0 ||
+    nsfasOnly ||
+    nearTrain;
 
   if (compact) {
     return (
@@ -165,7 +175,15 @@ const SearchBar = ({ compact = false }) => {
             {showAdvanced ? 'Hide Filters' : 'Show Filters'}
           </Button>
 
-          <Button onClick={handleClearFilters} variant="ghost" className="w-full sm:w-auto text-sm sm:text-base px-3 py-2 text-muted-foreground hover:text-foreground">
+          <Button
+            onClick={handleClearFilters}
+            variant={hasActiveFilters ? "default" : "ghost"}
+            className={`w-full sm:w-auto text-sm sm:text-base px-3 py-2 ${
+              hasActiveFilters
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
             Clear All
           </Button>
 

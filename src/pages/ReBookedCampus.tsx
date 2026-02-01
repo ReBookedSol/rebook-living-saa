@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Search, 
-  GraduationCap, 
-  Building2, 
-  MapPin, 
-  Globe, 
+import {
+  Search,
+  GraduationCap,
+  Building2,
+  MapPin,
+  Globe,
   Calculator,
   BookOpen,
   Users,
@@ -26,8 +26,11 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Clock,
+  CreditCard,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
 
 // APS Calculator Component
 const APSCalculator = () => {
@@ -123,128 +126,115 @@ const APSCalculator = () => {
   );
 };
 
-// University logos mapping - use abbreviation as key
-const UNIVERSITY_LOGOS: Record<string, string> = {
-  "CPUT": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Cape_Peninsula_University_of_Technology_logo.svg/800px-Cape_Peninsula_University_of_Technology_logo.svg.png",
-  "CUT": "https://upload.wikimedia.org/wikipedia/en/thumb/5/55/Central_University_of_Technology_logo.svg/800px-Central_University_of_Technology_logo.svg.png",
-  "DUT": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5a/Durban_University_of_Technology_logo.svg/800px-Durban_University_of_Technology_logo.svg.png",
-  "MUT": "https://upload.wikimedia.org/wikipedia/en/d/d7/Mangosuthu_University_of_Technology_logo.png",
-  "NMU": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a3/Nelson_Mandela_University_logo.svg/800px-Nelson_Mandela_University_logo.svg.png",
-  "NWU": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3f/NWU_Logo.svg/800px-NWU_Logo.svg.png",
-  "RU": "https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Rhodes_University_logo.svg/800px-Rhodes_University_logo.svg.png",
-  "SMU": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e5/Sefako_Makgatho_Health_Sciences_University_logo.svg/800px-Sefako_Makgatho_Health_Sciences_University_logo.svg.png",
-  "SPU": "https://upload.wikimedia.org/wikipedia/en/thumb/9/99/Sol_Plaatje_University_logo.svg/800px-Sol_Plaatje_University_logo.svg.png",
-  "SU": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Stellenbosch_University_logo.svg/800px-Stellenbosch_University_logo.svg.png",
-  "TUT": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e7/Tshwane_University_of_Technology_logo.svg/800px-Tshwane_University_of_Technology_logo.svg.png",
-  "UCT": "https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Cape_Town_logo.svg/800px-University_of_Cape_Town_logo.svg.png",
-  "UFH": "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/University_of_Fort_Hare_logo.svg/800px-University_of_Fort_Hare_logo.svg.png",
-  "UFS": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/University_of_the_Free_State_logo.svg/800px-University_of_the_Free_State_logo.svg.png",
-  "UJ": "https://upload.wikimedia.org/wikipedia/en/thumb/0/01/University_of_Johannesburg_logo.svg/800px-University_of_Johannesburg_logo.svg.png",
-  "UKZN": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e9/University_of_KwaZulu-Natal_logo.svg/800px-University_of_KwaZulu-Natal_logo.svg.png",
-  "UL": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/University_of_Limpopo_logo.svg/800px-University_of_Limpopo_logo.svg.png",
-  "UNISA": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/Unisa_logo.svg/800px-Unisa_logo.svg.png",
-  "UMP": "https://upload.wikimedia.org/wikipedia/en/1/14/University_of_Mpumalanga_logo.png",
-  "UP": "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/University_of_Pretoria_logo.svg/800px-University_of_Pretoria_logo.svg.png",
-  "UNIVEN": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/University_of_Venda_logo.svg/800px-University_of_Venda_logo.svg.png",
-  "UWC": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/University_of_the_Western_Cape_logo.svg/800px-University_of_the_Western_Cape_logo.svg.png",
-  "WSU": "https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Walter_Sisulu_University_logo.svg/800px-Walter_Sisulu_University_logo.svg.png",
-  "WITS": "https://upload.wikimedia.org/wikipedia/en/thumb/2/26/Wits_University_logo.svg/800px-Wits_University_logo.svg.png",
-  "UNIZULU": "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/University_of_Zululand_logo.svg/800px-University_of_Zululand_logo.svg.png",
-  "VUT": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Vaal_University_of_Technology_logo.svg/800px-Vaal_University_of_Technology_logo.svg.png",
-};
-
 // University Card Component
 const UniversityCard = ({ university }: { university: any }) => {
-  const abbrev = university.abbreviation?.toUpperCase() || "";
-  const logoUrl = university.logo || UNIVERSITY_LOGOS[abbrev];
   const navigate = useNavigate();
 
+  // Get logo from shared mapping
+  const getLogoUrl = () => {
+    // Try database logo first
+    if (university.logo) return university.logo;
+
+    // Try university name lookup
+    if (UNIVERSITY_LOGOS[university.name]) return UNIVERSITY_LOGOS[university.name];
+
+    return null;
+  };
+
+  const logoUrl = getLogoUrl();
+  const abbrev = university.abbreviation?.toUpperCase() || "";
+
   return (
-    <div onClick={() => navigate(`/university/${university.id}`)}>
-      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group border border-slate-200 shadow-sm h-full bg-white">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt={`${university.name} logo`}
-                    className="w-10 h-10 object-contain"
-                    onError={(e) => {
-                      const img = e.currentTarget;
-                      img.style.display = "none";
-                      const fallback = img.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = "flex";
-                    }}
-                  />
-                ) : null}
-                <span
-                  className={`w-10 h-10 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-lg`}
-                >
-                  {abbrev || university.name?.substring(0, 3)?.toUpperCase()}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-base group-hover:text-primary transition-colors line-clamp-2">
-                  {university.name}
-                </CardTitle>
-                <CardDescription className="flex items-center gap-1 mt-1 text-xs">
-                  <MapPin className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">{university.location || "Location TBA"}</span>
-                </CardDescription>
-              </div>
+    <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border border-teal-100 shadow-md h-full bg-white flex flex-col overflow-hidden">
+      {/* Header Section */}
+      <div className="flex items-start justify-between gap-4 p-6 pb-4">
+        <div className="flex items-start gap-3 flex-1">
+          {/* Logo Badge */}
+          <div className="w-14 h-14 bg-white border-2 border-teal-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={`${university.name} logo`}
+                className="w-12 h-12 object-contain"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  img.style.display = "none";
+                  const fallback = img.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = "flex";
+                }}
+              />
+            ) : null}
+            <span
+              className={`w-12 h-12 ${logoUrl ? "hidden" : "flex"} items-center justify-center text-xs font-bold bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg`}
+            >
+              {abbrev || university.name?.substring(0, 3)?.toUpperCase()}
+            </span>
+          </div>
+
+          {/* University Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-semibold text-slate-900 line-clamp-2 group-hover:text-primary transition-colors">
+              {university.name}
+            </h3>
+            <p className="flex items-center gap-1 mt-1 text-xs text-slate-600">
+              <Building2 className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate">{university.type || "University"}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Sections */}
+      <div className="px-6 py-4 space-y-4 flex-1">
+        {/* Location */}
+        <div className="flex items-start gap-3">
+          <MapPin className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-slate-900">{university.location || "Location TBA"}</p>
+            <p className="text-xs text-slate-600">{university.province || "Province"}</p>
+          </div>
+        </div>
+
+        {/* Student Population */}
+        {university.student_population && (
+          <div className="flex items-start gap-3">
+            <Users className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-slate-900">{(university.student_population / 1000).toFixed(0)}K+ Students</p>
+              <p className="text-xs text-slate-600">Student Population</p>
             </div>
-            <Badge variant="secondary" className="flex-shrink-0 text-xs bg-slate-100 text-slate-700">
-              {university.type || "University"}
-            </Badge>
           </div>
-        </CardHeader>
+        )}
 
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {university.overview || "Learn more about this university"}
-          </p>
-
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            {university.student_population && (
-              <div className="p-2 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-1 mb-1">
-                  <Users className="w-3 h-3 text-slate-600" />
-                  <span className="font-semibold text-slate-900">{(university.student_population / 1000).toFixed(0)}K</span>
-                </div>
-                <span className="text-muted-foreground">Students</span>
-              </div>
-            )}
-            {university.established_year && (
-              <div className="p-2 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-1 mb-1">
-                  <Calendar className="w-3 h-3 text-slate-600" />
-                  <span className="font-semibold text-slate-900">{university.established_year}</span>
-                </div>
-                <span className="text-muted-foreground">Founded</span>
-              </div>
-            )}
+        {/* Founded Year */}
+        {university.established_year && (
+          <div className="flex items-start gap-3">
+            <Calendar className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Since {university.established_year}</p>
+              <p className="text-xs text-slate-600">Established</p>
+            </div>
           </div>
+        )}
+      </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            {university.website && (
-              <a
-                href={university.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:text-primary/80 font-medium text-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Globe className="w-4 h-4" />
-                Website
-                <ChevronRight className="w-3 h-3" />
-              </a>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      {/* Divider */}
+      <div className="border-t border-teal-50"></div>
+
+      {/* Footer Button */}
+      <div className="p-4 pt-3">
+        <Button
+          asChild
+          className="w-full bg-white hover:bg-teal-50 text-teal-600 border border-teal-100 gap-2 font-medium transition-all"
+          variant="outline"
+        >
+          <Link to={`/university/${university.id}`}>
+            <ExternalLink className="w-4 h-4" />
+            <span>University Profile</span>
+          </Link>
+        </Button>
+      </div>
+    </Card>
   );
 };
 
@@ -337,34 +327,34 @@ const ReBookedCampus = () => {
         <div className="container mx-auto px-4 py-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Modern Tab Navigation */}
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 gap-1 bg-white rounded-xl shadow-sm border border-slate-200 mb-8 p-1 h-auto">
+            <TabsList className="grid w-full grid-cols-4 gap-2 bg-white rounded-xl shadow-sm border border-slate-200 mb-8 p-2 h-auto">
               <TabsTrigger
                 value="overview"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Info className="h-4 w-4 sm:mr-2" />
+                <Info className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
               <TabsTrigger
                 value="apps"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Calculator className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">APS</span>
-                <span className="sm:hidden">APS</span>
+                <Calculator className="h-4 w-4" />
+                <span>APS</span>
               </TabsTrigger>
               <TabsTrigger
                 value="bursaries"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Coins className="h-4 w-4 sm:mr-2" />
+                <Coins className="h-4 w-4" />
                 <span className="hidden sm:inline">Bursaries</span>
+                <span className="sm:hidden">Funding</span>
               </TabsTrigger>
               <TabsTrigger
                 value="universities"
-                className="rounded-lg py-4 px-4 sm:px-6 data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 data-[state=active]:shadow-sm font-medium transition-all"
+                className="rounded-lg py-3 px-3 sm:px-4 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-slate-50 data-[state=inactive]:hover:bg-slate-100 font-medium transition-all text-sm sm:text-base flex items-center justify-center gap-2"
               >
-                <Building2 className="h-4 w-4 sm:mr-2" />
+                <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Universities</span>
                 <span className="sm:hidden">Unis</span>
               </TabsTrigger>
