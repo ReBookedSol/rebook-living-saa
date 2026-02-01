@@ -19,7 +19,7 @@ export const useAccessControl = () => {
   const checkAccess = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session?.user) {
         setStatus({
           accessLevel: "free",
@@ -30,12 +30,14 @@ export const useAccessControl = () => {
       }
 
       // Check for successful or active payment directly in database
+      // Force fresh data by not using cache
       const { data: payments, error } = await supabase
         .from("user_payments")
         .select("*")
         .eq("user_id", session.user.id)
         .in("status", ["successful", "active"])
-        .order("created_at", { ascending: false })
+        .gt("access_expires_at", new Date().toISOString()) // Only fetch non-expired payments
+        .order("access_expires_at", { ascending: false })
         .limit(1);
 
       if (error) {
@@ -52,8 +54,9 @@ export const useAccessControl = () => {
         const payment = payments[0];
         // Use access_expires_at directly from the payment record
         const expiresAt = new Date(payment.access_expires_at);
+        const now = new Date();
 
-        if (expiresAt > new Date()) {
+        if (expiresAt > now) {
           setStatus({
             accessLevel: "paid",
             hasActivePayment: true,
@@ -93,7 +96,17 @@ export const useAccessControl = () => {
       checkAccess();
     });
 
-    return () => subscription.unsubscribe();
+    // Check access on page focus to ensure fresh data
+    const handleFocus = () => {
+      checkAccess();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [checkAccess]);
 
   return { ...status, refresh: checkAccess };
