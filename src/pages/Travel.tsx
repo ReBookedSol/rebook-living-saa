@@ -641,29 +641,37 @@ export default function Travel() {
             </TabsList>
 
             {/* Map Tab */}
-            <TabsContent value="map" className="space-y-6">
-              <div className="grid lg:grid-cols-4 gap-6">
-                {/* Controls */}
-                <Card className="lg:col-span-1">
+            <TabsContent value="map" className="space-y-4">
+              <div className="grid lg:grid-cols-5 gap-4">
+                {/* Sidebar Controls */}
+                <Card className="lg:col-span-1 h-fit">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">Routes</CardTitle>
-                    <CardDescription>Select transport system and region</CardDescription>
+                    <CardTitle className="text-base">Filter Routes</CardTitle>
+                    <CardDescription className="text-xs">Tap to view by region</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {/* Transport System Toggle */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mb-4">
                       <Button
                         variant={transportSystem === "myciti" ? "default" : "outline"}
-                        className="flex-1 text-xs"
-                        onClick={() => setTransportSystem("myciti")}
+                        className="flex-1 h-9 text-xs font-semibold"
+                        onClick={() => {
+                          setTransportSystem("myciti");
+                          setShowAllRoutes(true);
+                          setSelectedRegion("all");
+                        }}
                       >
                         <Bus className="w-3 h-3 mr-1" />
                         MyCiTi
                       </Button>
                       <Button
                         variant={transportSystem === "putco" ? "default" : "outline"}
-                        className="flex-1 text-xs"
-                        onClick={() => setTransportSystem("putco")}
+                        className="flex-1 h-9 text-xs font-semibold"
+                        onClick={() => {
+                          setTransportSystem("putco");
+                          setShowAllRoutes(true);
+                          setSelectedRegion("all");
+                        }}
                       >
                         <Bus className="w-3 h-3 mr-1" />
                         PUTCO
@@ -673,45 +681,64 @@ export default function Travel() {
                     {/* Gautrain Toggle */}
                     <Button
                       variant={showGautrain ? "default" : "outline"}
-                      className="w-full justify-start"
+                      className="w-full justify-center h-9 text-xs font-semibold"
                       onClick={() => setShowGautrain(!showGautrain)}
                     >
-                      <Train className="w-4 h-4 mr-2" />
-                      Show Gautrain
+                      <Train className="w-3 h-3 mr-2" />
+                      Gautrain Network
                     </Button>
 
-                    <div className="border-t pt-3 mt-3">
-                      <p className="text-sm font-medium mb-2 text-muted-foreground">
+                    {/* View All Button */}
+                    <div className="border-t pt-3">
+                      <Button
+                        variant={selectedRegion === "all" ? "secondary" : "outline"}
+                        className="w-full justify-start mb-3 h-10 font-semibold text-sm"
+                        onClick={() => {
+                          setSelectedRegion("all");
+                          setShowAllRoutes(true);
+                        }}
+                      >
+                        <MapIcon className="w-4 h-4 mr-2" />
+                        View All Routes
+                      </Button>
+
+                      <p className="text-xs font-medium mb-2 text-muted-foreground px-1">
                         {transportSystem === "myciti" ? "MyCiTi Regions" : "PUTCO Regions"}
                       </p>
-                      {transportSystem === "myciti" ? (
-                        Object.entries(MYCITI_WESTERN_CAPE).map(([key, region]) => (
-                          <Button
-                            key={key}
-                            variant={selectedRegion === key ? "secondary" : "ghost"}
-                            className="w-full justify-start mb-1 text-xs"
-                            onClick={() => setSelectedRegion(key)}
-                          >
-                            <Bus className="w-4 h-4 mr-2" />
-                            {region.name}
-                          </Button>
-                        ))
-                      ) : (
-                        Object.entries(PUTCO_ROUTES).map(([key, region]) => (
-                          <Button
-                            key={key}
-                            variant={selectedRegion === key ? "secondary" : "ghost"}
-                            className="w-full justify-start mb-1"
-                            onClick={() => {
-                              setTransportSystem("putco");
-                              setSelectedRegion(key);
-                            }}
-                          >
-                            <Bus className="w-4 h-4 mr-2" />
-                            {region.name}
-                          </Button>
-                        ))
-                      )}
+                      <div className="space-y-1 max-h-96 overflow-y-auto">
+                        {transportSystem === "myciti" ? (
+                          Object.entries(MYCITI_WESTERN_CAPE).map(([key, region]) => (
+                            <Button
+                              key={key}
+                              variant={selectedRegion === key ? "secondary" : "ghost"}
+                              className="w-full justify-start text-xs h-8"
+                              onClick={() => {
+                                setSelectedRegion(key);
+                                setShowAllRoutes(false);
+                              }}
+                            >
+                              <div className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
+                              <span className="truncate">{region.name}</span>
+                            </Button>
+                          ))
+                        ) : (
+                          Object.entries(PUTCO_ROUTES).map(([key, region]) => (
+                            <Button
+                              key={key}
+                              variant={selectedRegion === key ? "secondary" : "ghost"}
+                              className="w-full justify-start text-xs h-8"
+                              onClick={() => {
+                                setTransportSystem("putco");
+                                setSelectedRegion(key);
+                                setShowAllRoutes(false);
+                              }}
+                            >
+                              <div className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+                              <span className="truncate">{region.name}</span>
+                            </Button>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
