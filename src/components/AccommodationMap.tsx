@@ -190,22 +190,17 @@ export const AccommodationMap = ({
     };
 
     // Load Google Maps script
-    const existing = document.getElementById("google-maps-script");
-    if (existing) {
-      if ((window as any).google) {
+    const loadAndInit = async () => {
+      const success = await loadGoogleMapsScript();
+      if (success) {
         loadMap();
       } else {
-        existing.addEventListener("load", loadMap, { once: true });
+        console.warn("Failed to load Google Maps script");
+        setIsLoading(false);
       }
-    } else {
-      const script = document.createElement("script");
-      script.id = "google-maps-script";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = loadMap;
-      document.head.appendChild(script);
-    }
+    };
+
+    loadAndInit();
   }, [isPaidUser, accommodationAddress, accommodationName, universityName, city]);
 
   const showRoute = (mode: "driving" | "walking") => {
