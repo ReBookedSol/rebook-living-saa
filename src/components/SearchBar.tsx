@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, MapPin, GraduationCap, DollarSign, CheckCircle, ChevronsUpDown, Check } from "lucide-react";
+import { Search, MapPin, GraduationCap, DollarSign, CheckCircle, ChevronsUpDown, Check, Train } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +87,7 @@ const SearchBar = ({ compact = false }) => {
     "Public Transport Access",
   ];
   const [nsfasOnly, setNsfasOnly] = useState(false);
+  const [nearTrain, setNearTrain] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
 
@@ -97,6 +98,7 @@ const SearchBar = ({ compact = false }) => {
     if (province && province !== "All Provinces") params.set("province", province);
     if (maxCost) params.set("maxCost", maxCost);
     if (nsfasOnly) params.set("nsfas", "true");
+    if (nearTrain) params.set("nearTrain", "true");
     if (minRating > 0) params.set("minRating", String(minRating));
     if (amenities.length > 0) params.set("amenities", amenities.join(","));
 
@@ -273,7 +275,7 @@ const SearchBar = ({ compact = false }) => {
             </Popover>
           </div>
 
-          <div className="space-y-2 col-span-1 md:col-span-2">
+          <div className="space-y-2 col-span-1 md:col-span-2 flex flex-col md:flex-row md:items-end gap-4">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="nsfas"
@@ -286,6 +288,21 @@ const SearchBar = ({ compact = false }) => {
               >
                 <CheckCircle className="h-4 w-4 text-primary" />
                 NSFAS Accredited Only
+              </label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="nearTrain"
+                checked={nearTrain}
+                onCheckedChange={(checked) => setNearTrain(checked as boolean)}
+              />
+              <label
+                htmlFor="nearTrain"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+              >
+                <Train className="h-4 w-4 text-primary" />
+                Near Train Station
               </label>
             </div>
           </div>

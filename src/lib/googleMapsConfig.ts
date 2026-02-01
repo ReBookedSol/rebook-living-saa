@@ -7,6 +7,9 @@ let cachedApiKey: string | null = null;
 let cacheTime = 0;
 const CACHE_DURATION = 1000 * 60 * 60; // Cache for 1 hour
 
+// Global promise to ensure script is only loaded once
+let scriptLoadingPromise: Promise<boolean> | null = null;
+
 /**
  * Fetch Google Places API key from Supabase secrets via Edge Function
  */
@@ -59,16 +62,28 @@ export async function getGoogleMapsApiKey(): Promise<string | null> {
 
 /**
  * Load Google Maps script with the API key
+ * Uses a global promise to ensure the script is only loaded once
  */
 export async function loadGoogleMapsScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    // Check if already loaded
+  // If already loaded, return success immediately
+  if ((window as any).google?.maps) {
+    return true;
+  }
+
+  // If a loading promise is already in progress, return it
+  if (scriptLoadingPromise) {
+    return scriptLoadingPromise;
+  }
+
+  // Create the loading promise
+  scriptLoadingPromise = new Promise((resolve) => {
+    // Double-check after awaiting (in case another call loaded it)
     if ((window as any).google?.maps) {
       resolve(true);
       return;
     }
 
-    // Check if script already exists
+    // Check if script already exists in DOM
     const existing = document.getElementById("google-maps-script");
     if (existing) {
       if ((window as any).google?.maps) {
@@ -101,12 +116,18 @@ export async function loadGoogleMapsScript(): Promise<boolean> {
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
       script.async = true;
       script.defer = true;
-      script.onload = () => resolve(true);
+      script.onload = () => {
+        scriptLoadingPromise = null; // Reset after successful load
+        resolve(true);
+      };
       script.onerror = () => {
         console.warn("Failed to load Google Maps script");
+        scriptLoadingPromise = null; // Reset after error
         resolve(false);
       };
       document.head.appendChild(script);
     });
   });
+
+  return scriptLoadingPromise;
 }

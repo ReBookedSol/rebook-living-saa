@@ -12,7 +12,6 @@ const Pricing = () => {
     "Interactive map with satellite view",
     "Street view (360° imagery)",
     "Advanced search filters",
-    "Direct landlord messaging",
   ];
 
   const freeFeatures = [
@@ -89,9 +88,9 @@ const Pricing = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-4">
-                  <div className="text-5xl font-bold text-primary">R59</div>
+                  <div className="text-5xl font-bold text-primary">R69</div>
                   <p className="text-sm text-muted-foreground mt-2">one-time payment • 30 days access</p>
-                  <p className="text-xs text-primary font-semibold mt-3">3x longer than Weekly Pass</p>
+                  <p className="text-xs text-primary font-semibold mt-3">6x longer than Weekly Pass</p>
                 </div>
 
                 <div className="space-y-3">
@@ -120,7 +119,7 @@ const Pricing = () => {
               <CardContent className="space-y-6">
                 <div>
                   <div className="text-4xl font-bold">R19</div>
-                  <p className="text-sm text-muted-foreground">one-time payment • 7 days access</p>
+                  <p className="text-sm text-muted-foreground">one-time payment • 5 days access</p>
                 </div>
 
                 <div className="space-y-3">

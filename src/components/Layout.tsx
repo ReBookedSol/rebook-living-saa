@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Settings } from "lucide-react";
+import { Home, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIAssistantBubble } from "@/components/AIAssistantBubble";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -93,12 +94,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4">
                   Travel
                 </Link>
-                <Link to="/about" className="text-base font-medium hover:underline underline-offset-4">
-                  About
-                </Link>
-                <Link to="/contact" className="text-base font-medium hover:underline underline-offset-4">
-                  Contact
-                </Link>
                 <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
                   {isLoggedIn ? "Profile" : "Sign In"}
                 </Link>
@@ -106,17 +101,42 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             )}
 
             {!isAdmin && (
-              <div className="md:hidden flex items-center gap-2">
-                <Link to="/browse">
-                  <Button variant="ghost" size="icon">
-                    <Search className="h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link to={isLoggedIn ? "/profile" : "/auth"}>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </Link>
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/browse" className="cursor-pointer">
+                        Browse
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/campus-guide" className="cursor-pointer">
+                        ReBooked Campus
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/travel" className="cursor-pointer">
+                        Travel
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/pricing" className="cursor-pointer">
+                        Pricing
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to={isLoggedIn ? "/profile" : "/auth"} className="cursor-pointer">
+                        {isLoggedIn ? "Profile" : "Sign In"}
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
           </div>
@@ -163,8 +183,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <li><Link to="/campus-guide" onClick={(e) => handleFooterNav(e, '/campus-guide')} className="text-muted-foreground hover:text-primary transition-colors">ReBooked Campus</Link></li>
                 <li><Link to="/travel" onClick={(e) => handleFooterNav(e, '/travel')} className="text-muted-foreground hover:text-primary transition-colors">Travel Guide</Link></li>
                 <li><Link to="/pricing" onClick={(e) => handleFooterNav(e, '/pricing')} className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
-                <li><Link to="/about" onClick={(e) => handleFooterNav(e, '/about')} className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-                <li><Link to="/contact" onClick={(e) => handleFooterNav(e, '/contact')} className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
                 <li><Link to="/profile" onClick={(e) => handleFooterNav(e, '/profile')} className="text-muted-foreground hover:text-primary transition-colors">My Profile</Link></li>
               </ul>
             </div>
@@ -181,7 +199,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <h4 className="font-semibold text-foreground mb-5">Company</h4>
               <ul className="space-y-3 text-sm">
                 <li><p className="text-muted-foreground">Powered by Rebooked Solutions</p></li>
-                <li><p className="text-xs text-muted-foreground/70">Connecting South African students with quality accommodation since 2024</p></li>
+                <li><p className="text-xs text-muted-foreground/70">Connecting South African students with quality accommodation since 2025</p></li>
               </ul>
             </div>
           </div>
