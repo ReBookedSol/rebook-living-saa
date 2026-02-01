@@ -747,7 +747,9 @@ const ListingDetail = () => {
                       {hasMorePhotos && (
                         <>
                           <div className="mt-6 pt-4 md:mt-8 md:pt-6 border-t">
-                            <h4 className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">More photos locked</h4>
+                            <h4 className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                              {totalPhotos - FREE_TIER_LIMITS.MAX_PHOTOS} more photos locked
+                            </h4>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                               {(() => {
                                 // Generate 10 different stock house images
