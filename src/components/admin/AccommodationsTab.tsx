@@ -175,8 +175,10 @@ const AccommodationsTab = () => {
   const duplicatesMap = useMemo(() => {
     const map = new Map<string, any[]>();
     accommodations?.forEach((acc: any) => {
-      const key = (acc.property_name || "").trim().toLowerCase();
-      if (!key) return;
+      const name = (acc.property_name || "").trim().toLowerCase();
+      const address = (acc.address || "").trim().toLowerCase();
+      const key = `${name}|${address}`;
+      if (!name || !address) return;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(acc);
     });
