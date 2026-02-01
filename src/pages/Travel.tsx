@@ -347,8 +347,8 @@ export default function Travel() {
       if (!google?.maps) return;
 
       const map = new google.maps.Map(mapRef.current, {
-        center: { lat: -25.7479, lng: 28.2293 },
-        zoom: 10,
+        center: { lat: -33.9249, lng: 18.4241 },
+        zoom: 11,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: true,
