@@ -120,7 +120,7 @@ const Pricing = () => {
               <CardContent className="space-y-6">
                 <div>
                   <div className="text-4xl font-bold">R19</div>
-                  <p className="text-sm text-muted-foreground">one-time payment • 7 days access</p>
+                  <p className="text-sm text-muted-foreground">one-time payment • 5 days access</p>
                 </div>
 
                 <div className="space-y-3">
