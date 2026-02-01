@@ -3,18 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  MapPin, 
-  Navigation, 
-  Car, 
-  Footprints, 
-  Clock, 
+import {
+  MapPin,
+  Navigation,
+  Car,
+  Footprints,
+  Clock,
   Lock,
   Building2,
   Maximize2,
 } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 
 interface AccommodationMapProps {
   accommodationAddress: string;
