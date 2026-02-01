@@ -93,12 +93,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4">
                   Travel
                 </Link>
-                <Link to="/about" className="text-base font-medium hover:underline underline-offset-4">
-                  About
-                </Link>
-                <Link to="/contact" className="text-base font-medium hover:underline underline-offset-4">
-                  Contact
-                </Link>
                 <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
                   {isLoggedIn ? "Profile" : "Sign In"}
                 </Link>
