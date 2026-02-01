@@ -24,20 +24,22 @@ import {
 } from "lucide-react";
 import GautrainInfo from "@/components/GautrainInfo";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import {
+  gautrainStations,
+  mycitiStations,
+  putcoStations,
+  gautrainRoutes,
+  mycitiRoutes,
+  putcoRoutes
+} from "@/lib/transitData";
 
-// Gautrain stations with coordinates
-const GAUTRAIN_STATIONS = [
-  { name: "OR Tambo International", lat: -26.1367, lng: 28.2311, code: "ORT" },
-  { name: "Rhodesfield", lat: -26.1428, lng: 28.2147, code: "RHO" },
-  { name: "Marlboro", lat: -26.0917, lng: 28.1106, code: "MAR" },
-  { name: "Sandton", lat: -26.1067, lng: 28.0561, code: "SAN" },
-  { name: "Rosebank", lat: -26.1467, lng: 28.0436, code: "ROS" },
-  { name: "Park", lat: -26.1847, lng: 28.0436, code: "PAR" },
-  { name: "Midrand", lat: -25.9947, lng: 28.1264, code: "MID" },
-  { name: "Centurion", lat: -25.8589, lng: 28.1897, code: "CEN" },
-  { name: "Pretoria", lat: -25.7544, lng: 28.1889, code: "PRE" },
-  { name: "Hatfield", lat: -25.7489, lng: 28.2381, code: "HAT" },
-];
+// Gautrain stations - now using comprehensive data from transitData
+const GAUTRAIN_STATIONS = gautrainStations.map(station => ({
+  name: station.name,
+  lat: station.lat,
+  lng: station.lng,
+  code: station.id.replace('gt-', '').toUpperCase().substring(0, 3),
+}));
 
 // PUTCO Routes data with enhanced information
 const PUTCO_ROUTES = {
