@@ -101,34 +101,42 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             )}
 
             {!isAdmin && (
-              <div className="md:hidden flex items-center gap-2">
-                <Sheet>
-                  <SheetTrigger asChild>
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
                       <Menu className="h-5 w-5" />
                     </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                    <nav className="flex flex-col gap-4 mt-8">
-                      <Link to="/browse" className="text-base font-medium hover:underline underline-offset-4 block">
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/browse" className="cursor-pointer">
                         Browse
                       </Link>
-                      <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4 block">
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/campus-guide" className="cursor-pointer">
                         ReBooked Campus
                       </Link>
-                      <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4 block">
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/travel" className="cursor-pointer">
                         Travel
                       </Link>
-                      <Link to="/pricing" className="text-base font-medium hover:underline underline-offset-4 block">
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/pricing" className="cursor-pointer">
                         Pricing
                       </Link>
-                      <hr className="my-2" />
-                      <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4 block">
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to={isLoggedIn ? "/profile" : "/auth"} className="cursor-pointer">
                         {isLoggedIn ? "Profile" : "Sign In"}
                       </Link>
-                    </nav>
-                  </SheetContent>
-                </Sheet>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
           </div>
