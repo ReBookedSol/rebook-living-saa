@@ -311,27 +311,16 @@ const ListingDetail = () => {
   const cacheAttributions = placeCache?.attributions;
 
   useEffect(() => {
-    const apiKey = (import.meta.env as any).VITE_GOOGLE_MAPS_API;
-    if (!apiKey) return;
-
-    const existing = document.getElementById('google-maps-script');
-    if (existing) {
-      if ((window as any).google) {
+    const loadAndInit = async () => {
+      const success = await loadGoogleMapsScript();
+      if (success) {
         initMap();
       } else {
-        existing.addEventListener('load', initMap as any, { once: true } as any);
+        console.warn('Failed to load Google Maps');
       }
-      return;
-    }
+    };
 
-    const script = document.createElement('script');
-    script.id = 'google-maps-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => initMap();
-    script.onerror = () => console.warn('Failed to load Google Maps script');
-    document.head.appendChild(script);
+    loadAndInit();
 
     function initMap() {
       try {
