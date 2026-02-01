@@ -721,6 +721,30 @@ const AccommodationsTab = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Delete All Duplicates Confirmation */}
+      <AlertDialog open={deleteAllDuplicatesDialogOpen} onOpenChange={setDeleteAllDuplicatesDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete All Duplicate Listings?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all duplicate accommodations, keeping only the oldest record for each property (name + address combination). This action cannot be undone.
+              <div className="mt-2 p-2 bg-muted rounded text-sm">
+                {duplicateEntries.length} duplicate properties detected • Will delete multiple entries per property
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteAllDuplicatesMutation.mutate()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete All Duplicates
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
