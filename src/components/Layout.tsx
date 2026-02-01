@@ -173,7 +173,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <h4 className="font-semibold text-foreground mb-5">Company</h4>
               <ul className="space-y-3 text-sm">
                 <li><p className="text-muted-foreground">Powered by Rebooked Solutions</p></li>
-                <li><p className="text-xs text-muted-foreground/70">Connecting South African students with quality accommodation since 2024</p></li>
+                <li><p className="text-xs text-muted-foreground/70">Connecting South African students with quality accommodation since 2025</p></li>
               </ul>
             </div>
           </div>
