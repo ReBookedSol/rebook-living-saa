@@ -23,6 +23,7 @@ import { getPlaceData, getUserTier } from "@/lib/placeCache";
 import { getGautrainStation, isGautrainAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import type { GoogleReview } from "@/types/place-cache";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -33,6 +34,12 @@ const ListingDetail = () => {
   // Access control
   const { accessLevel, hasActivePayment, isLoading: accessLoading } = useAccessControl();
   const isPaidUser = accessLevel === "paid";
+
+  // Real-time activity tracking for views and time spent
+  const { trackEvent } = useActivityTracking({
+    accommodationId: id,
+    pagePath: `/listing/${id}`,
+  });
 
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -222,6 +229,21 @@ const ListingDetail = () => {
       });
 
       if (error) throw error;
+
+      // Track message sent event
+      trackEvent("message_sent", { property_name: listing?.property_name });
+
+      // Increment messages in daily analytics
+      if (id) {
+        try {
+          await supabase.rpc("increment_listing_analytics", {
+            p_accommodation_id: id,
+            p_field: "messages",
+          });
+        } catch (err) {
+          console.debug("Failed to increment message analytics:", err);
+        }
+      }
 
       await triggerWebhook("contact_message", {
         name: contactForm.name,
