@@ -26,6 +26,8 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Clock,
+  CreditCard,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
