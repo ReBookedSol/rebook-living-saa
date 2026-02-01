@@ -26,7 +26,6 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Train,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
