@@ -29,7 +29,6 @@ import {
   Train,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { GautrainInfo } from "@/components/GautrainInfo";
 
 // APS Calculator Component
 const APSCalculator = () => {
