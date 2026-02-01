@@ -155,9 +155,30 @@ const UNIVERSITY_LOGOS: Record<string, string> = {
 
 // University Card Component
 const UniversityCard = ({ university }: { university: any }) => {
-  const abbrev = university.abbreviation?.toUpperCase() || "";
-  const logoUrl = university.logo || UNIVERSITY_LOGOS[abbrev];
   const navigate = useNavigate();
+
+  // Get logo with multiple fallback strategies
+  const getLogoUrl = () => {
+    // Try database logo first
+    if (university.logo) return university.logo;
+
+    // Try uppercase abbreviation
+    const abbrev = university.abbreviation?.toUpperCase();
+    if (abbrev && UNIVERSITY_LOGOS[abbrev]) return UNIVERSITY_LOGOS[abbrev];
+
+    // Try lowercase abbreviation
+    const abbrLower = university.abbreviation?.toLowerCase();
+    if (abbrLower && UNIVERSITY_LOGOS[abbrLower]) return UNIVERSITY_LOGOS[abbrLower];
+
+    // Try to match by university name
+    const nameKey = university.name?.split(" ").slice(0, 2).join("").toUpperCase();
+    if (nameKey && UNIVERSITY_LOGOS[nameKey]) return UNIVERSITY_LOGOS[nameKey];
+
+    return null;
+  };
+
+  const logoUrl = getLogoUrl();
+  const abbrev = university.abbreviation?.toUpperCase() || "";
 
   return (
     <div onClick={() => navigate(`/university/${university.id}`)}>
