@@ -102,16 +102,33 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {!isAdmin && (
               <div className="md:hidden flex items-center gap-2">
-                <Link to="/browse">
-                  <Button variant="ghost" size="icon">
-                    <Search className="h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link to={isLoggedIn ? "/profile" : "/auth"}>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </Link>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                    <nav className="flex flex-col gap-4 mt-8">
+                      <Link to="/browse" className="text-base font-medium hover:underline underline-offset-4 block">
+                        Browse
+                      </Link>
+                      <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4 block">
+                        ReBooked Campus
+                      </Link>
+                      <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4 block">
+                        Travel
+                      </Link>
+                      <Link to="/pricing" className="text-base font-medium hover:underline underline-offset-4 block">
+                        Pricing
+                      </Link>
+                      <hr className="my-2" />
+                      <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4 block">
+                        {isLoggedIn ? "Profile" : "Sign In"}
+                      </Link>
+                    </nav>
+                  </SheetContent>
+                </Sheet>
               </div>
             )}
           </div>
