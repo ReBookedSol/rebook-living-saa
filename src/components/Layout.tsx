@@ -261,7 +261,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h4 className="font-semibold text-foreground mb-5">Company</h4>
               <ul className="space-y-3 text-sm">
-                <li><p className="text-muted-foreground">Powered by Rebooked Solutions</p></li>
+                <li><a href="https://www.instagram.com/rebooked.solutions" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors underline">Powered by Rebooked Solutions</a></li>
                 <li><p className="text-xs text-muted-foreground/70">Connecting South African students with quality accommodation since 2025</p></li>
               </ul>
             </div>
