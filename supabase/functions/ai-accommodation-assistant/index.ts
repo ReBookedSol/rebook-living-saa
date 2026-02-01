@@ -373,6 +373,82 @@ Format: [{"id": "...", "rank": 1, "reason": "..."}]`
         });
       }
 
+      case "chat": {
+        // Conversational chat with accommodation context
+        const { message, conversationHistory } = await req.json();
+
+        if (!message) {
+          return new Response(JSON.stringify({ error: "No message provided" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Get some context from the database if user mentions search terms
+        const { data: accommodations } = await supabase
+          .from("accommodations")
+          .select("*")
+          .eq("status", "active")
+          .limit(100);
+
+        const chatHistory = [
+          {
+            role: "system",
+            content: `You are a friendly accommodation assistant for South African students. Help them find suitable student accommodation.
+
+Context: You have access to ${accommodations?.length || 0} active listings in our database.
+
+Guidelines:
+- Answer questions about finding accommodation
+- Provide helpful tips for choosing accommodation
+- If they ask about specific criteria, offer to search
+- Be conversational and helpful
+- Only use factual information from our database
+- Don't invent details about accommodations or locations
+
+If they ask for accommodation suggestions, mention you can help search for specific criteria like:
+- Budget
+- University/location
+- Amenities
+- NSFAS accreditation
+- etc.`,
+          },
+          ...(conversationHistory || []),
+          {
+            role: "user",
+            content: message,
+          },
+        ];
+
+        const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: chatHistory,
+            temperature: 0.7,
+            max_tokens: 500,
+          }),
+        });
+
+        if (!chatResponse.ok) {
+          throw new Error("Failed to process chat message");
+        }
+
+        const chatData = await chatResponse.json();
+        const assistantMessage = chatData.choices?.[0]?.message?.content || "I'm having trouble responding. Please try again.";
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: assistantMessage,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       case "validate": {
         // Background validation for admin review
         if (!listings || listings.length === 0) {
