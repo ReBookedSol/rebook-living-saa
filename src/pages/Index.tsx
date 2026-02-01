@@ -7,6 +7,7 @@ import { HeroCarousel } from "@/components/HeroCarousel";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
 
 const Index = () => {
   const { data: featuredListings, isLoading } = useQuery({
