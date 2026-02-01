@@ -4,6 +4,7 @@ import { Home, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { AIAssistantBubble } from "@/components/AIAssistantBubble";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
