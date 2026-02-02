@@ -56,8 +56,7 @@ const Terms = () => {
               <div className="flex items-start justify-between gap-6 mb-2">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold">Terms & Conditions</h1>
-                  <p className="text-sm text-muted-foreground mt-1">Version 5.0 (Final Consolidated)</p>
-                  <p className="text-sm text-muted-foreground">Effective Date: February 2, 2026</p>
+                  <p className="text-sm text-muted-foreground mt-1">Effective Date: February 2, 2026</p>
                   <p className="text-sm text-muted-foreground">Operated by: ReBooked Solutions (Pty) Ltd</p>
                   <p className="text-sm text-muted-foreground">Jurisdiction: Republic of South Africa</p>
                 </div>
