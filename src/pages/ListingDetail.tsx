@@ -972,15 +972,15 @@ const ListingDetail = () => {
             <div className="space-y-8 lg:sticky lg:top-20">
               {/* Contact Card */}
               <Card className="border-0 shadow-md">
-                <CardContent className="p-4 md:p-6">
+                <CardContent className="p-6 md:p-8">
                   {listing.monthly_cost !== null && listing.monthly_cost !== undefined && (
-                    <div className="mb-4 md:mb-6">
-                      <div className="text-3xl md:text-4xl font-bold text-primary mb-1">R{listing.monthly_cost.toLocaleString()}</div>
+                    <div className="mb-6 md:mb-8">
+                      <div className="text-3xl md:text-4xl font-bold text-primary mb-2">R{listing.monthly_cost.toLocaleString()}</div>
                       <p className="text-xs md:text-sm text-muted-foreground">per month</p>
                     </div>
                   )}
 
-                  <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 pb-4 md:pb-6 border-b">
+                  <div className="space-y-3 md:space-y-4 mb-6 md:mb-8 pb-6 md:pb-8 border-b">
                     {listing.contact_phone && (
                       <div className="flex items-start gap-2 md:gap-3">
                         <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
