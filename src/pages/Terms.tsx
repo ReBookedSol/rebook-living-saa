@@ -245,7 +245,7 @@ const Terms = () => {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
                   <p className="text-sm font-semibold text-blue-900">
-                    BY CLICKING "I ACCEPT" OR CONTINUING TO USE THE SITE, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREED TO BE LEGALLY BOUND BY THIS ENTIRE DOCUMENT.
+                    BY MAKING AN ACCOUNT, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREED TO BE LEGALLY BOUND BY THIS ENTIRE DOCUMENT.
                   </p>
                 </div>
 
