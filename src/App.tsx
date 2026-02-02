@@ -87,7 +87,6 @@ const App = () => {
             <Route path="/campus" element={<Campus />} />
             <Route path="/campus-guide" element={<ReBookedCampus />} />
             <Route path="/university/:id" element={<UniversityProfile />} />
-            <Route path="/webhook-demo" element={<WebhookDemo />} />
 
             {/* Payment Result Routes */}
             <Route path="/payment/success" element={<PaymentResult />} />
