@@ -304,7 +304,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               </div>
 
               {/* Footer Padding */}
-              <div style={{ height: "12px" }} />
+              <div style={{ height: "16px" }} />
             </div>
           </div>
         </div>
