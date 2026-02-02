@@ -57,50 +57,6 @@ const AccommodationCard = ({
   const [animating, setAnimating] = useState(false);
   const [showPremiumBorderAnimation, setShowPremiumBorderAnimation] = useState(false);
 
-  const shareListing = async () => {
-    const url = `${window.location.origin}/listing/${id}`;
-    const title = propertyName;
-    const text = `${propertyName}${university ? ` — near ${university}` : ''}`;
-
-    // Preferred: try native share if available
-    if ((navigator as any).share) {
-      try {
-        await (navigator as any).share({ title, text, url });
-        toast({ title: 'Shared', description: 'Share dialog opened' });
-        return;
-      } catch (err: any) {
-        // Permission denied / NotAllowed - try clipboard fallback
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(url);
-            toast({ title: 'Link copied', description: 'Listing link copied to clipboard' });
-            return;
-          }
-        } catch (e) {
-          // ignore
-        }
-        // final fallback
-        // eslint-disable-next-line no-alert
-        prompt('Copy this link', url);
-        return;
-      }
-    }
-
-    // No native share - try clipboard
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try {
-        await navigator.clipboard.writeText(url);
-        toast({ title: 'Link copied', description: 'Listing link copied to clipboard' });
-        return;
-      } catch (err) {
-        // ignore and fallthrough to prompt
-      }
-    }
-
-    // Last resort
-    // eslint-disable-next-line no-alert
-    prompt('Copy this link', url);
-  };
 
   // Check for premium animation flag and clear it after animation
   useEffect(() => {
