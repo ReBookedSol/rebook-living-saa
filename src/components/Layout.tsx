@@ -43,34 +43,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Fetch unread notification count
-  const { data: unreadCount } = useQuery({
-    queryKey: ["unread-notifications", userId],
-    queryFn: async () => {
-      if (!userId) return 0;
-
-      // Get all notifications for this user
-      const { data: notifs } = await supabase
-        .from("notifications")
-        .select("id")
-        .or(`target_user_id.is.null,target_user_id.eq.${userId}`);
-
-      if (!notifs?.length) return 0;
-
-      // Get read notifications
-      const { data: readNotifs } = await supabase
-        .from("user_notifications")
-        .select("notification_id")
-        .eq("user_id", userId)
-        .eq("is_read", true);
-
-      const readIds = new Set(readNotifs?.map((r) => r.notification_id) || []);
-      return notifs.filter((n) => !readIds.has(n.id)).length;
-    },
-    enabled: !!userId,
-    refetchInterval: 60000, // Refresh every minute
-  });
-
   const [subscriber, setSubscriber] = useState({ firstname: '', lastname: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
