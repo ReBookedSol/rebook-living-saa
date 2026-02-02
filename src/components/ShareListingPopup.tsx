@@ -114,19 +114,19 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
           </div>
 
           {/* Copy Link */}
-          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-            <Link2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <span className="text-xs text-muted-foreground truncate">{shareUrl}</span>
+          <div className="flex items-center gap-2 p-2.5 bg-muted rounded-lg mt-1">
+            <Link2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+            <span className="text-xs text-muted-foreground truncate flex-1">{shareUrl}</span>
             <Button
               size="sm"
               variant="secondary"
               onClick={handleCopyLink}
-              className="flex-shrink-0 h-8 w-8 p-0"
+              className="flex-shrink-0 h-7 w-7 p-0"
             >
               {copied ? (
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5" />
               ) : (
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3.5 h-3.5" />
               )}
             </Button>
           </div>
