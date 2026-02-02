@@ -1030,13 +1030,13 @@ const ListingDetail = () => {
 
               {/* Unified Reviews Section */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <CardTitle className="text-base md:text-lg">Reviews & Feedback</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6">
-                  <div className="space-y-3 md:space-y-4">
+                <CardContent className="p-6 md:p-8">
+                  <div className="space-y-6 md:space-y-8">
                     {/* Review Form */}
-                    <div className="pb-3 md:pb-4 border-b">
+                    <div className="pb-6 md:pb-8 border-b">
                       <ReviewForm
                         accommodationId={id || ""}
                         onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
