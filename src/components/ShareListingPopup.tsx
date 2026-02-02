@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Share, Facebook, Twitter, Link2, Mail, MessageCircle, Copy, Check } from "lucide-react";
+import { Share, Facebook, Twitter, Link2, Mail, MessageCircle, Copy, Check, Instagram } from "lucide-react";
 import { toast } from "sonner";
 
 interface ShareListingPopupProps {
