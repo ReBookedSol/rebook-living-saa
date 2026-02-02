@@ -369,7 +369,7 @@ export function generateExpiryWarningEmail(
       and any remaining time is <strong>carried over</strong>. No days wasted.
     </p>
 
-    <a href="https://rebook-living-sa.lovable.app/pricing" class="btn">
+    <a href="https://living.rebookedsolutions.co.za/pricing" class="btn">
       Renew & Keep Your Access
     </a>
 
