@@ -210,8 +210,8 @@ Deno.serve(async (req) => {
         // Pro user visiting after free cache exists: fetch delta
         const cachedPhotoCount = cachedPlace.photo_uris?.length || 0;
         const cachedReviewCount = cachedPlace.reviews?.length || 0;
-        photoFetchLimit = CACHE_LIMITS.photos - cachedPhotoCount;
-        reviewFetchLimit = CACHE_LIMITS.reviews - cachedReviewCount;
+        photoFetchLimit = Math.max(0, CACHE_LIMITS.photos - cachedPhotoCount);
+        reviewFetchLimit = Math.max(0, CACHE_LIMITS.reviews - cachedReviewCount);
         cacheTierToSave = "pro";
         console.log("Delta-fetch mode:", { cachedPhotos: cachedPhotoCount, cachedReviews: cachedReviewCount, fetchPhotos: photoFetchLimit, fetchReviews: reviewFetchLimit });
       } else if (user_tier === "free") {
@@ -294,7 +294,7 @@ Deno.serve(async (req) => {
           console.log("Fetched from API:", { photos: photos.length, reviews: reviews.length });
         }
 
-        console.log("Cache completeness check:", { photos: photos.length, reviews: reviews.length, tier: cacheTierToSave });
+        console.log("Cache tier to save:", { tier: cacheTierToSave });
 
         // Cache the data
         if (photos.length > 0 || reviews.length > 0) {
