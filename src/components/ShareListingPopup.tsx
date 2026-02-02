@@ -169,7 +169,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               {/* Social Share Buttons */}
               <div
                 style={{
-                  padding: "12px 16px",
+                  padding: "16px 20px",
                   display: "flex",
                   flexDirection: "column",
                   gap: "10px",
