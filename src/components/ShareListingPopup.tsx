@@ -86,49 +86,54 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[90vw] max-w-xl rounded-2xl p-4 gap-3 overflow-visible">
-        <DialogHeader className="gap-0 pb-1">
-          <DialogTitle className="flex items-center gap-2 text-base">
-            <Share className="w-4 h-4 text-primary" />
-            Share this listing
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="w-screen max-w-sm rounded-2xl p-4 gap-0 overflow-hidden">
+        <div className="flex flex-col gap-3 w-full">
+          <div className="flex items-center gap-2">
+            <Share className="w-4 h-4 text-primary flex-shrink-0" />
+            <h2 className="text-base font-semibold">Share this listing</h2>
+            <button
+              onClick={() => setOpen(false)}
+              className="ml-auto opacity-70 hover:opacity-100"
+            >
+              ✕
+            </button>
+          </div>
 
-        <div className="space-y-2 w-full">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground -mt-1">
             Share with friends
           </p>
 
           {/* Social Share Buttons */}
           <div className="flex flex-col gap-1.5 w-full">
-            {shareOptions.map((option) => (
-              <Button
-                key={option.name}
-                className={`w-full flex items-center justify-center gap-2 text-white font-medium py-2.5 text-xs sm:text-sm ${option.color}`}
-                onClick={() => handleShare(option.url)}
-              >
-                <option.icon className="w-4 h-4 flex-shrink-0" />
-                <span>{option.name}</span>
-              </Button>
-            ))}
+            {shareOptions.map((option) => {
+              const IconComponent = option.icon;
+              return (
+                <button
+                  key={option.name}
+                  onClick={() => handleShare(option.url)}
+                  className={`w-full flex items-center justify-center gap-2 text-white font-medium py-2 px-4 text-xs rounded ${option.color} transition-colors flex-shrink-0`}
+                >
+                  <IconComponent className="w-4 h-4 flex-shrink-0" />
+                  <span className="flex-shrink-0">{option.name}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Copy Link */}
-          <div className="flex items-center gap-2 p-2.5 bg-muted rounded-lg mt-1">
+          <div className="flex items-center gap-2 p-2.5 bg-muted rounded-lg w-full overflow-hidden">
             <Link2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="text-xs text-muted-foreground truncate flex-1">{shareUrl}</span>
-            <Button
-              size="sm"
-              variant="secondary"
+            <span className="text-xs text-muted-foreground truncate text-ellipsis overflow-hidden">{shareUrl}</span>
+            <button
               onClick={handleCopyLink}
-              className="flex-shrink-0 h-7 w-7 p-0"
+              className="flex-shrink-0 h-7 w-7 p-0 rounded hover:bg-primary/10 transition-colors"
             >
               {copied ? (
                 <Check className="w-3.5 h-3.5" />
               ) : (
                 <Copy className="w-3.5 h-3.5" />
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </DialogContent>
