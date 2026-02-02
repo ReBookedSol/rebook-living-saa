@@ -211,7 +211,6 @@ Deno.serve(async (req) => {
 
       if (needsDeltaFetch) {
         // Pro user visiting after free cache exists: fetch delta
-        const cachedPhotoCount = cachedPlace.photo_uris?.length || 0;
         const cachedReviewCount = cachedPlace.reviews?.length || 0;
         photoFetchLimit = Math.max(0, CACHE_LIMITS.photos - cachedPhotoCount);
         reviewFetchLimit = Math.max(0, CACHE_LIMITS.reviews - cachedReviewCount);
