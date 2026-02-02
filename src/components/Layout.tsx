@@ -209,21 +209,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             >
               Pricing
             </Link>
-            {isLoggedIn && (
-              <Link
-                to="/notifications"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium flex items-center gap-2"
-              >
-                <Bell className="w-4 h-4" />
-                Notifications
-                {(unreadCount || 0) > 0 && (
-                  <span className="ml-auto w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-            )}
             <div className="border-t border-primary/10 my-2 pt-2">
               <Link
                 to={isLoggedIn ? "/profile" : "/auth"}
@@ -232,6 +217,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               >
                 {isLoggedIn ? "Profile" : "Sign In"}
               </Link>
+              {isLoggedIn && (
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  className="w-full justify-start px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium h-auto flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              )}
             </div>
           </div>
         </div>
