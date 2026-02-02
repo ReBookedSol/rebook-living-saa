@@ -172,7 +172,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
                   padding: "12px 16px",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "0px",
+                  gap: "10px",
                 }}
               >
                 {shareOptions.map((option) => {
