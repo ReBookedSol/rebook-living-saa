@@ -812,6 +812,9 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
+              {/* Ad between Gallery and About */}
+              {!isPaidUser && <Ad />}
+
               {/* Details Card */}
               <Card className="border-0 shadow-md">
                 <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
