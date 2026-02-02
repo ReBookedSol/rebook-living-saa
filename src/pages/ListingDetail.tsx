@@ -983,25 +983,25 @@ const ListingDetail = () => {
                   <div className="space-y-3 md:space-y-4 mb-6 md:mb-8 pb-6 md:pb-8 border-b">
                     {listing.contact_phone && (
                       <div className="flex items-start gap-2 md:gap-3">
-                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
+                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-1 md:mt-1.5" />
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                          <p className="text-xs text-muted-foreground mb-1">Phone</p>
                           <p className="font-medium text-xs md:text-sm break-all">{listing.contact_phone}</p>
                         </div>
                       </div>
                     )}
                     {listing.contact_email && (
                       <div className="flex items-start gap-2 md:gap-3">
-                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
+                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-1 md:mt-1.5" />
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                          <p className="text-xs text-muted-foreground mb-1">Email</p>
                           <p className="font-medium text-xs md:text-sm break-all">{listing.contact_email}</p>
                         </div>
                       </div>
                     )}
                     {listing.contact_person && (
                       <div className="flex items-start gap-2 md:gap-3">
-                        <p className="text-xs text-muted-foreground mb-0.5">Contact Person</p>
+                        <p className="text-xs text-muted-foreground mb-1">Contact Person</p>
                         <p className="font-medium text-xs md:text-sm">{listing.contact_person}</p>
                       </div>
                     )}
