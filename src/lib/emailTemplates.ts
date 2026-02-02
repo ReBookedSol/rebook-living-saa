@@ -264,53 +264,103 @@ export function generateExpiryWarningEmail(
   paymentType: "weekly" | "monthly",
   expiresAt: Date
 ): string {
-  const planName = paymentType === "weekly" ? "5-Day Pass" : "Monthly Pass";
+  const planName = paymentType === "weekly" ? "5-Day Pass" : "Monthly Pass (25 Days)";
   const formattedDate = expiresAt.toLocaleDateString('en-ZA', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: 'numeric'
   });
 
-  return `
-<!DOCTYPE html>
-<html>
+  return `<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>${emailStyles}</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Pro Access Is About to End</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2fbf6;
+      padding: 20px;
+      color: #1f4e3d;
+      margin: 0;
+    }
+    .container {
+      max-width: 520px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 32px;
+      border-radius: 12px;
+    }
+    h1 {
+      color: #c0392b;
+      margin-top: 0;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 24px;
+      background-color: #2d6e55;
+      color: white !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .loss-box {
+      background-color: #fff5f5;
+      border-left: 4px solid #c0392b;
+      padding: 16px;
+      margin: 22px 0;
+      border-radius: 6px;
+    }
+    .footer {
+      margin-top: 35px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
 </head>
+
 <body>
   <div class="container">
-    <h1>⏰ Your Pro Access Expires Soon</h1>
-    
-    <p>Hi there,</p>
-    
-    <p>Your ReBooked <strong>${planName}</strong> will expire on <strong>${formattedDate}</strong>.</p>
-    
-    <div class="highlight-box">
-      <p style="margin: 0;"><strong>Don't lose access!</strong> Renew now to continue enjoying:</p>
-      <ul class="feature-list">
-        <li>Unlimited accommodation photos</li>
-        <li>All Google reviews</li>
-        <li>AI-powered search</li>
-        <li>Interactive maps with travel times</li>
-        <li>Ad-free browsing</li>
+    <h1>⚠️ Your Pro access is expiring</h1>
+
+    <p>
+      Your <strong>${planName}</strong> will expire on
+      <strong>${formattedDate}</strong>.
+    </p>
+
+    <div class="loss-box">
+      <p><strong>If you don't renew, you'll lose:</strong></p>
+      <ul>
+        <li>❌ Access to full accommodation photos</li>
+        <li>❌ Google reviews & ratings</li>
+        <li>❌ AI search & smart comparisons</li>
+        <li>❌ Map-based distance & travel insights</li>
+        <li>❌ Ad-free browsing</li>
       </ul>
     </div>
-    
-    <p>Your new access will be added to your remaining time – you won't lose a single day!</p>
-    
-    <a href="https://rebook-living-sa.lovable.app/pricing" class="btn">Renew Now</a>
-    
+
+    <p>
+      Renewing now keeps <strong>all your benefits active</strong> —
+      and any remaining time is <strong>carried over</strong>. No days wasted.
+    </p>
+
+    <a href="https://rebook-living-sa.lovable.app/pricing" class="btn">
+      Renew & Keep Your Access
+    </a>
+
     <div class="footer">
-      <p>Questions? Contact us at info@rebookedsolutions.co.za</p>
-      <p>© ${new Date().getFullYear()} ReBooked Solutions. All rights reserved.</p>
+      <p>
+        Payment issues?
+        <a href="mailto:payments@rebookedsolutions.co.za">payments@rebookedsolutions.co.za</a>
+      </p>
+      <p>© 2026 ReBooked Solutions</p>
     </div>
   </div>
 </body>
-</html>
-  `;
+</html>`;
 }
