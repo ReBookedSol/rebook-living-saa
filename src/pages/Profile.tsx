@@ -391,6 +391,14 @@ const Profile = () => {
             >
               <User2 className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
+
+            <TabsTrigger
+              value="notifications"
+              className="flex-1 md:flex-none min-w-[80px] justify-center flex items-center gap-1 sm:gap-2 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              aria-label="Notifications"
+            >
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Notifications</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
