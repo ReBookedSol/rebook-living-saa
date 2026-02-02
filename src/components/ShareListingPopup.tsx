@@ -82,19 +82,19 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
-      >
-        {trigger ? (
-          trigger
-        ) : (
-          <>
-            <Share className="w-4 h-4" />
-            Share
-          </>
-        )}
-      </button>
+      {trigger ? (
+        <div onClick={() => setOpen(true)}>
+          {trigger}
+        </div>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
+        >
+          <Share className="w-4 h-4" />
+          Share
+        </button>
+      )}
 
       {/* Modal Overlay */}
       {open && (
