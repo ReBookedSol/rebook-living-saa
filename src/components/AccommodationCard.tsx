@@ -12,6 +12,7 @@ import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
 import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import { ShareListingPopup } from "@/components/ShareListingPopup";
 
 interface AccommodationCardProps {
   id: string;
@@ -56,50 +57,6 @@ const AccommodationCard = ({
   const [animating, setAnimating] = useState(false);
   const [showPremiumBorderAnimation, setShowPremiumBorderAnimation] = useState(false);
 
-  const shareListing = async () => {
-    const url = `${window.location.origin}/listing/${id}`;
-    const title = propertyName;
-    const text = `${propertyName}${university ? ` — near ${university}` : ''}`;
-
-    // Preferred: try native share if available
-    if ((navigator as any).share) {
-      try {
-        await (navigator as any).share({ title, text, url });
-        toast({ title: 'Shared', description: 'Share dialog opened' });
-        return;
-      } catch (err: any) {
-        // Permission denied / NotAllowed - try clipboard fallback
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(url);
-            toast({ title: 'Link copied', description: 'Listing link copied to clipboard' });
-            return;
-          }
-        } catch (e) {
-          // ignore
-        }
-        // final fallback
-        // eslint-disable-next-line no-alert
-        prompt('Copy this link', url);
-        return;
-      }
-    }
-
-    // No native share - try clipboard
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try {
-        await navigator.clipboard.writeText(url);
-        toast({ title: 'Link copied', description: 'Listing link copied to clipboard' });
-        return;
-      } catch (err) {
-        // ignore and fallthrough to prompt
-      }
-    }
-
-    // Last resort
-    // eslint-disable-next-line no-alert
-    prompt('Copy this link', url);
-  };
 
   // Check for premium animation flag and clear it after animation
   useEffect(() => {
@@ -415,10 +372,16 @@ const AccommodationCard = ({
 
         {/* Action Buttons */}
         <CardFooter className="p-4 pt-3 flex items-center justify-between gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>
-            <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); shareListing(); }} className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs">
-              <Share className="w-4 h-4" />
-            </Button>
+          <div onClick={(e) => e.preventDefault()}>
+            <ShareListingPopup
+              listingId={id}
+              listingName={propertyName}
+              trigger={
+                <Button variant="ghost" size="sm" className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs gap-1">
+                  <Share className="w-4 h-4" />
+                </Button>
+              }
+            />
           </div>
 
           <div onClick={(e) => e.preventDefault()}>
