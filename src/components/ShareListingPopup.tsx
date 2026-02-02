@@ -156,8 +156,8 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               {/* Subtitle */}
               <p
                 style={{
-                  padding: "0 16px",
-                  paddingTop: "8px",
+                  padding: "0 20px",
+                  paddingTop: "12px",
                   fontSize: "12px",
                   color: "#6b7280",
                   margin: 0,
