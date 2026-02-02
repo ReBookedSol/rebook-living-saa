@@ -452,13 +452,13 @@ export default function Travel() {
           : [[selectedRegion, MYCITI_WESTERN_CAPE[selectedRegion as keyof typeof MYCITI_WESTERN_CAPE]]];
 
       regionsToShow.forEach(([regionKey, region]) => {
-        if (!region?.stations) return;
+        if (typeof region === 'string' || !region?.stations) return;
 
         const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
         const fillColor = isHighlighted ? "#1E88E5" : "#B0BEC5";
         const scale = isHighlighted ? 10 : 7;
 
-        region.stations.forEach((station) => {
+        (region.stations as { name: string; lat: number; lng: number }[]).forEach((station) => {
           const marker = new google.maps.Marker({
             position: { lat: station.lat, lng: station.lng },
             map: mapInstanceRef.current,
@@ -511,13 +511,13 @@ export default function Travel() {
           : [[selectedRegion, PUTCO_ROUTES[selectedRegion as keyof typeof PUTCO_ROUTES]]];
 
       regionsToShow.forEach(([regionKey, region]) => {
-        if (!region?.stations) return;
+        if (typeof region === 'string' || !region?.stations) return;
 
         const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
         const fillColor = isHighlighted ? "#FB8C00" : "#B0BEC5";
         const scale = isHighlighted ? 10 : 7;
 
-        region.stations.forEach((station) => {
+        (region.stations as { name: string; lat: number; lng: number }[]).forEach((station) => {
           const marker = new google.maps.Marker({
             position: { lat: station.lat, lng: station.lng },
             map: mapInstanceRef.current,
