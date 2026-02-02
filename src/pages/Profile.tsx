@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, ShieldCheck, Sparkles, Crown } from "lucide-react";
+import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, ShieldCheck, Sparkles, Crown, Bell } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
@@ -179,6 +179,49 @@ const Profile = () => {
       return data;
     },
     enabled: !!university,
+  });
+
+  const { data: notifications, isLoading: notificationsLoading } = useQuery({
+    queryKey: ["notifications", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      // Get all notifications for this user
+      const { data: notifs, error: notifsError } = await supabase
+        .from("notifications")
+        .select("*")
+        .or(`target_user_id.is.null,target_user_id.eq.${user.id}`)
+        .order("created_at", { ascending: false });
+
+      if (notifsError) throw notifsError;
+      if (!notifs?.length) return [];
+
+      // Get read notifications for this user
+      const { data: readNotifs, error: readError } = await supabase
+        .from("user_notifications")
+        .select("notification_id, is_read")
+        .eq("user_id", user.id);
+
+      if (readError) throw readError;
+      const readMap = new Map(readNotifs?.map((r) => [r.notification_id, r.is_read]) || []);
+
+      // Mark as read for notifications we're displaying
+      const unreadIds = notifs.filter(n => !readMap.get(n.id)).map(n => n.id);
+      if (unreadIds.length > 0) {
+        await Promise.all(unreadIds.map(notifId =>
+          supabase
+            .from("user_notifications")
+            .upsert({ user_id: user.id, notification_id: notifId, is_read: true })
+            .select()
+        ));
+      }
+
+      return notifs.map(n => ({
+        ...n,
+        is_read: readMap.get(n.id) ?? false,
+      }));
+    },
+    enabled: !!user?.id,
   });
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -348,6 +391,14 @@ const Profile = () => {
             >
               <User2 className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
+
+            <TabsTrigger
+              value="notifications"
+              className="flex-1 md:flex-none min-w-[80px] justify-center flex items-center gap-1 sm:gap-2 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              aria-label="Notifications"
+            >
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Notifications</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -488,6 +539,40 @@ const Profile = () => {
               </div>
             ) : (
               <p className="text-muted-foreground">No recently viewed properties</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Notifications</h2>
+            {notificationsLoading ? (
+              <p className="text-muted-foreground">Loading notifications...</p>
+            ) : notifications && notifications.length > 0 ? (
+              <div className="space-y-3">
+                {notifications.map((notification: any) => (
+                  <Card key={notification.id} className="border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+                    <CardContent className="pt-4 sm:pt-6">
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${notification.is_read ? 'bg-gray-300' : 'bg-primary'}`} />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm sm:text-base text-foreground">{notification.title}</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground/70 mt-2">
+                            {new Date(notification.created_at).toLocaleDateString("en-ZA", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No notifications yet</p>
             )}
           </TabsContent>
 

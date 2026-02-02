@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Menu, Bell } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, Search, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,9 +10,11 @@ import { useQuery } from "@tanstack/react-query";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith("/admin");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { toast } = useToast();
 
   const scrollToTopSmooth = () => {
     if (typeof window !== "undefined") {
@@ -41,37 +43,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Fetch unread notification count
-  const { data: unreadCount } = useQuery({
-    queryKey: ["unread-notifications", userId],
-    queryFn: async () => {
-      if (!userId) return 0;
-
-      // Get all notifications for this user
-      const { data: notifs } = await supabase
-        .from("notifications")
-        .select("id")
-        .or(`target_user_id.is.null,target_user_id.eq.${userId}`);
-
-      if (!notifs?.length) return 0;
-
-      // Get read notifications
-      const { data: readNotifs } = await supabase
-        .from("user_notifications")
-        .select("notification_id")
-        .eq("user_id", userId)
-        .eq("is_read", true);
-
-      const readIds = new Set(readNotifs?.map((r) => r.notification_id) || []);
-      return notifs.filter((n) => !readIds.has(n.id)).length;
-    },
-    enabled: !!userId,
-    refetchInterval: 60000, // Refresh every minute
-  });
-
-  const { toast } = useToast();
   const [subscriber, setSubscriber] = useState({ firstname: '', lastname: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+        toast({ title: "Error", description: "Failed to sign out. Please try again.", variant: "destructive" });
+        return;
+      }
+      setIsMobileMenuOpen(false);
+      navigate("/");
+    } catch (err: any) {
+      console.error("Sign out failed:", err);
+      toast({ title: "Error", description: err?.message || "Network error while signing out.", variant: "destructive" });
+    }
+  };
 
   const handleFooterNav = (e: React.MouseEvent, path: string) => {
     // If clicking a footer link that points to the current page, prevent navigation and scroll to top
@@ -133,19 +122,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   Travel
                   <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
                 </Link>
-                {isLoggedIn && (
-                  <Link to="/notifications" className="relative text-base font-medium hover:underline underline-offset-4">
-                    <Bell className="w-5 h-5" />
-                    {(unreadCount || 0) > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                )}
                 <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
                   {isLoggedIn ? "Profile" : "Sign In"}
                 </Link>
+                {isLoggedIn && (
+                  <Button onClick={handleLogout} variant="ghost" size="icon" className="h-10 w-10">
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                )}
               </div>
             )}
 
@@ -197,21 +181,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             >
               Pricing
             </Link>
-            {isLoggedIn && (
-              <Link
-                to="/notifications"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium flex items-center gap-2"
-              >
-                <Bell className="w-4 h-4" />
-                Notifications
-                {(unreadCount || 0) > 0 && (
-                  <span className="ml-auto w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-            )}
             <div className="border-t border-primary/10 my-2 pt-2">
               <Link
                 to={isLoggedIn ? "/profile" : "/auth"}
@@ -220,6 +189,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               >
                 {isLoggedIn ? "Profile" : "Sign In"}
               </Link>
+              {isLoggedIn && (
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  className="w-full justify-start px-4 py-3 rounded-lg text-foreground hover:bg-primary/10 transition-colors font-medium h-auto flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              )}
             </div>
           </div>
         </div>

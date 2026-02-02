@@ -166,13 +166,17 @@ Deno.serve(async (req) => {
     const cacheExists = cachedPlace && !cachedPlace.is_expired;
     const cacheTier = cachedPlace?.cached_tier;
 
-    // Determine if we need to do delta-fetch (pro user visiting after free cache exists)
-    const needsDeltaFetch = cacheExists && cacheTier === "free" && user_tier === "pro";
+    // Determine if we need to do delta-fetch
+    // Case 1: Pro user visiting after free cache exists
+    // Case 2: Pro user visiting incomplete pro-marked cache (from old buggy code)
+    const cachedPhotoCount = cachedPlace?.photo_uris?.length || 0;
+    const needsDeltaFetch = cacheExists && user_tier === "pro" && (cacheTier === "free" || (cacheTier === "pro" && cachedPhotoCount < CACHE_LIMITS.photos));
 
     // Cache is valid only if:
-    // - tier === "pro" (full data available for any user)
+    // - tier === "pro" with full data (full data available for any user)
     // - tier === "free" AND user_tier === "free" (free user sees free tier cache)
-    const isCacheValid = cacheExists && cacheTier !== "incomplete" && (cacheTier === "pro" || (cacheTier === "free" && user_tier === "free"));
+    // - Not doing a delta-fetch (pro user needs more data from incomplete pro cache)
+    const isCacheValid = cacheExists && cacheTier !== "incomplete" && (cacheTier === "pro" || (cacheTier === "free" && user_tier === "free")) && !needsDeltaFetch;
 
     console.log("Cache status:", {
       found: !!cachedPlace,
@@ -204,14 +208,13 @@ Deno.serve(async (req) => {
       // Determine fetch limits based on user tier and cache status
       let photoFetchLimit: number;
       let reviewFetchLimit: number;
-      let cacheTierToSave: "free" | "pro" | "incomplete";
+      let cacheTierToSave: "free" | "pro";
 
       if (needsDeltaFetch) {
         // Pro user visiting after free cache exists: fetch delta
-        const cachedPhotoCount = cachedPlace.photo_uris?.length || 0;
         const cachedReviewCount = cachedPlace.reviews?.length || 0;
-        photoFetchLimit = 10 - cachedPhotoCount;
-        reviewFetchLimit = 5 - cachedReviewCount;
+        photoFetchLimit = Math.max(0, CACHE_LIMITS.photos - cachedPhotoCount);
+        reviewFetchLimit = Math.max(0, CACHE_LIMITS.reviews - cachedReviewCount);
         cacheTierToSave = "pro";
         console.log("Delta-fetch mode:", { cachedPhotos: cachedPhotoCount, cachedReviews: cachedReviewCount, fetchPhotos: photoFetchLimit, fetchReviews: reviewFetchLimit });
       } else if (user_tier === "free") {
@@ -294,11 +297,7 @@ Deno.serve(async (req) => {
           console.log("Fetched from API:", { photos: photos.length, reviews: reviews.length });
         }
 
-        // Determine cache tier based on completeness
-        const isComplete = photos.length >= 3 && reviews.length >= 1;
-        const finalCacheTier = isComplete ? "pro" : "incomplete";
-
-        console.log("Cache completeness check:", { photos: photos.length, reviews: reviews.length, isComplete, tier: finalCacheTier });
+        console.log("Cache tier to save:", { tier: cacheTierToSave });
 
         // Cache the data
         if (photos.length > 0 || reviews.length > 0) {
@@ -307,13 +306,13 @@ Deno.serve(async (req) => {
             p_photo_uris: photos,
             p_reviews: reviews,
             p_attributions: attributions,
-            p_cached_tier: finalCacheTier,
+            p_cached_tier: cacheTierToSave,
           });
 
           if (cacheError) {
             console.error("Failed to cache place data:", cacheError);
           } else {
-            console.log("Successfully cached place data with tier:", finalCacheTier);
+            console.log("Successfully cached place data with tier:", cacheTierToSave);
           }
 
           // Track cache miss in analytics
