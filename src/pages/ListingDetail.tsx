@@ -1007,7 +1007,7 @@ const ListingDetail = () => {
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {listing.contact_phone && (
                       <a href={`tel:${listing.contact_phone}`} className="block">
                         <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
