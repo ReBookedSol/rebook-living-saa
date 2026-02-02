@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 import { DoorOpen, DoorClosed } from "lucide-react";
+import { triggerWebhook } from "@/lib/webhook";
 
 const Auth = () => {
   const navigate = useNavigate();
