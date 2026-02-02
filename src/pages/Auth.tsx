@@ -101,6 +101,14 @@ const Auth = () => {
         });
       }
     } else {
+      // Trigger webhook with user signup info (excluding password)
+      await triggerWebhook("user_signup", {
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        signup_timestamp: new Date().toISOString(),
+      });
+
       toast({
         title: "Success",
         description: "Please check your email to verify your account",
