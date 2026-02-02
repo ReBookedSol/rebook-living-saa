@@ -94,7 +94,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-3 w-full">
           <p className="text-sm text-muted-foreground">
             Share with friends
           </p>
