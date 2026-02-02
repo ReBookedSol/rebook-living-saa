@@ -86,7 +86,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[92vw] max-w-sm sm:max-w-md rounded-2xl">
+      <DialogContent className="w-[95vw] max-w-md rounded-2xl p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Share className="w-5 h-5 text-primary" />
@@ -96,43 +96,45 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Share <span className="font-medium text-foreground">{listingName}</span> with friends
+            Share <span className="font-medium text-foreground line-clamp-1">{listingName}</span> with friends
           </p>
 
           {/* Social Share Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {shareOptions.map((option) => (
               <Button
                 key={option.name}
                 variant="outline"
-                className={`flex items-center gap-2 text-white ${option.color}`}
+                size="sm"
+                className={`flex items-center justify-center gap-1 text-white whitespace-nowrap ${option.color}`}
                 onClick={() => handleShare(option.url)}
               >
-                <option.icon className="w-4 h-4" />
-                {option.name}
+                <option.icon className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline text-xs sm:text-sm">{option.name}</span>
+                <span className="sm:hidden text-xs">{option.name.split(' ')[0]}</span>
               </Button>
             ))}
           </div>
 
           {/* Copy Link */}
-          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-            <Link2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <span className="text-sm truncate flex-1">{shareUrl}</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-3 bg-muted rounded-lg">
+            <Link2 className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5 sm:mt-0" />
+            <span className="text-xs sm:text-sm truncate flex-1 w-full">{shareUrl}</span>
             <Button
               size="sm"
               variant="secondary"
               onClick={handleCopyLink}
-              className="gap-1"
+              className="gap-1 flex-shrink-0 w-full sm:w-auto"
             >
               {copied ? (
                 <>
                   <Check className="w-3 h-3" />
-                  Copied
+                  <span>Copied</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3 h-3" />
-                  Copy
+                  <span>Copy</span>
                 </>
               )}
             </Button>
