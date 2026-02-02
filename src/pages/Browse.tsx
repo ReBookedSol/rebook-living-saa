@@ -276,8 +276,8 @@ const Browse = () => {
                       );
 
                       adCounter += rowItems.length;
-                      // Add ad after every 3 listings
-                      if (adCounter >= itemsPerAdBlock && i + itemsPerRow < paginatedAccommodations.length) {
+                      // Add ad after every 3 listings (only for free users)
+                      if (!isPaidUser && adCounter >= itemsPerAdBlock && i + itemsPerRow < paginatedAccommodations.length) {
                         rows.push(
                           <div key={`ad-row-${i}`} className="my-4">
                             <Ad />
