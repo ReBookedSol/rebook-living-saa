@@ -26,6 +26,7 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import ProtectedLandlordRoute from "./components/ProtectedLandlordRoute";
+import { AdManager } from "./components/AdManager";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
