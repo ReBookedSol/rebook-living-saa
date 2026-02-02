@@ -88,9 +88,9 @@ const Pricing = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-4">
-                  <div className="text-5xl font-bold text-primary">R69</div>
+                  <div className="text-5xl font-bold text-primary">R60</div>
                   <p className="text-sm text-muted-foreground mt-2">one-time payment • 30 days access</p>
-                  <p className="text-xs text-primary font-semibold mt-3">6x longer than Weekly Pass</p>
+                  <p className="text-xs text-primary font-semibold mt-3">6x longer than 5-Day Pass</p>
                 </div>
 
                 <div className="space-y-3">
@@ -106,19 +106,19 @@ const Pricing = () => {
               </CardContent>
             </Card>
 
-            {/* Weekly Pass */}
+            {/* 5-Day Pass */}
             <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-2xl">Weekly Pass</CardTitle>
+                    <CardTitle className="text-2xl">5-Day Pass</CardTitle>
                     <CardDescription>Perfect for trying premium features</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <div className="text-4xl font-bold">R19</div>
+                  <div className="text-4xl font-bold">R20</div>
                   <p className="text-sm text-muted-foreground">one-time payment • 5 days access</p>
                 </div>
 
@@ -146,8 +146,13 @@ const Pricing = () => {
               </div>
 
               <div className="border rounded-lg p-6">
-                <h3 className="font-semibold mb-2">Can I upgrade from Weekly to Monthly?</h3>
-                <p className="text-muted-foreground">Yes! You can purchase a Monthly Pass anytime. Your remaining Weekly access will be honored, and Monthly access will extend your total access period.</p>
+                <h3 className="font-semibold mb-2">Can I extend my access before it expires?</h3>
+                <p className="text-muted-foreground">Yes! You can purchase another pass anytime. Your new access will be added to your remaining time, so you won't lose any days.</p>
+              </div>
+
+              <div className="border rounded-lg p-6">
+                <h3 className="font-semibold mb-2">Can I upgrade from 5-Day to Monthly?</h3>
+                <p className="text-muted-foreground">Yes! You can purchase a Monthly Pass anytime. Your remaining 5-Day access will be honored, and Monthly access will extend your total access period.</p>
               </div>
 
               <div className="border rounded-lg p-6">

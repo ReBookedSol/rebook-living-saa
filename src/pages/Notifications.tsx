@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, BellOff, Check, CheckCheck, ExternalLink, Info, AlertTriangle, Megaphone } from "lucide-react";
+import { Bell, BellOff, Check, CheckCheck, ExternalLink, Info, AlertTriangle, Megaphone, Crown, Clock, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -116,6 +116,12 @@ const Notifications = () => {
         return <Megaphone className="w-5 h-5 text-primary" />;
       case "info":
         return <Info className="w-5 h-5 text-primary" />;
+      case "subscription":
+        return <Crown className="w-5 h-5 text-green-500" />;
+      case "subscription_expiring":
+        return <Clock className="w-5 h-5 text-amber-500" />;
+      case "subscription_expired":
+        return <Crown className="w-5 h-5 text-muted-foreground" />;
       default:
         return <Bell className="w-5 h-5 text-muted-foreground" />;
     }
@@ -280,6 +286,17 @@ const Notifications = () => {
                             >
                               <ExternalLink className="w-3 h-3 mr-1" />
                               View Listing
+                            </Button>
+                          )}
+                          {(notification.type === "subscription_expiring" || notification.type === "subscription_expired") && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="h-auto py-1 px-3"
+                              onClick={() => navigate("/pricing")}
+                            >
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              Renew Access
                             </Button>
                           )}
                         </div>
