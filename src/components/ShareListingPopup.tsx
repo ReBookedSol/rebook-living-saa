@@ -118,11 +118,11 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               {/* Header */}
               <div
                 style={{
-                  padding: "16px",
+                  padding: "20px",
                   borderBottom: "1px solid #e5e7eb",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  gap: "12px",
                 }}
               >
                 <Share className="w-4 h-4 text-primary flex-shrink-0" />
