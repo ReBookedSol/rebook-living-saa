@@ -251,7 +251,6 @@ const Terms = () => {
 
                 <div className="border-t pt-4 mt-8 text-xs text-muted-foreground">
                   <p><strong>Last Updated:</strong> 2 February 2026</p>
-                  <p><strong>Version:</strong> 5.0 (Final Consolidated)</p>
                   <p className="mt-2"><strong>Support & Legal Inquiries:</strong></p>
                   <ul className="ml-4 mt-1 space-y-1">
                     <li>Support: <a href="mailto:support@rebookedsolutions.co.za" className="text-primary hover:underline">support@rebookedsolutions.co.za</a></li>
