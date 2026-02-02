@@ -599,9 +599,9 @@ const ListingDetail = () => {
           </Link>
 
           {/* Header Card */}
-          <Card className="mb-6 border-0 shadow-md">
-            <CardContent className="p-4 md:p-8">
-              <div className="flex flex-col gap-4 md:gap-6">
+          <Card className="mb-8 border-0 shadow-md">
+            <CardContent className="p-6 md:p-10">
+              <div className="flex flex-col gap-6 md:gap-8">
                 {/* Top section with badges */}
                 <div className="flex flex-wrap items-center gap-2">
                   {listing.is_landlord_listing && (
@@ -620,7 +620,7 @@ const ListingDetail = () => {
 
                 {/* Main title and location */}
                 <div>
-                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name || "Listing"}</h1>
+                  <h1 className="text-2xl md:text-4xl font-bold mb-3 text-foreground">{listing.property_name || "Listing"}</h1>
                   {listing.address && (
                     <div className="flex items-start gap-1 text-muted-foreground mb-3">
                       <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -640,7 +640,7 @@ const ListingDetail = () => {
                 </div>
 
                 {/* Bottom section - rating and actions */}
-                <div className="flex items-center justify-between pt-3 border-t">
+                <div className="flex items-center justify-between pt-6 border-t">
                   <div className="text-center bg-accent/10 px-3 py-2 rounded-lg">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <Star className="h-4 w-4 text-accent fill-accent" />
@@ -745,12 +745,12 @@ const ListingDetail = () => {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-8">
               {/* Photos Card */}
               <Card className="border-0 shadow-md overflow-hidden">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <Image className="h-4 w-4 md:h-5 md:w-5 text-primary" />
@@ -765,7 +765,7 @@ const ListingDetail = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6">
+                <CardContent className="p-6 md:p-8">
                   {photos && photos.length > 0 ? (
                     <>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
@@ -814,10 +814,10 @@ const ListingDetail = () => {
 
               {/* Details Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <CardTitle className="text-base md:text-lg">About this property</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
+                <CardContent className="p-6 md:p-8 space-y-6 md:space-y-8">
                   {listing.description && (
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
@@ -897,7 +897,7 @@ const ListingDetail = () => {
 
               {/* Map Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base md:text-lg">Location</CardTitle>
                     {!isPaidUser && (
@@ -908,7 +908,7 @@ const ListingDetail = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6 space-y-4">
+                <CardContent className="p-6 md:p-8 space-y-6">
                   {isPaidUser && (
                     <div className="flex gap-2 mb-3">
                       <Button
@@ -969,45 +969,45 @@ const ListingDetail = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-4 md:space-y-6 lg:sticky lg:top-20">
+            <div className="space-y-8 lg:sticky lg:top-20">
               {/* Contact Card */}
               <Card className="border-0 shadow-md">
-                <CardContent className="p-4 md:p-6">
+                <CardContent className="p-6 md:p-8">
                   {listing.monthly_cost !== null && listing.monthly_cost !== undefined && (
-                    <div className="mb-4 md:mb-6">
-                      <div className="text-3xl md:text-4xl font-bold text-primary mb-1">R{listing.monthly_cost.toLocaleString()}</div>
+                    <div className="mb-6 md:mb-8">
+                      <div className="text-3xl md:text-4xl font-bold text-primary mb-2">R{listing.monthly_cost.toLocaleString()}</div>
                       <p className="text-xs md:text-sm text-muted-foreground">per month</p>
                     </div>
                   )}
 
-                  <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 pb-4 md:pb-6 border-b">
+                  <div className="space-y-3 md:space-y-4 mb-6 md:mb-8 pb-6 md:pb-8 border-b">
                     {listing.contact_phone && (
                       <div className="flex items-start gap-2 md:gap-3">
-                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
+                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-1 md:mt-1.5" />
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                          <p className="text-xs text-muted-foreground mb-1">Phone</p>
                           <p className="font-medium text-xs md:text-sm break-all">{listing.contact_phone}</p>
                         </div>
                       </div>
                     )}
                     {listing.contact_email && (
                       <div className="flex items-start gap-2 md:gap-3">
-                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5 md:mt-1" />
+                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary flex-shrink-0 mt-1 md:mt-1.5" />
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                          <p className="text-xs text-muted-foreground mb-1">Email</p>
                           <p className="font-medium text-xs md:text-sm break-all">{listing.contact_email}</p>
                         </div>
                       </div>
                     )}
                     {listing.contact_person && (
                       <div className="flex items-start gap-2 md:gap-3">
-                        <p className="text-xs text-muted-foreground mb-0.5">Contact Person</p>
+                        <p className="text-xs text-muted-foreground mb-1">Contact Person</p>
                         <p className="font-medium text-xs md:text-sm">{listing.contact_person}</p>
                       </div>
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {listing.contact_phone && (
                       <a href={`tel:${listing.contact_phone}`} className="block">
                         <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
@@ -1030,13 +1030,13 @@ const ListingDetail = () => {
 
               {/* Unified Reviews Section */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <CardTitle className="text-base md:text-lg">Reviews & Feedback</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6">
-                  <div className="space-y-3 md:space-y-4">
+                <CardContent className="p-6 md:p-8">
+                  <div className="space-y-6 md:space-y-8">
                     {/* Review Form */}
-                    <div className="pb-3 md:pb-4 border-b">
+                    <div className="pb-6 md:pb-8 border-b">
                       <ReviewForm
                         accommodationId={id || ""}
                         onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
@@ -1045,8 +1045,8 @@ const ListingDetail = () => {
 
                     {/* All Reviews */}
                     <div>
-                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2 md:mb-3">All Reviews</h3>
-                      <div className="space-y-2 md:space-y-3 max-h-[50vh] overflow-y-auto">
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-3 md:mb-4">All Reviews</h3>
+                      <div className="space-y-3 md:space-y-4 max-h-[50vh] overflow-y-auto">
                         {/* ReBooked Living Reviews */}
                         <ReviewsList
                           accommodationId={id}

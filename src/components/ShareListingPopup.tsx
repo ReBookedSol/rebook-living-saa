@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Share, Facebook, Twitter, Link2, Mail, MessageCircle, Copy, Check } from "lucide-react";
+import { Share, Facebook, Twitter, Link2, Mail, MessageCircle, Copy, Check, Instagram } from "lucide-react";
 import { toast } from "sonner";
 
 interface ShareListingPopupProps {
@@ -30,6 +30,12 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
       icon: Facebook,
       color: "bg-blue-600 hover:bg-blue-700",
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedMessage}`,
+    },
+    {
+      name: "Instagram",
+      icon: Instagram,
+      color: "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:from-pink-600 hover:via-red-600 hover:to-yellow-600",
+      url: `https://www.instagram.com/?url=${encodedUrl}`,
     },
     {
       name: "Twitter / X",
@@ -82,19 +88,19 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
-      >
-        {trigger ? (
-          trigger
-        ) : (
-          <>
-            <Share className="w-4 h-4" />
-            Share
-          </>
-        )}
-      </button>
+      {trigger ? (
+        <div onClick={() => setOpen(true)}>
+          {trigger}
+        </div>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
+        >
+          <Share className="w-4 h-4" />
+          Share
+        </button>
+      )}
 
       {/* Modal Overlay */}
       {open && (
@@ -118,11 +124,11 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               {/* Header */}
               <div
                 style={{
-                  padding: "16px",
+                  padding: "20px",
                   borderBottom: "1px solid #e5e7eb",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  gap: "12px",
                 }}
               >
                 <Share className="w-4 h-4 text-primary flex-shrink-0" />
@@ -156,8 +162,8 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               {/* Subtitle */}
               <p
                 style={{
-                  padding: "0 16px",
-                  paddingTop: "8px",
+                  padding: "0 20px",
+                  paddingTop: "12px",
                   fontSize: "12px",
                   color: "#6b7280",
                   margin: 0,
@@ -169,10 +175,10 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               {/* Social Share Buttons */}
               <div
                 style={{
-                  padding: "12px 16px",
+                  padding: "16px 20px",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "0px",
+                  gap: "10px",
                 }}
               >
                 {shareOptions.map((option) => {
@@ -189,43 +195,53 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
                         gap: "8px",
                         padding: "10px 16px",
                         height: "40px",
-                        backgroundColor:
-                          option.color === "bg-green-500 hover:bg-green-600"
-                            ? "#22c55e"
-                            : option.color === "bg-blue-600 hover:bg-blue-700"
-                              ? "#2563eb"
-                              : option.color === "bg-black hover:bg-gray-800"
-                                ? "#000000"
-                                : "#f97316",
+                        background:
+                          option.name === "Instagram"
+                            ? "linear-gradient(135deg, #e4405f, #f77737, #fcb045)"
+                            : option.color === "bg-green-500 hover:bg-green-600"
+                              ? "#22c55e"
+                              : option.color === "bg-blue-600 hover:bg-blue-700"
+                                ? "#2563eb"
+                                : option.color === "bg-black hover:bg-gray-800"
+                                  ? "#000000"
+                                  : "#f97316",
                         color: "white",
                         fontWeight: 500,
                         fontSize: "13px",
                         border: "none",
                         borderRadius: "6px",
                         cursor: "pointer",
-                        transition: "background-color 0.2s",
+                        transition: "filter 0.2s",
                         minHeight: "40px",
                         boxSizing: "border-box",
                       }}
                       onMouseEnter={(e) => {
-                        const bgMap: Record<string, string> = {
-                          "#22c55e": "#16a34a",
-                          "#2563eb": "#1d4ed8",
-                          "#000000": "#1f2937",
-                          "#f97316": "#c2410c",
-                        };
-                        e.currentTarget.style.backgroundColor =
-                          bgMap[e.currentTarget.style.backgroundColor];
+                        if (option.name === "Instagram") {
+                          e.currentTarget.style.filter = "brightness(1.1)";
+                        } else {
+                          const bgMap: Record<string, string> = {
+                            "#22c55e": "#16a34a",
+                            "#2563eb": "#1d4ed8",
+                            "#000000": "#1f2937",
+                            "#f97316": "#c2410c",
+                          };
+                          e.currentTarget.style.backgroundColor =
+                            bgMap[e.currentTarget.style.backgroundColor] || e.currentTarget.style.backgroundColor;
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        const bgMap: Record<string, string> = {
-                          "#16a34a": "#22c55e",
-                          "#1d4ed8": "#2563eb",
-                          "#1f2937": "#000000",
-                          "#c2410c": "#f97316",
-                        };
-                        e.currentTarget.style.backgroundColor =
-                          bgMap[e.currentTarget.style.backgroundColor];
+                        if (option.name === "Instagram") {
+                          e.currentTarget.style.filter = "brightness(1)";
+                        } else {
+                          const bgMap: Record<string, string> = {
+                            "#16a34a": "#22c55e",
+                            "#1d4ed8": "#2563eb",
+                            "#1f2937": "#000000",
+                            "#c2410c": "#f97316",
+                          };
+                          e.currentTarget.style.backgroundColor =
+                            bgMap[e.currentTarget.style.backgroundColor] || e.currentTarget.style.backgroundColor;
+                        }
                       }}
                     >
                       <IconComponent
@@ -249,7 +265,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
                   gap: "8px",
                   backgroundColor: "#f3f4f6",
                   borderRadius: "8px",
-                  margin: "12px 16px",
+                  margin: "16px 20px",
                   boxSizing: "border-box",
                   minHeight: "40px",
                 }}
@@ -304,7 +320,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
               </div>
 
               {/* Footer Padding */}
-              <div style={{ height: "12px" }} />
+              <div style={{ height: "16px" }} />
             </div>
           </div>
         </div>
