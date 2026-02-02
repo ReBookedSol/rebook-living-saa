@@ -6,17 +6,19 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, Home, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccessControl } from "@/hooks/useAccessControl";
+import { useConfetti } from "@/hooks/useConfetti";
 
 const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { refresh: refreshAccessControl } = useAccessControl();
+  const { triggerConfetti } = useConfetti();
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed">("loading");
+  const [confettiTriggered, setConfettiTriggered] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<{
     type?: string;
     expiresAt?: string;
   }>({});
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const paymentId = searchParams.get("payment_id");
 
@@ -67,11 +69,19 @@ const PaymentResult = () => {
     return () => clearInterval(pollInterval);
   }, [paymentId]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // Auto-redirect to browse page after 5 seconds if payment is successful
   useEffect(() => {
     if (status === "success") {
       // Refresh access control status
       refreshAccessControl();
+
+      // Trigger confetti celebration
+      if (!confettiTriggered) {
+        setConfettiTriggered(true);
+        triggerConfetti();
+      }
 
       // Mark user as newly paid for animation
       sessionStorage.setItem("justPaid", "true");
@@ -81,7 +91,7 @@ const PaymentResult = () => {
       }, 5000);
       return () => clearTimeout(redirectTimer);
     }
-  }, [status, navigate, refreshAccessControl]);
+  }, [status, navigate, refreshAccessControl, triggerConfetti, confettiTriggered]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);

@@ -111,11 +111,11 @@ async function handleInitialize(req: Request, supabase: SupabaseClientType) {
     );
   }
 
-  // Determine amount and duration based on payment type (Weekly = 5 days, Monthly = 30 days)
-  const amount = payment_type === "weekly" ? 20 : 60;
-  const duration_days = payment_type === "weekly" ? 5 : 30;
-  const item_name = payment_type === "weekly" ? "Weekly Access Pass (5 Days)" : "Monthly Access Pass";
-  const item_description = `ReBooked ${payment_type === "weekly" ? "5-day" : "30-day"} premium access - all photos, reviews, maps & no ads`;
+  // Determine amount and duration based on payment type (Weekly = 5 days, Monthly = 25 days)
+  const amount = payment_type === "weekly" ? 19 : 59;
+  const duration_days = payment_type === "weekly" ? 5 : 25;
+  const item_name = payment_type === "weekly" ? "5-Day Access Pass" : "Monthly Access Pass (25 Days)";
+  const item_description = `ReBooked ${payment_type === "weekly" ? "5-day" : "25-day"} premium access - all photos, reviews, maps & no ads`;
 
   // Generate unique payment ID with full user_id for webhook lookup
   const custom_payment_id = `RB-${user_id}-${Date.now()}`;
@@ -285,9 +285,9 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
   const user_id = match[1];
   console.log("Extracted user_id from payment:", user_id);
   
-  // Determine payment type from item_name (Weekly = 5 days, Monthly = 30 days)
-  const payment_type = payload.item_name?.includes("Weekly") ? "weekly" : "monthly";
-  const duration_days = payment_type === "weekly" ? 5 : 30;
+  // Determine payment type from item_name (Weekly = 5 days, Monthly = 25 days)
+  const payment_type = payload.item_name?.toLowerCase().includes("5-day") || payload.item_name?.toLowerCase().includes("weekly") ? "weekly" : "monthly";
+  const duration_days = payment_type === "weekly" ? 5 : 25;
   
   // Check for existing active payment to stack time
   const { data: existingPayment } = await supabase

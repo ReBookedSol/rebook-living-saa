@@ -241,18 +241,18 @@ const UpgradeDialog = ({ isLoading, loadingProgress, onUpgrade, type, totalCount
               onClick={() => onUpgrade("weekly")}
             >
               <CardContent className="p-3 sm:p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-sm sm:text-base">5-Day Pass</h4>
-                    <Badge variant="secondary" className="text-[10px] sm:text-xs">Best for trying</Badge>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-sm sm:text-base">5-Day Pass</h4>
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs">Best for trying</Badge>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">5 days of premium access</p>
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">5 days of premium access</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl sm:text-2xl font-bold">R20</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">one-time</p>
-                </div>
-              </CardContent>
+                  <div className="text-right">
+                    <p className="text-xl sm:text-2xl font-bold">R19</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">one-time</p>
+                  </div>
+                </CardContent>
             </Card>
 
             <Card 
@@ -260,18 +260,18 @@ const UpgradeDialog = ({ isLoading, loadingProgress, onUpgrade, type, totalCount
               onClick={() => onUpgrade("monthly")}
             >
               <CardContent className="p-3 sm:p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-sm sm:text-base">Monthly Pass</h4>
-                    <Badge className="bg-green-500 text-[10px] sm:text-xs">Best Value</Badge>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-sm sm:text-base">Monthly Pass</h4>
+                      <Badge className="bg-green-500 text-[10px] sm:text-xs">Best Value</Badge>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">25 days of premium access</p>
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">30 days of premium access</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl sm:text-2xl font-bold">R60</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">one-time</p>
-                </div>
-              </CardContent>
+                  <div className="text-right">
+                    <p className="text-xl sm:text-2xl font-bold">R59</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">one-time</p>
+                  </div>
+                </CardContent>
             </Card>
           </div>
 
