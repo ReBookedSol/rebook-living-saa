@@ -620,7 +620,7 @@ const ListingDetail = () => {
 
                 {/* Main title and location */}
                 <div>
-                  <h1 className="text-2xl md:text-4xl font-bold mb-2 text-foreground">{listing.property_name || "Listing"}</h1>
+                  <h1 className="text-2xl md:text-4xl font-bold mb-3 text-foreground">{listing.property_name || "Listing"}</h1>
                   {listing.address && (
                     <div className="flex items-start gap-1 text-muted-foreground mb-3">
                       <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
