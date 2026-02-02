@@ -413,17 +413,51 @@ export default function Travel() {
         bounds.extend({ lat: station.lat, lng: station.lng });
       });
 
-      // Draw Gautrain line
-      const gautrainPath = GAUTRAIN_STATIONS.map((s) => ({ lat: s.lat, lng: s.lng }));
-      const gautrainLine = new google.maps.Polyline({
-        path: gautrainPath,
+      // Draw Gautrain lines with proper branching
+      // North-South Main Line: Hatfield → Park Station
+      const mainLineStations = GAUTRAIN_STATIONS.filter(s => 
+        ['HAT', 'PRE', 'CEN', 'MID', 'MAR', 'SAN', 'ROS', 'PAR'].includes(s.code)
+      );
+      const mainLinePath = mainLineStations.map((s) => ({ lat: s.lat, lng: s.lng }));
+      
+      const mainLine = new google.maps.Polyline({
+        path: mainLinePath,
         geodesic: true,
-        strokeColor: "#059669",
-        strokeOpacity: 0.8,
-        strokeWeight: 4,
+        strokeColor: "#DBA514", // Gautrain gold
+        strokeOpacity: 1,
+        strokeWeight: 6,
+        map: mapInstanceRef.current,
+        zIndex: 10,
       });
-      gautrainLine.setMap(mapInstanceRef.current);
-      polylinesRef.current.push(gautrainLine);
+      polylinesRef.current.push(mainLine);
+
+      // Airport Branch Line: Marlboro → Rhodesfield → OR Tambo
+      const airportBranchStations = GAUTRAIN_STATIONS.filter(s => 
+        ['MAR', 'RHO', 'ORT'].includes(s.code) || s.name.includes('Rhodesfield') || s.name.includes('Tambo')
+      );
+      // Find the actual stations
+      const marlboro = GAUTRAIN_STATIONS.find(s => s.name === 'Marlboro');
+      const rhodesfield = GAUTRAIN_STATIONS.find(s => s.name === 'Rhodesfield');
+      const ortambo = GAUTRAIN_STATIONS.find(s => s.name === 'OR Tambo International');
+      
+      if (marlboro && rhodesfield && ortambo) {
+        const airportPath = [
+          { lat: marlboro.lat, lng: marlboro.lng },
+          { lat: rhodesfield.lat, lng: rhodesfield.lng },
+          { lat: ortambo.lat, lng: ortambo.lng },
+        ];
+        
+        const airportLine = new google.maps.Polyline({
+          path: airportPath,
+          geodesic: true,
+          strokeColor: "#DBA514", // Gautrain gold
+          strokeOpacity: 1,
+          strokeWeight: 6,
+          map: mapInstanceRef.current,
+          zIndex: 10,
+        });
+        polylinesRef.current.push(airportLine);
+      }
     }
 
     // Add MyCiTi Western Cape stations with route lines
