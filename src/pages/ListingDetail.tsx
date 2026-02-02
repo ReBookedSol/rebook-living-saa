@@ -814,10 +814,10 @@ const ListingDetail = () => {
 
               {/* Details Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <CardTitle className="text-base md:text-lg">About this property</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
+                <CardContent className="p-6 md:p-8 space-y-6 md:space-y-8">
                   {listing.description && (
                     <div>
                       <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
