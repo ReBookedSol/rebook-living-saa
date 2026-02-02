@@ -22,7 +22,6 @@ import AddListing from "./pages/landlord/AddListing";
 import LandlordPayment from "./pages/landlord/Payment";
 import PaymentResult from "./pages/PaymentResult";
 import Notifications from "./pages/Notifications";
-import WebhookDemo from "./pages/WebhookDemo";
 
 import NotFound from "./pages/NotFound";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
