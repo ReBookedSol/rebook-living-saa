@@ -897,7 +897,7 @@ const ListingDetail = () => {
 
               {/* Map Card */}
               <Card className="border-0 shadow-md">
-                <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+                <CardHeader className="border-b bg-muted/30 px-6 md:px-8 py-4 md:py-5">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base md:text-lg">Location</CardTitle>
                     {!isPaidUser && (
@@ -908,7 +908,7 @@ const ListingDetail = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6 space-y-4">
+                <CardContent className="p-6 md:p-8 space-y-6">
                   {isPaidUser && (
                     <div className="flex gap-2 mb-3">
                       <Button
