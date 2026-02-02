@@ -1,11 +1,4 @@
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Share, Facebook, Twitter, Link2, Mail, MessageCircle, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -76,68 +69,247 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
     }
   };
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [open]);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm" className="gap-2">
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md"
+      >
+        {trigger ? (
+          trigger
+        ) : (
+          <>
             <Share className="w-4 h-4" />
             Share
-          </Button>
+          </>
         )}
-      </DialogTrigger>
-      <DialogContent className="w-screen max-w-sm rounded-2xl p-4 gap-0 overflow-hidden">
-        <div className="flex flex-col gap-3 w-full">
-          <div className="flex items-center gap-2">
-            <Share className="w-4 h-4 text-primary flex-shrink-0" />
-            <h2 className="text-base font-semibold">Share this listing</h2>
-            <button
-              onClick={() => setOpen(false)}
-              className="ml-auto opacity-70 hover:opacity-100"
+      </button>
+
+      {/* Modal Overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50"
+          onClick={() => setOpen(false)}
+        >
+          {/* Modal Container */}
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Content */}
+            <div
+              style={{
+                width: "min(90vw, 420px)",
+                maxWidth: "100%",
+              }}
+              className="bg-white rounded-2xl shadow-lg"
             >
-              ✕
-            </button>
-          </div>
-
-          <p className="text-xs text-muted-foreground -mt-1">
-            Share with friends
-          </p>
-
-          {/* Social Share Buttons */}
-          <div className="flex flex-col gap-1.5 w-full">
-            {shareOptions.map((option) => {
-              const IconComponent = option.icon;
-              return (
+              {/* Header */}
+              <div
+                style={{
+                  padding: "16px",
+                  borderBottom: "1px solid #e5e7eb",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <Share className="w-4 h-4 text-primary flex-shrink-0" />
+                <h2 style={{ fontSize: "16px", fontWeight: 600, margin: 0 }}>
+                  Share this listing
+                </h2>
                 <button
-                  key={option.name}
-                  onClick={() => handleShare(option.url)}
-                  className={`w-full flex items-center justify-center gap-2 text-white font-medium py-2 px-4 text-xs rounded ${option.color} transition-colors flex-shrink-0`}
+                  onClick={() => setOpen(false)}
+                  style={{
+                    marginLeft: "auto",
+                    background: "none",
+                    border: "none",
+                    fontSize: "20px",
+                    cursor: "pointer",
+                    opacity: 0.7,
+                    padding: "4px 8px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = "0.7";
+                  }}
                 >
-                  <IconComponent className="w-4 h-4 flex-shrink-0" />
-                  <span className="flex-shrink-0">{option.name}</span>
+                  ✕
                 </button>
-              );
-            })}
-          </div>
+              </div>
 
-          {/* Copy Link */}
-          <div className="flex items-center gap-2 p-2.5 bg-muted rounded-lg w-full overflow-hidden">
-            <Link2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="text-xs text-muted-foreground truncate text-ellipsis overflow-hidden">{shareUrl}</span>
-            <button
-              onClick={handleCopyLink}
-              className="flex-shrink-0 h-7 w-7 p-0 rounded hover:bg-primary/10 transition-colors"
-            >
-              {copied ? (
-                <Check className="w-3.5 h-3.5" />
-              ) : (
-                <Copy className="w-3.5 h-3.5" />
-              )}
-            </button>
+              {/* Subtitle */}
+              <p
+                style={{
+                  padding: "0 16px",
+                  paddingTop: "8px",
+                  fontSize: "12px",
+                  color: "#6b7280",
+                  margin: 0,
+                }}
+              >
+                Share with friends
+              </p>
+
+              {/* Social Share Buttons */}
+              <div
+                style={{
+                  padding: "12px 16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0px",
+                }}
+              >
+                {shareOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  return (
+                    <button
+                      key={option.name}
+                      onClick={() => handleShare(option.url)}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        padding: "10px 16px",
+                        height: "40px",
+                        backgroundColor:
+                          option.color === "bg-green-500 hover:bg-green-600"
+                            ? "#22c55e"
+                            : option.color === "bg-blue-600 hover:bg-blue-700"
+                              ? "#2563eb"
+                              : option.color === "bg-black hover:bg-gray-800"
+                                ? "#000000"
+                                : "#f97316",
+                        color: "white",
+                        fontWeight: 500,
+                        fontSize: "13px",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        transition: "background-color 0.2s",
+                        minHeight: "40px",
+                        boxSizing: "border-box",
+                      }}
+                      onMouseEnter={(e) => {
+                        const bgMap: Record<string, string> = {
+                          "#22c55e": "#16a34a",
+                          "#2563eb": "#1d4ed8",
+                          "#000000": "#1f2937",
+                          "#f97316": "#c2410c",
+                        };
+                        e.currentTarget.style.backgroundColor =
+                          bgMap[e.currentTarget.style.backgroundColor];
+                      }}
+                      onMouseLeave={(e) => {
+                        const bgMap: Record<string, string> = {
+                          "#16a34a": "#22c55e",
+                          "#1d4ed8": "#2563eb",
+                          "#1f2937": "#000000",
+                          "#c2410c": "#f97316",
+                        };
+                        e.currentTarget.style.backgroundColor =
+                          bgMap[e.currentTarget.style.backgroundColor];
+                      }}
+                    >
+                      <IconComponent
+                        className="w-4 h-4"
+                        style={{ flexShrink: 0 }}
+                      />
+                      <span style={{ flexShrink: 0 }}>
+                        {option.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Copy Link Section */}
+              <div
+                style={{
+                  padding: "12px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  backgroundColor: "#f3f4f6",
+                  borderRadius: "8px",
+                  margin: "12px 16px",
+                  boxSizing: "border-box",
+                  minHeight: "40px",
+                }}
+              >
+                <Link2
+                  className="w-3.5 h-3.5"
+                  style={{
+                    flexShrink: 0,
+                    color: "#9ca3af",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "#6b7280",
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {shareUrl}
+                </span>
+                <button
+                  onClick={handleCopyLink}
+                  style={{
+                    flexShrink: 0,
+                    background: "none",
+                    border: "none",
+                    padding: "6px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "4px",
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(59, 130, 246, 0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  {copied ? (
+                    <Check className="w-3.5 h-3.5" style={{ color: "#10b981" }} />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" style={{ color: "#6b7280" }} />
+                  )}
+                </button>
+              </div>
+
+              {/* Footer Padding */}
+              <div style={{ height: "12px" }} />
+            </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </>
   );
 };
 
