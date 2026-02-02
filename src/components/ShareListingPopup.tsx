@@ -249,7 +249,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
                   gap: "8px",
                   backgroundColor: "#f3f4f6",
                   borderRadius: "8px",
-                  margin: "12px 16px",
+                  margin: "16px 20px",
                   boxSizing: "border-box",
                   minHeight: "40px",
                 }}
