@@ -86,7 +86,7 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[90vw] max-w-lg rounded-2xl p-6 gap-4">
+      <DialogContent className="w-[90vw] sm:w-full max-w-2xl rounded-2xl p-4 sm:p-6 gap-3 overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Share className="w-5 h-5 text-primary" />
