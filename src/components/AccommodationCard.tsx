@@ -12,6 +12,7 @@ import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
 import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import { ShareListingPopup } from "@/components/ShareListingPopup";
 
 interface AccommodationCardProps {
   id: string;
