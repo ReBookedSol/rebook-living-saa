@@ -9,6 +9,7 @@ const corsHeaders = {
 const WEBHOOK_URLS: Record<string, string> = {
   contact_message: "https://hook.relay.app/api/v1/playbook/cmj5zjci94mbt0pkmfrk16ru9/trigger/Rjfuu32Khrs5zeBI4YdvSg",
   report: "https://hook.relay.app/api/v1/playbook/cmj5zjci94mbt0pkmfrk16ru9/trigger/Rjfuu32Khrs5zeBI4YdvSg",
+  user_signup: "https://hook.relay.app/api/v1/playbook/cml57p1ty0ocg0olu0fuh36nm/trigger/UaCFMwZytlvxe5X_XH4aFg",
 };
 
 async function sendWebhook(eventType: string, payload: any): Promise<boolean> {
