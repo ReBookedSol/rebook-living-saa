@@ -216,24 +216,32 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
                         boxSizing: "border-box",
                       }}
                       onMouseEnter={(e) => {
-                        const bgMap: Record<string, string> = {
-                          "#22c55e": "#16a34a",
-                          "#2563eb": "#1d4ed8",
-                          "#000000": "#1f2937",
-                          "#f97316": "#c2410c",
-                        };
-                        e.currentTarget.style.backgroundColor =
-                          bgMap[e.currentTarget.style.backgroundColor];
+                        if (option.name === "Instagram") {
+                          e.currentTarget.style.filter = "brightness(1.1)";
+                        } else {
+                          const bgMap: Record<string, string> = {
+                            "#22c55e": "#16a34a",
+                            "#2563eb": "#1d4ed8",
+                            "#000000": "#1f2937",
+                            "#f97316": "#c2410c",
+                          };
+                          e.currentTarget.style.backgroundColor =
+                            bgMap[e.currentTarget.style.backgroundColor] || e.currentTarget.style.backgroundColor;
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        const bgMap: Record<string, string> = {
-                          "#16a34a": "#22c55e",
-                          "#1d4ed8": "#2563eb",
-                          "#1f2937": "#000000",
-                          "#c2410c": "#f97316",
-                        };
-                        e.currentTarget.style.backgroundColor =
-                          bgMap[e.currentTarget.style.backgroundColor];
+                        if (option.name === "Instagram") {
+                          e.currentTarget.style.filter = "brightness(1)";
+                        } else {
+                          const bgMap: Record<string, string> = {
+                            "#16a34a": "#22c55e",
+                            "#1d4ed8": "#2563eb",
+                            "#1f2937": "#000000",
+                            "#c2410c": "#f97316",
+                          };
+                          e.currentTarget.style.backgroundColor =
+                            bgMap[e.currentTarget.style.backgroundColor] || e.currentTarget.style.backgroundColor;
+                        }
                       }}
                     >
                       <IconComponent
