@@ -335,6 +335,26 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
   }
 
   console.log("Payment created successfully:", payload.custom_payment_id, "for user:", user_id);
+
+  // Create a notification for the user about their pro upgrade
+  const { error: notificationError } = await supabase
+    .from("notifications")
+    .insert({
+      title: "Welcome to Pro!",
+      message: "You now have access to premium features including unlimited photos, reviews, and detailed accommodation insights.",
+      type: "subscription",
+      priority: "high",
+      target_user_id: user_id,
+      created_at: new Date().toISOString(),
+    });
+
+  if (notificationError) {
+    console.error("Failed to create pro upgrade notification:", notificationError);
+    // Don't fail the webhook if notification creation fails - the payment was already created
+  } else {
+    console.log("Pro upgrade notification created for user:", user_id);
+  }
+
   return new Response("OK", { status: 200 });
 }
 
