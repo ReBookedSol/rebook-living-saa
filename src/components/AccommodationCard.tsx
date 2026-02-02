@@ -372,10 +372,16 @@ const AccommodationCard = ({
 
         {/* Action Buttons */}
         <CardFooter className="p-4 pt-3 flex items-center justify-between gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1" onClick={(e) => e.preventDefault()}>
-            <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); shareListing(); }} className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs">
-              <Share className="w-4 h-4" />
-            </Button>
+          <div onClick={(e) => e.preventDefault()}>
+            <ShareListingPopup
+              listingId={id}
+              listingName={propertyName}
+              trigger={
+                <Button variant="ghost" size="sm" className="rounded-lg h-8 px-2 text-primary hover:bg-primary/10 text-xs gap-1">
+                  <Share className="w-4 h-4" />
+                </Button>
+              }
+            />
           </div>
 
           <div onClick={(e) => e.preventDefault()}>
