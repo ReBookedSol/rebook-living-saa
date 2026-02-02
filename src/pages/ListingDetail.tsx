@@ -599,9 +599,9 @@ const ListingDetail = () => {
           </Link>
 
           {/* Header Card */}
-          <Card className="mb-6 border-0 shadow-md">
-            <CardContent className="p-4 md:p-8">
-              <div className="flex flex-col gap-4 md:gap-6">
+          <Card className="mb-8 border-0 shadow-md">
+            <CardContent className="p-6 md:p-10">
+              <div className="flex flex-col gap-6 md:gap-8">
                 {/* Top section with badges */}
                 <div className="flex flex-wrap items-center gap-2">
                   {listing.is_landlord_listing && (
