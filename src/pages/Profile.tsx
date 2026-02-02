@@ -181,6 +181,49 @@ const Profile = () => {
     enabled: !!university,
   });
 
+  const { data: notifications, isLoading: notificationsLoading } = useQuery({
+    queryKey: ["notifications", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      // Get all notifications for this user
+      const { data: notifs, error: notifsError } = await supabase
+        .from("notifications")
+        .select("*")
+        .or(`target_user_id.is.null,target_user_id.eq.${user.id}`)
+        .order("created_at", { ascending: false });
+
+      if (notifsError) throw notifsError;
+      if (!notifs?.length) return [];
+
+      // Get read notifications for this user
+      const { data: readNotifs, error: readError } = await supabase
+        .from("user_notifications")
+        .select("notification_id, is_read")
+        .eq("user_id", user.id);
+
+      if (readError) throw readError;
+      const readMap = new Map(readNotifs?.map((r) => [r.notification_id, r.is_read]) || []);
+
+      // Mark as read for notifications we're displaying
+      const unreadIds = notifs.filter(n => !readMap.get(n.id)).map(n => n.id);
+      if (unreadIds.length > 0) {
+        await Promise.all(unreadIds.map(notifId =>
+          supabase
+            .from("user_notifications")
+            .upsert({ user_id: user.id, notification_id: notifId, is_read: true })
+            .select()
+        ));
+      }
+
+      return notifs.map(n => ({
+        ...n,
+        is_read: readMap.get(n.id) ?? false,
+      }));
+    },
+    enabled: !!user?.id,
+  });
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id) return;
