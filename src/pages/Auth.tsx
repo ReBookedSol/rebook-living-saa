@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 import { DoorOpen, DoorClosed } from "lucide-react";
+import { triggerWebhook } from "@/lib/webhook";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -100,6 +101,14 @@ const Auth = () => {
         });
       }
     } else {
+      // Trigger webhook with user signup info (excluding password)
+      await triggerWebhook("user_signup", {
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        signup_timestamp: new Date().toISOString(),
+      });
+
       toast({
         title: "Success",
         description: "Please check your email to verify your account",
