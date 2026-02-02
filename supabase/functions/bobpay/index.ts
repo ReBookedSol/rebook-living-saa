@@ -111,10 +111,10 @@ async function handleInitialize(req: Request, supabase: SupabaseClientType) {
     );
   }
 
-  // Determine amount and duration based on payment type
-  const amount = payment_type === "weekly" ? 19 : 59;
+  // Determine amount and duration based on payment type (Weekly = 5 days, Monthly = 30 days)
+  const amount = payment_type === "weekly" ? 20 : 60;
   const duration_days = payment_type === "weekly" ? 5 : 30;
-  const item_name = payment_type === "weekly" ? "Weekly Access Pass" : "Monthly Access Pass";
+  const item_name = payment_type === "weekly" ? "Weekly Access Pass (5 Days)" : "Monthly Access Pass";
   const item_description = `ReBooked ${payment_type === "weekly" ? "5-day" : "30-day"} premium access - all photos, reviews, maps & no ads`;
 
   // Generate unique payment ID with full user_id for webhook lookup
@@ -285,22 +285,40 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
   const user_id = match[1];
   console.log("Extracted user_id from payment:", user_id);
   
-  // Determine payment type from item_name
+  // Determine payment type from item_name (Weekly = 5 days, Monthly = 30 days)
   const payment_type = payload.item_name?.includes("Weekly") ? "weekly" : "monthly";
-  const duration_days = payment_type === "weekly" ? 7 : 30;
+  const duration_days = payment_type === "weekly" ? 5 : 30;
   
-  // Calculate access expiration
-  const access_expires_at = new Date();
+  // Check for existing active payment to stack time
+  const { data: existingPayment } = await supabase
+    .from("user_payments")
+    .select("access_expires_at")
+    .eq("user_id", user_id)
+    .eq("status", "active")
+    .gt("access_expires_at", new Date().toISOString())
+    .order("access_expires_at", { ascending: false })
+    .limit(1)
+    .single();
+  
+  // Calculate access expiration - stack on existing if present
+  let access_expires_at: Date;
+  if (existingPayment) {
+    // Stack time on top of existing expiration
+    access_expires_at = new Date(existingPayment.access_expires_at);
+    console.log("Stacking on existing expiration:", access_expires_at.toISOString());
+  } else {
+    access_expires_at = new Date();
+  }
   access_expires_at.setDate(access_expires_at.getDate() + duration_days);
 
   // Check if payment already exists to avoid duplicates
-  const { data: existingPayment } = await supabase
+  const { data: existingPaymentRecord } = await supabase
     .from("user_payments")
     .select("id")
     .eq("custom_payment_id", payload.custom_payment_id)
     .single();
 
-  if (existingPayment) {
+  if (existingPaymentRecord) {
     console.log("Payment already processed:", payload.custom_payment_id);
     return new Response("OK", { status: 200 });
   }
@@ -341,7 +359,7 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
     .from("notifications")
     .insert({
       title: "Welcome to Pro!",
-      message: "You now have access to premium features including unlimited photos, reviews, and detailed accommodation insights.",
+      message: `You now have access to premium features. Your ${payment_type === "weekly" ? "5-day" : "monthly"} pass expires on ${access_expires_at.toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.`,
       type: "subscription",
       priority: "high",
       target_user_id: user_id,
@@ -350,9 +368,126 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
 
   if (notificationError) {
     console.error("Failed to create pro upgrade notification:", notificationError);
-    // Don't fail the webhook if notification creation fails - the payment was already created
   } else {
     console.log("Pro upgrade notification created for user:", user_id);
+  }
+
+  // Send purchase confirmation email
+  const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+  if (brevoApiKey && payload.email) {
+    try {
+      await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { email: "info@rebookedsolutions.co.za", name: "ReBooked" },
+          to: [{ email: payload.email }],
+          subject: "🎉 Your ReBooked Pro Access is Now Active!",
+          htmlContent: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px 16px 0 0;">
+              <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0;">
+                🎉 Welcome to Pro!
+              </h1>
+              <p style="color: #d1fae5; font-size: 16px; margin: 12px 0 0;">
+                Your premium access is now active
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+                Thank you for your purchase! Your ReBooked Pro access is now active.
+              </p>
+              
+              <div style="background-color: #f0fdf4; border: 1px solid #86efac; padding: 24px; margin: 24px 0; border-radius: 12px;">
+                <h2 style="color: #166534; font-size: 18px; margin: 0 0 16px;">Order Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="color: #6b7280; padding: 8px 0;">Plan:</td>
+                    <td style="color: #111827; font-weight: 600; text-align: right;">${payment_type === "weekly" ? "5-Day Pass" : "Monthly Pass"}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: #6b7280; padding: 8px 0;">Amount Paid:</td>
+                    <td style="color: #111827; font-weight: 600; text-align: right;">R${Math.round(payload.amount)}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: #6b7280; padding: 8px 0;">Valid Until:</td>
+                    <td style="color: #111827; font-weight: 600; text-align: right;">${access_expires_at.toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: #6b7280; padding: 8px 0;">Reference:</td>
+                    <td style="color: #111827; font-weight: 600; text-align: right;">${payload.custom_payment_id}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <h3 style="color: #111827; font-size: 16px; margin: 24px 0 12px;">What you can now access:</h3>
+              <ul style="color: #374151; font-size: 14px; line-height: 1.8; padding-left: 20px; margin: 0;">
+                <li>✓ <strong>All Photos</strong> - View every image of accommodations</li>
+                <li>✓ <strong>Google Reviews</strong> - Read what others are saying</li>
+                <li>✓ <strong>AI Search & Compare</strong> - Smart accommodation matching</li>
+                <li>✓ <strong>Interactive Maps</strong> - See travel times & distances</li>
+                <li>✓ <strong>No Ads</strong> - Enjoy an ad-free experience</li>
+              </ul>
+              
+              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://rebook-living-sa.lovable.app/browse" 
+                       style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+                      Start Browsing Now
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 16px 16px; text-align: center;">
+              <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                Questions? Reply to this email or visit our <a href="https://rebook-living-sa.lovable.app/contact" style="color: #10b981; text-decoration: none;">support page</a>.
+              </p>
+              <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0;">
+                © 2025 ReBooked Solutions. All rights reserved.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+          `,
+        }),
+      });
+      console.log("Purchase confirmation email sent to:", payload.email);
+    } catch (emailError) {
+      console.error("Failed to send purchase confirmation email:", emailError);
+      // Don't fail the webhook if email fails
+    }
   }
 
   return new Response("OK", { status: 200 });

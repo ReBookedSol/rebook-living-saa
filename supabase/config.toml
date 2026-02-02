@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.expire-entitlements]
 verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.notify-expiring-subscriptions]
+verify_jwt = false
+
+[functions.handle-subscription-event]
+verify_jwt = false
