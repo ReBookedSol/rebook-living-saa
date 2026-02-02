@@ -74,49 +74,119 @@ export const emailStyles = `
 `;
 
 export function generateWelcomeEmail(firstName?: string): string {
-  const name = firstName || "Student";
-  return `
-<!DOCTYPE html>
-<html>
+  return `<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>${emailStyles}</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to ReBooked Pro</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2fbf6;
+      padding: 20px;
+      color: #1f4e3d;
+      margin: 0;
+    }
+    .container {
+      max-width: 520px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    h1, h2 {
+      color: #2d6e55;
+      margin-top: 0;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 24px;
+      background-color: #2d6e55;
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .highlight-box {
+      background-color: #f2fbf6;
+      border-left: 4px solid #2d6e55;
+      padding: 16px;
+      margin: 22px 0;
+      border-radius: 6px;
+    }
+    .feature-list {
+      padding-left: 18px;
+    }
+    .feature-list li {
+      margin-bottom: 10px;
+    }
+    .socials a {
+      margin: 0 8px;
+      text-decoration: none;
+      color: #2d6e55;
+      font-weight: bold;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e5e5;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
 </head>
+
 <body>
   <div class="container">
-    <h1>Welcome to ReBooked Living! 🎉</h1>
-    
-    <p>Hi ${name},</p>
-    
-    <p>Thank you for joining ReBooked Living – South Africa's student accommodation platform. We're excited to help you find the perfect place to stay during your studies!</p>
-    
+    <h1>🎉 You're officially on ReBooked Pro</h1>
+
+    <p>
+      Your Pro access is now <strong>active</strong> — you've unlocked everything
+      you need to find the best student accommodation faster and smarter.
+    </p>
+
     <div class="highlight-box">
-      <h3 style="margin-bottom: 10px;">What you can do now:</h3>
+      <h2>Here's what you now get 👇</h2>
       <ul class="feature-list">
-        <li>Browse hundreds of student accommodations</li>
-        <li>Filter by university, price, and amenities</li>
-        <li>View photos, reviews, and ratings</li>
-        <li>Save your favorite listings</li>
-        <li>Contact landlords directly</li>
+        <li>📸 Full access to <strong>all accommodation photos</strong></li>
+        <li>⭐ Real <strong>Google reviews</strong> (no surprises)</li>
+        <li>🤖 <strong>AI-powered search & comparisons</strong></li>
+        <li>🗺️ Interactive maps with travel times</li>
+        <li>🚫 Completely ad-free browsing</li>
       </ul>
     </div>
-    
-    <p>Start exploring accommodations near your university today:</p>
-    
-    <a href="https://rebook-living-sa.lovable.app/browse" class="btn">Browse Accommodations</a>
-    
-    <p style="margin-top: 25px;">Need more features? <a href="https://rebook-living-sa.lovable.app/pricing" class="link">Upgrade to Pro</a> for unlimited photos, AI search, and more!</p>
-    
+
+    <a href="https://rebook-living-sa.lovable.app/browse" class="btn">
+      Start Browsing Accommodations
+    </a>
+
+    <p style="margin-top: 25px;">
+      If you experience <strong>any payment-related issues</strong>, please contact us at
+      <a href="mailto:payments@rebookedsolutions.co.za">payments@rebookedsolutions.co.za</a>
+    </p>
+
     <div class="footer">
-      <p>Questions? Reply to this email or contact us at info@rebookedsolutions.co.za</p>
-      <p>© ${new Date().getFullYear()} ReBooked Solutions. All rights reserved.</p>
-      <p><a href="https://rebook-living-sa.lovable.app" class="link">rebook-living-sa.lovable.app</a></p>
+      <p>Follow ReBooked Solutions</p>
+      <div class="socials">
+        <a href="https://instagram.com/rebookedsolutions" target="_blank">Instagram</a> •
+        <a href="https://twitter.com/rebookedsa" target="_blank">Twitter</a> •
+        <a href="https://facebook.com/rebookedsolutions" target="_blank">Facebook</a>
+      </div>
+
+      <p style="margin-top: 15px;">
+        © 2026 ReBooked Solutions • All rights reserved
+        <br />
+        <a href="https://living.rebookedsolutions.co.za">living.rebookedsolutions.co.za</a>
+      </p>
     </div>
   </div>
 </body>
-</html>
-  `;
+</html>`;
 }
 
 export function generatePurchaseConfirmationEmail(
