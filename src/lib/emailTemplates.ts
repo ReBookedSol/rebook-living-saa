@@ -234,9 +234,9 @@ export function generatePurchaseConfirmationEmail(
 <body>
   <div class="container">
     <h1>🎉 Welcome to Pro!</h1>
-    
+
     <p>Thank you for your purchase! Your ReBooked Pro access is now active.</p>
-    
+
     <div class="highlight-box">
       <h3 style="margin-bottom: 15px;">Order Details</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -258,7 +258,7 @@ export function generatePurchaseConfirmationEmail(
         </tr>
       </table>
     </div>
-    
+
     <h3>What you can now access:</h3>
     <ul class="feature-list">
       <li><strong>All Photos</strong> – View every image of accommodations</li>
@@ -267,9 +267,9 @@ export function generatePurchaseConfirmationEmail(
       <li><strong>Interactive Maps</strong> – See travel times & distances</li>
       <li><strong>No Ads</strong> – Enjoy an ad-free experience</li>
     </ul>
-    
-    <a href="https://rebook-living-sa.lovable.app/browse" class="btn">Start Browsing</a>
-    
+
+    <a href="https://living.rebookedsolutions.co.za/browse" class="btn">Start Browsing</a>
+
     <div class="footer">
       <p>Questions about your purchase? Contact us at info@rebookedsolutions.co.za</p>
       <p>© ${new Date().getFullYear()} ReBooked Solutions. All rights reserved.</p>
