@@ -71,9 +71,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     refetchInterval: 60000, // Refresh every minute
   });
 
-  const { toast } = useToast();
   const [subscriber, setSubscriber] = useState({ firstname: '', lastname: '', email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+        toast({ title: "Error", description: "Failed to sign out. Please try again.", variant: "destructive" });
+        return;
+      }
+      setIsMobileMenuOpen(false);
+      navigate("/");
+    } catch (err: any) {
+      console.error("Sign out failed:", err);
+      toast({ title: "Error", description: err?.message || "Network error while signing out.", variant: "destructive" });
+    }
+  };
 
   const handleFooterNav = (e: React.MouseEvent, path: string) => {
     // If clicking a footer link that points to the current page, prevent navigation and scroll to top
