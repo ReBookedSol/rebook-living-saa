@@ -173,9 +173,10 @@ Deno.serve(async (req) => {
     const needsDeltaFetch = cacheExists && user_tier === "pro" && (cacheTier === "free" || (cacheTier === "pro" && cachedPhotoCount < CACHE_LIMITS.photos));
 
     // Cache is valid only if:
-    // - tier === "pro" (full data available for any user)
+    // - tier === "pro" with full data (full data available for any user)
     // - tier === "free" AND user_tier === "free" (free user sees free tier cache)
-    const isCacheValid = cacheExists && cacheTier !== "incomplete" && (cacheTier === "pro" || (cacheTier === "free" && user_tier === "free"));
+    // - Not doing a delta-fetch (pro user needs more data from incomplete pro cache)
+    const isCacheValid = cacheExists && cacheTier !== "incomplete" && (cacheTier === "pro" || (cacheTier === "free" && user_tier === "free")) && !needsDeltaFetch;
 
     console.log("Cache status:", {
       found: !!cachedPlace,
