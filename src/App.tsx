@@ -70,6 +70,7 @@ const App = () => {
       <TooltipProvider>
         <Sonner />
         <BrowserRouter>
+          <AdManager />
           <AuthRedirector />
           <Routes>
             <Route path="/" element={<Index />} />
