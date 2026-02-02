@@ -394,10 +394,18 @@ const Profile = () => {
 
             <TabsTrigger
               value="notifications"
-              className="flex-1 md:flex-none min-w-[80px] justify-center flex items-center gap-1 sm:gap-2 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200"
+              className="flex-1 md:flex-none min-w-[80px] justify-center flex items-center gap-1 sm:gap-2 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm md:text-base data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm hover:bg-white/60 transition-all duration-200 relative"
               aria-label="Notifications"
             >
-              <Bell className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Notifications</span>
+              <div className="relative">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                {notifications && notifications.filter((n) => !n.is_read).length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                    {notifications.filter((n) => !n.is_read).length}
+                  </span>
+                )}
+              </div>
+              <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
           </TabsList>
 
