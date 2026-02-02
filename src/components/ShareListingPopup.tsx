@@ -104,11 +104,11 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
             {shareOptions.map((option) => (
               <Button
                 key={option.name}
-                className={`w-full flex items-center justify-center gap-2 text-white font-medium py-2 text-sm overflow-hidden ${option.color}`}
+                className={`w-full flex items-center justify-center gap-2 text-white font-medium py-2.5 text-xs sm:text-sm ${option.color}`}
                 onClick={() => handleShare(option.url)}
               >
                 <option.icon className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">{option.name}</span>
+                <span>{option.name}</span>
               </Button>
             ))}
           </div>
