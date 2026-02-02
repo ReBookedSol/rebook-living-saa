@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
       // Determine fetch limits based on user tier and cache status
       let photoFetchLimit: number;
       let reviewFetchLimit: number;
-      let cacheTierToSave: "free" | "pro" | "incomplete";
+      let cacheTierToSave: "free" | "pro";
 
       if (needsDeltaFetch) {
         // Pro user visiting after free cache exists: fetch delta
