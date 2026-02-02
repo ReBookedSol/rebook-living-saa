@@ -32,6 +32,12 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedMessage}`,
     },
     {
+      name: "Instagram",
+      icon: Instagram,
+      color: "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:from-pink-600 hover:via-red-600 hover:to-yellow-600",
+      url: `https://www.instagram.com/?url=${encodedUrl}`,
+    },
+    {
       name: "Twitter / X",
       icon: Twitter,
       color: "bg-black hover:bg-gray-800",
