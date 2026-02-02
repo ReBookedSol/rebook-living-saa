@@ -640,7 +640,7 @@ const ListingDetail = () => {
                 </div>
 
                 {/* Bottom section - rating and actions */}
-                <div className="flex items-center justify-between pt-3 border-t">
+                <div className="flex items-center justify-between pt-6 border-t">
                   <div className="text-center bg-accent/10 px-3 py-2 rounded-lg">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <Star className="h-4 w-4 text-accent fill-accent" />
