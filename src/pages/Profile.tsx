@@ -542,6 +542,40 @@ const Profile = () => {
             )}
           </TabsContent>
 
+          <TabsContent value="notifications">
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Notifications</h2>
+            {notificationsLoading ? (
+              <p className="text-muted-foreground">Loading notifications...</p>
+            ) : notifications && notifications.length > 0 ? (
+              <div className="space-y-3">
+                {notifications.map((notification: any) => (
+                  <Card key={notification.id} className="border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+                    <CardContent className="pt-4 sm:pt-6">
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${notification.is_read ? 'bg-gray-300' : 'bg-primary'}`} />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm sm:text-base text-foreground">{notification.title}</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground/70 mt-2">
+                            {new Date(notification.created_at).toLocaleDateString("en-ZA", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No notifications yet</p>
+            )}
+          </TabsContent>
+
         </Tabs>
       </div>
     </Layout>
