@@ -1045,8 +1045,8 @@ const ListingDetail = () => {
 
                     {/* All Reviews */}
                     <div>
-                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-2 md:mb-3">All Reviews</h3>
-                      <div className="space-y-2 md:space-y-3 max-h-[50vh] overflow-y-auto">
+                      <h3 className="font-semibold text-xs md:text-sm text-muted-foreground uppercase tracking-wide mb-3 md:mb-4">All Reviews</h3>
+                      <div className="space-y-3 md:space-y-4 max-h-[50vh] overflow-y-auto">
                         {/* ReBooked Living Reviews */}
                         <ReviewsList
                           accommodationId={id}
