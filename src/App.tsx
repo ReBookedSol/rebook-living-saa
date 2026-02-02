@@ -2,6 +2,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import Maintenance from "./pages/Maintenance";
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
@@ -30,21 +31,6 @@ import { AdManager } from "./components/AdManager";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import type { ComponentType } from "react";
-
-// Vercel Analytics is optional. We attempt to dynamically load it so the app won't crash if the
-// package is not installed. To enable analytics, add '@vercel/analytics' to dependencies and
-// install packages.
-let AnalyticsComponent: ComponentType | null = null;
-(async () => {
-  try {
-    const mod = await import('@vercel/analytics/react');
-    AnalyticsComponent = mod.Analytics ?? null;
-  } catch (e) {
-    // package not installed; ignore
-    AnalyticsComponent = null;
-  }
-})();
 
 const queryClient = new QueryClient();
 
@@ -103,7 +89,7 @@ const App = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {AnalyticsComponent ? <AnalyticsComponent /> : null}
+          <Analytics />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
