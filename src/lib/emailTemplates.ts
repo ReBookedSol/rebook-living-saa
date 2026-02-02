@@ -139,7 +139,8 @@ export function generateWelcomeEmail(firstName?: string): string {
       color: #666;
       text-align: center;
     }
-    .footer a {
+    .socials a {
+      margin: 0 8px;
       color: #2d6e55;
       text-decoration: none;
       font-weight: bold;
@@ -191,12 +192,19 @@ export function generateWelcomeEmail(firstName?: string): string {
     </a>
 
     <div class="footer">
-      <p>
-        Need help? Contact us at
+      <p>Follow ReBooked Solutions</p>
+      <div class="socials">
+        <a href="https://www.instagram.com/rebooked.living/" target="_blank">Instagram</a> •
+        <a href="https://www.facebook.com/profile.php?id=61585625007986" target="_blank">Facebook</a>
+      </div>
+
+      <p style="margin-top: 15px;">
+        Need help?
         <a href="mailto:info@rebookedsolutions.co.za">
           info@rebookedsolutions.co.za
         </a>
       </p>
+
       <p>
         © 2026 ReBooked Solutions<br />
         <a href="https://living.rebookedsolutions.co.za">
