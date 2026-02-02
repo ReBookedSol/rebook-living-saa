@@ -24,6 +24,7 @@ import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAcc
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import type { GoogleReview } from "@/types/place-cache";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
+import { ShareListingPopup } from "@/components/ShareListingPopup";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -659,15 +660,20 @@ const ListingDetail = () => {
                     >
                       <Heart className={`h-4 w-4 ${isSaved ? 'fill-red-500 text-red-500' : ''}`} />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={shareListing}
-                      className="rounded-full"
-                      title="Share listing"
-                    >
-                      <Share className="h-4 w-4" />
-                    </Button>
+                    <ShareListingPopup
+                      listingId={id || ""}
+                      listingName={listing?.property_name || "Listing"}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full"
+                          title="Share listing"
+                        >
+                          <Share className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
                     <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm" className="rounded-full" title="Report listing">

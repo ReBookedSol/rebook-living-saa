@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, BellOff, Check, CheckCheck, ExternalLink, Info, AlertTriangle, Megaphone, Crown, Clock, Sparkles } from "lucide-react";
+import { Bell, BellOff, Check, CheckCheck, ExternalLink, Info, AlertTriangle, Megaphone, Crown, Clock, Sparkles, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Notifications = () => {
   const queryClient = useQueryClient();
@@ -108,6 +109,31 @@ const Notifications = () => {
     },
   });
 
+  // Clear all notifications mutation
+  const clearAllMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId || !notifications) return;
+
+      // Delete all user_notifications entries for this user
+      const notificationIds = notifications.map((n) => n.id);
+      if (notificationIds.length === 0) return;
+
+      const { error } = await supabase
+        .from("user_notifications")
+        .delete()
+        .eq("user_id", userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-notifications", userId] });
+      toast.success("All notifications cleared");
+    },
+    onError: () => {
+      toast.error("Failed to clear notifications");
+    },
+  });
+
   const getIcon = (type: string, priority: string | null) => {
     if (priority === "high") return <AlertTriangle className="w-5 h-5 text-destructive" />;
     
@@ -165,17 +191,31 @@ const Notifications = () => {
                 Stay updated with the latest announcements and updates
               </p>
             </div>
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => markAllAsReadMutation.mutate()}
-                disabled={markAllAsReadMutation.isPending}
-              >
-                <CheckCheck className="w-4 h-4 mr-2" />
-                Mark all read
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {notifications && notifications.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => clearAllMutation.mutate()}
+                  disabled={clearAllMutation.isPending}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear all
+                </Button>
+              )}
+              {unreadCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => markAllAsReadMutation.mutate()}
+                  disabled={markAllAsReadMutation.isPending}
+                >
+                  <CheckCheck className="w-4 h-4 mr-2" />
+                  Mark all read
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Stats */}
