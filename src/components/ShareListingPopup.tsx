@@ -94,9 +94,9 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Share <span className="font-medium text-foreground line-clamp-1">{listingName}</span> with friends
+            Share with friends
           </p>
 
           {/* Social Share Buttons */}
