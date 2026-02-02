@@ -150,19 +150,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   Travel
                   <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
                 </Link>
-                {isLoggedIn && (
-                  <Link to="/notifications" className="relative text-base font-medium hover:underline underline-offset-4">
-                    <Bell className="w-5 h-5" />
-                    {(unreadCount || 0) > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                )}
                 <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
                   {isLoggedIn ? "Profile" : "Sign In"}
                 </Link>
+                {isLoggedIn && (
+                  <Button onClick={handleLogout} variant="ghost" size="icon" className="h-10 w-10">
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                )}
               </div>
             )}
 
