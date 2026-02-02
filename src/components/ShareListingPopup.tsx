@@ -195,21 +195,23 @@ export const ShareListingPopup = ({ listingId, listingName, trigger }: ShareList
                         gap: "8px",
                         padding: "10px 16px",
                         height: "40px",
-                        backgroundColor:
-                          option.color === "bg-green-500 hover:bg-green-600"
-                            ? "#22c55e"
-                            : option.color === "bg-blue-600 hover:bg-blue-700"
-                              ? "#2563eb"
-                              : option.color === "bg-black hover:bg-gray-800"
-                                ? "#000000"
-                                : "#f97316",
+                        background:
+                          option.name === "Instagram"
+                            ? "linear-gradient(135deg, #e4405f, #f77737, #fcb045)"
+                            : option.color === "bg-green-500 hover:bg-green-600"
+                              ? "#22c55e"
+                              : option.color === "bg-blue-600 hover:bg-blue-700"
+                                ? "#2563eb"
+                                : option.color === "bg-black hover:bg-gray-800"
+                                  ? "#000000"
+                                  : "#f97316",
                         color: "white",
                         fontWeight: 500,
                         fontSize: "13px",
                         border: "none",
                         borderRadius: "6px",
                         cursor: "pointer",
-                        transition: "background-color 0.2s",
+                        transition: "filter 0.2s",
                         minHeight: "40px",
                         boxSizing: "border-box",
                       }}
