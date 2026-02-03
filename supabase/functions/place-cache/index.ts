@@ -163,16 +163,31 @@ Deno.serve(async (req) => {
     });
 
     const cachedPlace = cacheData && cacheData.length > 0 ? cacheData[0] : null;
-    const cacheExists = cachedPlace && !cachedPlace.is_expired;
-    const cacheTier = cachedPlace?.cached_tier;
+    const cachedPhotoCount = cachedPlace?.photo_uris?.length || 0;
+    const cachedReviewCount = cachedPlace?.reviews?.length || 0;
 
-    // Check if cache exists and is valid (not expired, has pro-tier data)
-    const isCacheValid = cachedPlace && !cachedPlace.is_expired && cachedPlace.cached_tier === "pro";
+    // Determine required limits based on user tier and action
+    const requiredLimits = action === "browse" 
+      ? DISPLAY_LIMITS.browse 
+      : DISPLAY_LIMITS.listing[user_tier];
+
+    // Cache is valid if:
+    // 1. Not expired
+    // 2. Has enough photos for the user's tier OR we fetched max and Google just has fewer
+    // 3. Has enough reviews for the user's tier OR we fetched max and Google just has fewer
+    const hasEnoughPhotos = cachedPhotoCount >= requiredLimits.photos || cachedPhotoCount >= CACHE_LIMITS.photos;
+    const hasEnoughReviews = cachedReviewCount >= requiredLimits.reviews || cachedReviewCount >= CACHE_LIMITS.reviews;
+    const isCacheValid = cachedPlace && !cachedPlace.is_expired && hasEnoughPhotos && hasEnoughReviews;
 
     console.log("Cache status:", {
       found: !!cachedPlace,
       expired: cachedPlace?.is_expired,
-      tier: cachedPlace?.cached_tier,
+      cachedPhotos: cachedPhotoCount,
+      cachedReviews: cachedReviewCount,
+      requiredPhotos: requiredLimits.photos,
+      requiredReviews: requiredLimits.reviews,
+      hasEnoughPhotos,
+      hasEnoughReviews,
       valid: isCacheValid
     });
 
