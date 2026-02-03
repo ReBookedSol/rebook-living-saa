@@ -50,8 +50,11 @@ const DISPLAY_LIMITS = {
   },
 };
 
-// Maximum data to cache (always cache full pro-tier data)
-const CACHE_LIMITS = { photos: 10, reviews: 5 };
+// Maximum data to cache per tier
+const CACHE_LIMITS = {
+  free: { photos: 3, reviews: 1 },
+  pro: { photos: 10, reviews: 5 },
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -165,30 +168,32 @@ Deno.serve(async (req) => {
     const cachedPlace = cacheData && cacheData.length > 0 ? cacheData[0] : null;
     const cachedPhotoCount = cachedPlace?.photo_uris?.length || 0;
     const cachedReviewCount = cachedPlace?.reviews?.length || 0;
+    const cachedTier = cachedPlace?.cached_tier;
+    const isExpired = cachedPlace?.is_expired;
 
-    // Determine required limits based on user tier and action
-    const requiredLimits = action === "browse" 
-      ? DISPLAY_LIMITS.browse 
-      : DISPLAY_LIMITS.listing[user_tier];
+    // Determine what fetch limits we need based on user tier
+    const userLimits = CACHE_LIMITS[user_tier];
 
-    // Cache is valid if:
-    // 1. Not expired
-    // 2. Has enough photos for the user's tier OR we fetched max and Google just has fewer
-    // 3. Has enough reviews for the user's tier OR we fetched max and Google just has fewer
-    const hasEnoughPhotos = cachedPhotoCount >= requiredLimits.photos || cachedPhotoCount >= CACHE_LIMITS.photos;
-    const hasEnoughReviews = cachedReviewCount >= requiredLimits.reviews || cachedReviewCount >= CACHE_LIMITS.reviews;
-    const isCacheValid = cachedPlace && !cachedPlace.is_expired && hasEnoughPhotos && hasEnoughReviews;
+    // Determine if cache is sufficient for THIS user
+    // - Pro user needs pro-tier cache OR pro-level data
+    // - Free user can use either free or pro cache
+    const cacheHasEnoughForUser = cachedPlace && !isExpired && (
+      cachedTier === "pro" || // Pro cache has everything
+      (user_tier === "free" && cachedPhotoCount >= userLimits.photos) // Free user needs at least free-level data
+    );
+
+    // Pro user visiting free-tier cache needs delta fetch
+    const needsDeltaFetch = cachedPlace && !isExpired && user_tier === "pro" && cachedTier === "free";
 
     console.log("Cache status:", {
       found: !!cachedPlace,
-      expired: cachedPlace?.is_expired,
+      expired: isExpired,
+      cachedTier,
       cachedPhotos: cachedPhotoCount,
       cachedReviews: cachedReviewCount,
-      requiredPhotos: requiredLimits.photos,
-      requiredReviews: requiredLimits.reviews,
-      hasEnoughPhotos,
-      hasEnoughReviews,
-      valid: isCacheValid
+      userTier: user_tier,
+      cacheHasEnoughForUser,
+      needsDeltaFetch
     });
 
     let photos: string[] = [];
@@ -196,27 +201,43 @@ Deno.serve(async (req) => {
     let attributions: string | undefined;
     let cacheHit = false;
 
-    if (isCacheValid) {
-      // Use cached data
+    if (cacheHasEnoughForUser && !needsDeltaFetch) {
+      // Use cached data directly
       photos = cachedPlace.photo_uris || [];
       reviews = cachedPlace.reviews || [];
       attributions = cachedPlace.attributions;
       cacheHit = true;
-      console.log("Using cached data:", { photos: photos.length, reviews: reviews.length });
+      console.log("Using cached data:", { photos: photos.length, reviews: reviews.length, tier: cachedTier });
       
       // Track cache hit in analytics
       await supabase.rpc("increment_cache_analytics", { p_is_hit: true });
     } else {
-      // Fetch from Google Places API
+      // Need to fetch from Google Places API
       console.log("Fetching from Google Places API...");
 
-      // ALWAYS fetch and cache maximum data (pro tier)
-      // Tier-based limits are enforced during retrieval, not caching
-      const photoFetchLimit = CACHE_LIMITS.photos;
-      const reviewFetchLimit = CACHE_LIMITS.reviews;
-      const cacheTierToSave = "pro"; // Always cache as pro tier
+      // Determine fetch limits based on scenario
+      let photoFetchLimit: number;
+      let reviewFetchLimit: number;
+      let tierToSave: "free" | "pro";
 
-      console.log("Fetch limits:", { photos: photoFetchLimit, reviews: reviewFetchLimit, tierToSave: cacheTierToSave });
+      if (needsDeltaFetch) {
+        // Pro user visiting free-tier cache: fetch ONLY the delta (remaining photos/reviews)
+        photoFetchLimit = CACHE_LIMITS.pro.photos; // Need to refetch all to get the extras
+        reviewFetchLimit = CACHE_LIMITS.pro.reviews;
+        tierToSave = "pro";
+        console.log("Delta fetch for pro user:", { 
+          existingPhotos: cachedPhotoCount, 
+          existingReviews: cachedReviewCount,
+          fetchingPhotos: photoFetchLimit,
+          fetchingReviews: reviewFetchLimit 
+        });
+      } else {
+        // Fresh fetch - only get what this user tier needs
+        photoFetchLimit = userLimits.photos;
+        reviewFetchLimit = userLimits.reviews;
+        tierToSave = user_tier;
+        console.log("Fresh fetch for", user_tier, "user:", { photos: photoFetchLimit, reviews: reviewFetchLimit });
+      }
 
       const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${resolvedPlaceId}&fields=photos,reviews,name,formatted_address&key=${googleApiKey}`;
       const detailsResp = await fetch(detailsUrl);
@@ -235,29 +256,29 @@ Deno.serve(async (req) => {
       } else {
         const result = detailsData.result;
 
-        // Extract new photos from API (up to fetch limit)
-        const newPhotos: string[] = [];
+        // Extract photos from API (up to fetch limit)
+        const fetchedPhotos: string[] = [];
         if (result.photos && result.photos.length > 0) {
           const photoPromises = result.photos.slice(0, photoFetchLimit).map(async (photo: any) => {
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${googleApiKey}`;
             return photoUrl;
           });
 
-          newPhotos.push(...await Promise.all(photoPromises));
+          fetchedPhotos.push(...await Promise.all(photoPromises));
 
           // Collect attributions
           const photoAttributions = result.photos
-            .slice(0, Math.max(photoFetchLimit, result.photos.length))
+            .slice(0, photoFetchLimit)
             .map((p: any) => p.html_attributions?.join(" ") || "")
             .filter(Boolean)
             .join(" ");
           attributions = photoAttributions || "Photos from Google Places";
         }
 
-        // Extract new reviews from API (up to fetch limit)
-        const newReviews: GoogleReview[] = [];
+        // Extract reviews from API (up to fetch limit)
+        const fetchedReviews: GoogleReview[] = [];
         if (result.reviews && result.reviews.length > 0) {
-          newReviews.push(...result.reviews.slice(0, reviewFetchLimit).map((r: any) => ({
+          fetchedReviews.push(...result.reviews.slice(0, reviewFetchLimit).map((r: any) => ({
             author_name: r.author_name,
             author_url: r.author_url,
             profile_photo_url: r.profile_photo_url,
@@ -268,26 +289,31 @@ Deno.serve(async (req) => {
           })));
         }
 
-        photos = newPhotos;
-        reviews = newReviews;
-        console.log("Fetched from API:", { photos: photos.length, reviews: reviews.length });
+        photos = fetchedPhotos;
+        reviews = fetchedReviews;
+        
+        console.log("Fetched from API:", { 
+          photos: photos.length, 
+          reviews: reviews.length, 
+          tierToSave,
+          availablePhotosFromGoogle: result.photos?.length || 0,
+          availableReviewsFromGoogle: result.reviews?.length || 0
+        });
 
-        console.log("Cache tier to save:", { tier: cacheTierToSave });
-
-        // Cache the data
+        // Cache the data with appropriate tier
         if (photos.length > 0 || reviews.length > 0) {
           const { error: cacheError } = await supabase.rpc("upsert_place_cache", {
             p_place_id: resolvedPlaceId,
             p_photo_uris: photos,
             p_reviews: reviews,
             p_attributions: attributions,
-            p_cached_tier: cacheTierToSave,
+            p_cached_tier: tierToSave,
           });
 
           if (cacheError) {
             console.error("Failed to cache place data:", cacheError);
           } else {
-            console.log("Successfully cached place data with tier:", cacheTierToSave);
+            console.log("Successfully cached place data:", { tier: tierToSave, photos: photos.length, reviews: reviews.length });
           }
 
           // Track cache miss in analytics
@@ -311,9 +337,12 @@ Deno.serve(async (req) => {
 
     console.log("Returning:", { 
       displayPhotos: displayPhotos.length, 
-      displayReviews: displayReviews.length, 
+      displayReviews: displayReviews.length,
+      totalCachedPhotos: photos.length,
+      totalCachedReviews: reviews.length,
       tier: user_tier, 
-      action 
+      action,
+      cacheHit
     });
 
     const response: PlaceCacheResponse = {
