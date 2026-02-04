@@ -91,9 +91,23 @@ export const useAccessControl = () => {
   useEffect(() => {
     checkAccess();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    // Listen for auth changes - refresh access when user logs in/out
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Immediately check access on any auth state change
       checkAccess();
+      
+      // If user just signed in, force a page reload to ensure all components re-render
+      // with fresh access status (prevents stale "free" state showing ads)
+      if (event === "SIGNED_IN" && session?.user) {
+        // Small delay to let checkAccess complete before potential reload
+        setTimeout(() => {
+          // Only reload if we're on a page that shows ads (listing, browse)
+          const path = window.location.pathname;
+          if (path.includes("/listing/") || path === "/browse") {
+            window.location.reload();
+          }
+        }, 500);
+      }
     });
 
     // Check access on page focus to ensure fresh data

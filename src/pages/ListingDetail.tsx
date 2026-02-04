@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "react-router-dom";
 import Ad from "@/components/Ad";
+import { AdFreePrompt } from "@/components/AdFreePrompt";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -812,8 +813,13 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Ad between Gallery and About */}
-              {!isPaidUser && <Ad />}
+              {/* Ad-free prompt and Ad between Gallery and About */}
+              {!isPaidUser && (
+                <>
+                  <AdFreePrompt className="mb-4" />
+                  <Ad />
+                </>
+              )}
 
               {/* Details Card */}
               <Card className="border-0 shadow-md">
@@ -898,8 +904,13 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Ad between About and Location */}
-              {!isPaidUser && <Ad />}
+              {/* Ad-free prompt and Ad between About and Location */}
+              {!isPaidUser && (
+                <>
+                  <AdFreePrompt className="mb-4" />
+                  <Ad />
+                </>
+              )}
 
               {/* Map Card */}
               <Card className="border-0 shadow-md">
