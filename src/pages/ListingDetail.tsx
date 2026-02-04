@@ -813,7 +813,7 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Ad-free prompt and Ad between Gallery and About */}
+              {/* Ad-free prompt (only once) and Ad between Gallery and About */}
               {!isPaidUser && (
                 <>
                   <AdFreePrompt className="mb-4" />
@@ -904,13 +904,8 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
-              {/* Ad-free prompt and Ad between About and Location */}
-              {!isPaidUser && (
-                <>
-                  <AdFreePrompt className="mb-4" />
-                  <Ad />
-                </>
-              )}
+              {/* Ad between About and Location (no banner here - only one banner total) */}
+              {!isPaidUser && <Ad />}
 
               {/* Map Card */}
               <Card className="border-0 shadow-md">
