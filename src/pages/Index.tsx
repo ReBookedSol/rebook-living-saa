@@ -10,6 +10,19 @@ import { Link } from "react-router-dom";
 import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
 
 const Index = () => {
+  // Fetch total count of accommodations for display
+  const { data: totalAccommodations } = useQuery({
+    queryKey: ["total-accommodations-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("accommodations")
+        .select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count || 0;
+    },
+    staleTime: 1000 * 60 * 30, // Cache for 30 minutes
+  });
+
   const { data: featuredListings, isLoading } = useQuery({
     queryKey: ["featured-accommodations", Math.floor(Date.now() / (60 * 60 * 1000))],
     queryFn: async () => {
@@ -59,7 +72,7 @@ const Index = () => {
       {/* Feature tiles - modern, minimal design */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-transparent via-white/30 to-transparent">
         <div className="container mx-auto px-4">
-          <h2 className="sr-only">Why Choose ReBooked Living for Student Accommodation</h2>
+          <h2 className="sr-only">Why Choose ReBooked Living for NSFAS Accredited Student Accommodation in South Africa</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="group rounded-xl p-6 bg-white/50 backdrop-blur border border-white/20 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
               <div className="text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">01</div>
@@ -90,8 +103,8 @@ const Index = () => {
       <section className="py-12 md:py-16 bg-gradient-to-b from-white/30 to-white/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">Accredited Across South Africa</h2>
-            <p className="text-base text-muted-foreground max-w-2xl mx-auto">Verified student accommodations across top universities nationwide</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">University & NSFAS Accredited Across South Africa</h2>
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">Browse {totalAccommodations?.toLocaleString() || "4,000+"}+ verified student accommodations across top South African universities</p>
           </div>
 
           <style>{`
@@ -134,9 +147,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">Find Your Home Now</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-3">Find Your Student Accommodation Now</h2>
               <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-                Use smart filters to search by location, price, amenities, and NSFAS accreditation status
+                Search {totalAccommodations?.toLocaleString() || "4,000+"}+ verified listings by university, city, price, and NSFAS accreditation status
               </p>
             </div>
             <div className="bg-gradient-to-br from-white/40 to-white/20 backdrop-blur border border-white/30 rounded-2xl p-6 md:p-8">
@@ -154,7 +167,7 @@ const Index = () => {
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Featured Listings</h2>
             </div>
             <p className="text-base text-muted-foreground max-w-prose leading-relaxed">
-              Discover verified, NSFAS-accredited student accommodation near major universities across South Africa. Affordable and safe.
+              Discover verified, NSFAS-accredited student accommodation near UCT, Wits, UJ, TUT, Unisa, and other major South African universities. Affordable, safe, and close to campus.
             </p>
           </div>
         </div>

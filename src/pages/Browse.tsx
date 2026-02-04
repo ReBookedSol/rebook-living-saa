@@ -37,9 +37,9 @@ const Browse = () => {
 
   // SEO
   useSEO({
-    title: university ? `${university} Student Accommodation` : "Browse Student Accommodation",
-    description: `Find verified NSFAS-accredited student accommodation in South Africa 2025/2026. ${university ? `Browse rooms near ${university}.` : "Compare prices, amenities, and reviews."} Safe, affordable housing from R1500/month.`,
-    keywords: `student accommodation South Africa, ${university || "university"} student housing, NSFAS accommodation 2025, student rooms ${province || "South Africa"}`,
+    title: university ? `${university} Student Accommodation 2025` : "Browse NSFAS Accredited Student Accommodation South Africa",
+    description: `Find verified NSFAS-accredited student accommodation in South Africa 2025/2026. ${university ? `Browse student housing near ${university}.` : "Compare prices, amenities, and reviews from R1500/month."} University accredited, safe, affordable housing for students.`,
+    keywords: `NSFAS accommodation 2025, student accommodation South Africa, ${university || "university"} student housing, student rooms ${province || "Johannesburg Pretoria Cape Town"}, university accredited accommodation, student housing near campus`,
     canonical: "/browse",
   });
 

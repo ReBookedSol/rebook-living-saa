@@ -12,38 +12,38 @@ interface CarouselSlide {
 const carouselSlides: CarouselSlide[] = [
   {
     image: "https://images.pexels.com/photos/26571207/pexels-photo-26571207.jpeg",
-    alt: "Spacious modern living room with kitchen area overlooking city balcony view",
-    headline: "Your Perfect Student Home Awaits",
+    alt: "NSFAS accredited student accommodation in South Africa with modern living spaces",
+    headline: "NSFAS Accredited Student Accommodation",
     description:
-      "Discover verified, NSFAS-accredited accommodation near South African universities. Safe, affordable, and perfect for student life.",
+      "Discover verified, university-accredited student housing near South African campuses. Safe, affordable accommodation for NSFAS-funded students.",
   },
   {
     image: "https://images.pexels.com/photos/14601013/pexels-photo-14601013.jpeg",
-    alt: "Contemporary student housing with unique architecture",
-    headline: "Contemporary Living Spaces Designed for You",
+    alt: "University accredited student housing in Johannesburg Pretoria and Cape Town",
+    headline: "University Accredited Housing Nationwide",
     description:
-      "Explore modern accommodation featuring innovative architecture, fully equipped amenities, and community-focused environments built for student success.",
+      "Browse student accommodation near UCT, Wits, UJ, TUT, Unisa, and 20+ South African universities. Verified listings from R1,500/month.",
   },
   {
     image: "https://images.pexels.com/photos/6782578/pexels-photo-6782578.jpeg",
-    alt: "Modern bedroom with comfortable furnishings and natural lighting",
-    headline: "Comfort Meets Affordability",
+    alt: "Affordable student rooms near campus with comfortable furnishings",
+    headline: "Affordable Student Rooms Near Campus",
     description:
-      "Find your ideal bedroom in premium student residences with high-quality furnishings, natural lighting, and peaceful study environments.",
+      "Find budget-friendly student accommodation with quality furnishings, Wi-Fi, and study spaces. Perfect for 2025/2026 academic year.",
   },
   {
     image: "https://images.pexels.com/photos/35707768/pexels-photo-35707768.jpeg",
-    alt: "Residential building with excellent facilities and location",
-    headline: "Prime Locations Near Your Campus",
+    alt: "Student accommodation close to public transport and universities",
+    headline: "Close to Campus & Public Transport",
     description:
-      "Access accommodation in strategic locations close to major South African universities, with excellent transport links and local amenities.",
+      "Access student housing in prime locations near Gautrain stations, MyCiti routes, and walking distance to major SA universities.",
   },
   {
     image: "https://images.pexels.com/photos/7212942/pexels-photo-7212942.jpeg",
-    alt: "Shared living spaces with modern common areas for socializing",
-    headline: "Community Living at Its Best",
+    alt: "Shared student accommodation with common areas for studying and socializing",
+    headline: "Join Our Student Community",
     description:
-      "Connect with fellow students in vibrant shared spaces designed for collaboration, friendship, and unforgettable university experiences.",
+      "Connect with fellow students in vibrant shared spaces. Over 4,000 verified listings across Johannesburg, Pretoria, Cape Town, and Durban.",
   },
 ];
 
