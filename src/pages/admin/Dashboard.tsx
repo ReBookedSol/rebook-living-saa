@@ -19,6 +19,7 @@ import ProgramsTab from "@/components/admin/ProgramsTab";
 import PlaceCacheTab from "@/components/admin/PlaceCacheTab";
 import AnalyticsTab from "@/components/admin/AnalyticsTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
+import AdvancedAnalyticsTab from "@/components/admin/AdvancedAnalyticsTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -143,6 +144,7 @@ Example Output:
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-1">
             <TabsTrigger value="stats" className="text-xs sm:text-sm">Stats</TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
+            <TabsTrigger value="advanced-analytics" className="text-xs sm:text-sm">Advanced</TabsTrigger>
             <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
             <TabsTrigger value="accommodations" className="text-xs sm:text-sm">Listings</TabsTrigger>
             <TabsTrigger value="landlords" className="text-xs sm:text-sm">Landlords</TabsTrigger>
@@ -165,6 +167,10 @@ Example Output:
 
           <TabsContent value="analytics">
             <AnalyticsTab />
+          </TabsContent>
+
+          <TabsContent value="advanced-analytics">
+            <AdvancedAnalyticsTab />
           </TabsContent>
 
           <TabsContent value="notifications">

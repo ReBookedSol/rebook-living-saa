@@ -267,6 +267,42 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          details: Json | null
+          email: string | null
+          id: string
+          ip_address: string | null
+          status: string
+          timestamp: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          details?: Json | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          status: string
+          timestamp?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          details?: Json | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          status?: string
+          timestamp?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bursaries: {
         Row: {
           amount: string | null
@@ -320,6 +356,56 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      contact_analytics: {
+        Row: {
+          accommodation_id: string
+          city: string | null
+          contact_type: string
+          created_at: string
+          id: string
+          landlord_id: string | null
+          monthly_cost: number | null
+          province: string | null
+          session_id: string | null
+          university: string | null
+          user_id: string | null
+        }
+        Insert: {
+          accommodation_id: string
+          city?: string | null
+          contact_type: string
+          created_at?: string
+          id?: string
+          landlord_id?: string | null
+          monthly_cost?: number | null
+          province?: string | null
+          session_id?: string | null
+          university?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          accommodation_id?: string
+          city?: string | null
+          contact_type?: string
+          created_at?: string
+          id?: string
+          landlord_id?: string | null
+          monthly_cost?: number | null
+          province?: string | null
+          session_id?: string | null
+          university?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_analytics_accommodation_id_fkey"
+            columns: ["accommodation_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       favorites: {
         Row: {
@@ -606,13 +692,17 @@ export type Database = {
           clicks: number | null
           created_at: string
           date: string
+          email_clicks: number | null
           favorites: number | null
           id: string
           messages: number | null
+          phone_clicks: number | null
           shares: number | null
           unique_views: number | null
           updated_at: string
           views: number | null
+          website_clicks: number | null
+          whatsapp_clicks: number | null
         }
         Insert: {
           accommodation_id: string
@@ -620,13 +710,17 @@ export type Database = {
           clicks?: number | null
           created_at?: string
           date?: string
+          email_clicks?: number | null
           favorites?: number | null
           id?: string
           messages?: number | null
+          phone_clicks?: number | null
           shares?: number | null
           unique_views?: number | null
           updated_at?: string
           views?: number | null
+          website_clicks?: number | null
+          whatsapp_clicks?: number | null
         }
         Update: {
           accommodation_id?: string
@@ -634,13 +728,17 @@ export type Database = {
           clicks?: number | null
           created_at?: string
           date?: string
+          email_clicks?: number | null
           favorites?: number | null
           id?: string
           messages?: number | null
+          phone_clicks?: number | null
           shares?: number | null
           unique_views?: number | null
           updated_at?: string
           views?: number | null
+          website_clicks?: number | null
+          whatsapp_clicks?: number | null
         }
         Relationships: [
           {
@@ -1186,6 +1284,83 @@ export type Database = {
           },
         ]
       }
+      search_analytics: {
+        Row: {
+          amenities_filter_values: string[] | null
+          city_searched: string | null
+          converted_to_contact: boolean | null
+          created_at: string
+          gender_filter_value: string | null
+          id: string
+          listing_opened_id: string | null
+          location_searched: string | null
+          max_price: number | null
+          min_price: number | null
+          province_searched: string | null
+          results_count: number | null
+          search_query: string | null
+          session_id: string | null
+          university_searched: string | null
+          used_amenities_filter: boolean | null
+          used_gender_filter: boolean | null
+          used_nsfas_filter: boolean | null
+          used_price_filter: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          amenities_filter_values?: string[] | null
+          city_searched?: string | null
+          converted_to_contact?: boolean | null
+          created_at?: string
+          gender_filter_value?: string | null
+          id?: string
+          listing_opened_id?: string | null
+          location_searched?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          province_searched?: string | null
+          results_count?: number | null
+          search_query?: string | null
+          session_id?: string | null
+          university_searched?: string | null
+          used_amenities_filter?: boolean | null
+          used_gender_filter?: boolean | null
+          used_nsfas_filter?: boolean | null
+          used_price_filter?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          amenities_filter_values?: string[] | null
+          city_searched?: string | null
+          converted_to_contact?: boolean | null
+          created_at?: string
+          gender_filter_value?: string | null
+          id?: string
+          listing_opened_id?: string | null
+          location_searched?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          province_searched?: string | null
+          results_count?: number | null
+          search_query?: string | null
+          session_id?: string | null
+          university_searched?: string | null
+          used_amenities_filter?: boolean | null
+          used_gender_filter?: boolean | null
+          used_nsfas_filter?: boolean | null
+          used_price_filter?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_analytics_listing_opened_id_fkey"
+            columns: ["listing_opened_id"]
+            isOneToOne: false
+            referencedRelation: "accommodations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       universities: {
         Row: {
           abbreviation: string | null
@@ -1417,6 +1592,10 @@ export type Database = {
       }
       increment_cache_analytics: {
         Args: { p_is_hit: boolean }
+        Returns: undefined
+      }
+      increment_contact_analytics: {
+        Args: { p_accommodation_id: string; p_contact_type: string }
         Returns: undefined
       }
       increment_listing_analytics: {

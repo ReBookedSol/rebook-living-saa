@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 
 const SA_UNIVERSITIES = [
   "All Universities",
@@ -54,6 +55,7 @@ const SA_PROVINCES = [
 
 const SearchBar = ({ compact = false }) => {
   const navigate = useNavigate();
+  const { trackSearch } = useAnalyticsTracking();
   const [location, setLocation] = useState("");
   const [university, setUniversity] = useState("All Universities");
   const [province, setProvince] = useState("All Provinces");
@@ -101,6 +103,19 @@ const SearchBar = ({ compact = false }) => {
     if (nearTrain) params.set("nearTrain", "true");
     if (minRating > 0) params.set("minRating", String(minRating));
     if (amenities.length > 0) params.set("amenities", amenities.join(","));
+
+    // Track search analytics
+    trackSearch({
+      searchQuery: location || undefined,
+      university: university !== "All Universities" ? university : undefined,
+      province: province !== "All Provinces" ? province : undefined,
+      maxPrice: maxCost ? parseInt(maxCost) : undefined,
+      usedNsfasFilter: nsfasOnly,
+      usedGenderFilter: false, // No gender filter in search bar currently
+      usedAmenitiesFilter: amenities.length > 0,
+      usedPriceFilter: !!maxCost && parseInt(maxCost) > 0,
+      amenitiesFilterValues: amenities.length > 0 ? amenities : undefined,
+    });
 
     navigate(`/browse?${params.toString()}`);
 
