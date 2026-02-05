@@ -26,6 +26,7 @@ import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import type { GoogleReview } from "@/types/place-cache";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ShareListingPopup } from "@/components/ShareListingPopup";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -42,6 +43,9 @@ const ListingDetail = () => {
     accommodationId: id,
     pagePath: `/listing/${id}`,
   });
+
+  // Contact/lead analytics tracking
+  const { trackContact } = useAnalyticsTracking();
 
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1021,7 +1025,19 @@ const ListingDetail = () => {
 
                   <div className="space-y-3">
                     {listing.contact_phone && (
-                      <a href={`tel:${listing.contact_phone}`} className="block">
+                      <a 
+                        href={`tel:${listing.contact_phone}`} 
+                        className="block"
+                        onClick={() => trackContact({
+                          accommodationId: id || "",
+                          contactType: "phone",
+                          university: listing.university || undefined,
+                          city: listing.city || undefined,
+                          province: listing.province || undefined,
+                          monthlyCost: listing.monthly_cost || undefined,
+                          landlordId: listing.landlord_id || undefined,
+                        })}
+                      >
                         <Button className="w-full bg-primary hover:bg-primary/90 text-sm">
                           <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
                           Call Now
@@ -1029,7 +1045,19 @@ const ListingDetail = () => {
                       </a>
                     )}
                     {listing.contact_email && (
-                      <a href={`mailto:${listing.contact_email}`} className="block">
+                      <a 
+                        href={`mailto:${listing.contact_email}`} 
+                        className="block"
+                        onClick={() => trackContact({
+                          accommodationId: id || "",
+                          contactType: "email",
+                          university: listing.university || undefined,
+                          city: listing.city || undefined,
+                          province: listing.province || undefined,
+                          monthlyCost: listing.monthly_cost || undefined,
+                          landlordId: listing.landlord_id || undefined,
+                        })}
+                      >
                         <Button variant="outline" className="w-full text-sm">
                           <Mail className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2" />
                           Send Email
