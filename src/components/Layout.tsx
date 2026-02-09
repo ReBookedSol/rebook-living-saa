@@ -196,7 +196,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
         </div>
-      )
 
       <main className="flex-1">
         {children}
