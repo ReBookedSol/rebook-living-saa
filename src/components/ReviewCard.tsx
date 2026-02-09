@@ -15,12 +15,11 @@ interface ReviewCardProps {
     user?: { email?: string };
     stats?: { like_count?: number; reply_count?: number };
   };
-  isAdmin?: boolean;
   onReplyAdded?: () => void;
   onReviewUpdated?: () => void;
 }
 
-export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpdated }: ReviewCardProps) => {
+export const ReviewCard = ({ review, onReplyAdded, onReviewUpdated }: ReviewCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(review.stats?.like_count || 0);
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -199,14 +198,14 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
               <p className="text-xs text-gray-500 review-date">{formatDate(review.created_at)}</p>
             </div>
           </div>
-          {(isAdmin || currentUserId === review.user_id) && (
+          {currentUserId === review.user_id && (
             <Button
               size="sm"
               variant="ghost"
               className="h-7 w-7 p-0"
               onClick={() => deleteReviewMutation.mutate()}
               disabled={deleteReviewMutation.isPending}
-              title={isAdmin ? "Delete review (admin)" : "Delete your review"}
+              title="Delete your review"
             >
               <Trash2 className="w-3 h-3" />
             </Button>
@@ -260,26 +259,22 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
             <span>{likeCount}</span>
           </button>
 
-          {!isAdmin && (
-            <>
-              <button
-                onClick={() => setShowReplyForm(!showReplyForm)}
-                className="flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span>{replies?.length || 0}</span>
-              </button>
+          <button
+            onClick={() => setShowReplyForm(!showReplyForm)}
+            className="flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>{replies?.length || 0}</span>
+          </button>
 
-              <button
-                onClick={() => flagReviewMutation.mutate()}
-                disabled={flagReviewMutation.isPending}
-                className="flex items-center gap-1 text-xs text-gray-600 hover:text-red-600 transition-colors"
-              >
-                <Flag className="w-3.5 h-3.5" />
-                <span>Flag</span>
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => flagReviewMutation.mutate()}
+            disabled={flagReviewMutation.isPending}
+            className="flex items-center gap-1 text-xs text-gray-600 hover:text-red-600 transition-colors"
+          >
+            <Flag className="w-3.5 h-3.5" />
+            <span>Flag</span>
+          </button>
         </div>
 
         {/* Reply Form */}
@@ -302,25 +297,6 @@ export const ReviewCard = ({ review, isAdmin = false, onReplyAdded, onReviewUpda
                 <p className="text-xs text-gray-700">{reply.reply_text}</p>
                 {reply.is_flagged && (
                   <p className="text-xs text-red-600 mt-1">⚠️ Flagged</p>
-                )}
-                {isAdmin && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 text-xs mt-1"
-                    onClick={async () => {
-                      const { error } = await supabase
-                        .from("review_replies")
-                        .update({ is_hidden: true })
-                        .eq("id", reply.id);
-                      if (!error) {
-                        toast.success("Reply hidden");
-                        onReplyAdded?.();
-                      }
-                    }}
-                  >
-                    Hide
-                  </Button>
                 )}
               </div>
             ))}
