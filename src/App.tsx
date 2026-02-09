@@ -12,7 +12,6 @@ import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Travel from "./pages/Travel";
-import Dashboard from "./pages/admin/Dashboard";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Campus from "./pages/Campus";
@@ -25,7 +24,6 @@ import PaymentResult from "./pages/PaymentResult";
 import Notifications from "./pages/Notifications";
 
 import NotFound from "./pages/NotFound";
-import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import ProtectedLandlordRoute from "./components/ProtectedLandlordRoute";
 import { AdManager } from "./components/AdManager";
 import { useEffect } from "react";
@@ -84,8 +82,6 @@ const App = () => {
             <Route path="/landlord/add-listing" element={<ProtectedLandlordRoute><AddListing /></ProtectedLandlordRoute>} />
             <Route path="/landlord/pay/:listingId" element={<ProtectedLandlordRoute><LandlordPayment /></ProtectedLandlordRoute>} />
             
-            {/* Admin Routes */}
-            <Route path="/panel" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
