@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, ShieldCheck, Sparkles, Crown, Bell } from "lucide-react";
+import { User2, Heart, Clock, CheckCircle, AlertCircle, LogOut, Sparkles, Crown, Bell } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
@@ -97,22 +97,6 @@ const Profile = () => {
       }
       
       return data;
-    },
-    enabled: !!user?.id,
-  });
-
-  const { data: userRole } = useQuery({
-    queryKey: ["user-role", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-      
-      if (error) throw error;
-      return data?.role;
     },
     enabled: !!user?.id,
   });
@@ -315,14 +299,6 @@ const Profile = () => {
                 <div className="text-xs sm:text-sm text-muted-foreground">Saved</div>
                 <div className="text-lg sm:text-xl font-semibold">{savedCount}</div>
               </div>
-
-              {userRole === "admin" && (
-                <Button onClick={() => navigate("/panel")} variant="default" className="inline-flex items-center gap-1 sm:gap-2 h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm">
-                  <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4" /> 
-                  <span className="hidden sm:inline">Admin Dashboard</span>
-                  <span className="sm:hidden">Admin</span>
-                </Button>
-              )}
 
               <Button onClick={handleSignOut} variant="outline" className="inline-flex items-center gap-1 sm:gap-2 h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm">
                 <LogOut className="w-3 h-3 sm:w-4 sm:h-4" /> 
