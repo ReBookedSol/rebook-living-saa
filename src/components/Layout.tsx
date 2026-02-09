@@ -11,7 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isAdmin = location.pathname.startsWith("/admin");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
@@ -110,48 +109,43 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <span className="text-lg font-semibold tracking-tight">Rebook Living</span>
             </Link>
 
-            {!isAdmin && (
-              <div className="hidden md:flex items-center gap-8">
-                <Link to="/browse" className="text-base font-medium hover:underline underline-offset-4">
-                  Browse
-                </Link>
-                <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4">
-                  ReBooked Campus
-                </Link>
-                <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4 flex items-center gap-2">
-                  Travel
-                  <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
-                </Link>
-                <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
-                  {isLoggedIn ? "Profile" : "Sign In"}
-                </Link>
-                {isLoggedIn && (
-                  <Button onClick={handleLogout} variant="ghost" size="icon" className="h-10 w-10">
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {!isAdmin && (
-              <div className="md:hidden">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                  <Menu className="h-5 w-5" />
+            <div className="hidden md:flex items-center gap-8">
+              <Link to="/browse" className="text-base font-medium hover:underline underline-offset-4">
+                Browse
+              </Link>
+              <Link to="/campus-guide" className="text-base font-medium hover:underline underline-offset-4">
+                ReBooked Campus
+              </Link>
+              <Link to="/travel" className="text-base font-medium hover:underline underline-offset-4 flex items-center gap-2">
+                Travel
+                <Badge variant="outline" className="text-xs px-2 py-0.5">Beta</Badge>
+              </Link>
+              <Link to={isLoggedIn ? "/profile" : "/auth"} className="text-base font-medium hover:underline underline-offset-4">
+                {isLoggedIn ? "Profile" : "Sign In"}
+              </Link>
+              {isLoggedIn && (
+                <Button onClick={handleLogout} variant="ghost" size="icon" className="h-10 w-10">
+                  <LogOut className="w-5 h-5" />
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
+
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Mobile Menu Dropdown */}
-      {!isAdmin && (
-        <div className={`fixed md:hidden top-16 left-0 right-0 z-40 bg-white border-b shadow-lg overflow-hidden transition-all duration-300 ease-in-out origin-top ${isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
-          <div className="container mx-auto px-4 py-4 space-y-2">
+      <div className={`fixed md:hidden top-16 left-0 right-0 z-40 bg-white border-b shadow-lg overflow-hidden transition-all duration-300 ease-in-out origin-top ${isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+        <div className="container mx-auto px-4 py-4 space-y-2">
             <Link
               to="/browse"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -202,7 +196,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
         </div>
-      )}
+      )
 
       <main className="flex-1">
         {children}
