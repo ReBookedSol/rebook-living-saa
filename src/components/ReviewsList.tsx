@@ -9,23 +9,19 @@ import { Tables } from "@/integrations/supabase/types";
 
 interface ReviewsListProps {
   accommodationId?: string;
-  isAdmin?: boolean;
-  filterFlagged?: boolean;
   onReviewsUpdated?: () => void;
   maxReviews?: number; // Tier-based limit to enforce at database level
 }
 
 export const ReviewsList = ({
   accommodationId,
-  isAdmin = false,
-  filterFlagged = false,
   onReviewsUpdated,
   maxReviews,
 }: ReviewsListProps) => {
   const queryClient = useQueryClient();
 
   const { data: reviews, isLoading, error } = useQuery({
-    queryKey: ["reviews", accommodationId, filterFlagged, maxReviews],
+    queryKey: ["reviews", accommodationId, maxReviews],
     queryFn: async () => {
       let query = supabase
         .from("reviews")
@@ -33,18 +29,9 @@ export const ReviewsList = ({
           `*,
           review_stats(like_count, reply_count)
         `
-        );
-
-      if (!isAdmin) {
-        query = query.eq("is_hidden", false);
-        if (!filterFlagged) {
-          query = query.eq("is_flagged", false);
-        }
-      }
-
-      if (filterFlagged) {
-        query = query.eq("is_flagged", true);
-      }
+        )
+        .eq("is_hidden", false)
+        .eq("is_flagged", false);
 
       if (accommodationId) {
         query = query.eq("accommodation_id", accommodationId);
@@ -101,7 +88,7 @@ export const ReviewsList = ({
   return (
     <div className="reviews-list-container space-y-4">
       {/* Reviews Summary */}
-      {hasReviews && !isAdmin && (
+      {hasReviews && (
         <Card className="reviews-summary border shadow-none">
           <CardContent className="pt-4 reviews-summary-content">
             <div className="flex items-start justify-between">
@@ -149,13 +136,6 @@ export const ReviewsList = ({
       {/* Reviews List */}
       {hasReviews ? (
         <div className="reviews-list-items space-y-3">
-          {isAdmin && filterFlagged && (
-            <Alert className="border-yellow-200 bg-yellow-50 py-2 px-3">
-              <AlertDescription className="text-xs text-yellow-800">
-                {reviews.length} flagged review(s) requiring moderation
-              </AlertDescription>
-            </Alert>
-          )}
           {reviews.map((review) => (
             <ReviewCard
               key={review.id}
@@ -166,7 +146,6 @@ export const ReviewsList = ({
                   reply_count: review.review_stats?.[0]?.reply_count || 0,
                 },
               }}
-              isAdmin={isAdmin}
               onReviewUpdated={handleReviewUpdated}
               onReplyAdded={handleReviewUpdated}
             />
@@ -176,9 +155,7 @@ export const ReviewsList = ({
         <Card className="reviews-list-empty border shadow-none">
           <CardContent className="pt-4">
             <p className="text-sm text-gray-600">
-              {filterFlagged
-                ? "No flagged reviews to moderate"
-                : "No reviews yet. Be the first to review!"}
+              No reviews yet. Be the first to review!
             </p>
           </CardContent>
         </Card>
