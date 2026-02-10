@@ -54,11 +54,55 @@ const CACHE_LIMITS = {
   pro: { photos: 10, reviews: 5 }, 
 }; 
 
+// Helper function to safely log to database
+async function logToDatabase(
+  supabase: any,
+  functionName: string,
+  operation: string,
+  status: "success" | "error",
+  durationMs: number,
+  userTier: "free" | "pro" | undefined,
+  requestData?: Record<string, any>,
+  responseData?: Record<string, any>,
+  errorMessage?: string,
+  errorCode?: string
+) {
+  try {
+    const { error } = await supabase.from("edge_function_logs").insert({
+      function_name: functionName,
+      operation,
+      status,
+      duration_ms: durationMs,
+      user_tier: userTier || null,
+      request_data: requestData || null,
+      response_data: responseData || null,
+      error_message: errorMessage || null,
+      error_code: errorCode || null,
+    });
+
+    if (error) {
+      console.warn("Failed to log to database:", error.message);
+    }
+  } catch (logError) {
+    // Don't throw - logging errors should not break the main function
+    console.warn("Error logging to database:", logError instanceof Error ? logError.message : String(logError));
+  }
+}
+
 console.info('server started'); 
 Deno.serve(async (req: Request) => {
+  const startTime = Date.now();
+  let functionStatus: "success" | "error" = "success";
+  let functionError: string | undefined;
+  let functionErrorCode: string | undefined;
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let supabase: any;
+  let userTier: "free" | "pro" | undefined;
+  let resolvedPlaceId: string | undefined;
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -67,17 +111,52 @@ Deno.serve(async (req: Request) => {
 
     if (!googleApiKey) {
       console.error("GOOGLE_PLACES_API_KEY not configured");
+      functionStatus = "error";
+      functionError = "API key not configured";
+      functionErrorCode = "NO_API_KEY";
+      
+      await logToDatabase(
+        createClient(supabaseUrl, supabaseServiceKey),
+        "fetch-place-cache",
+        "initialize",
+        functionStatus,
+        Date.now() - startTime,
+        undefined,
+        {},
+        {},
+        functionError,
+        functionErrorCode
+      );
+
       return new Response(
         JSON.stringify({ success: false, error: "API key not configured", photos: [], reviews: [], photo_count: 0, review_count: 0 }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey); 
+    supabase = createClient(supabaseUrl, supabaseServiceKey); 
     const body: PlaceCacheRequest = await req.json(); 
-    const { place_id, address, property_name, city, user_tier = "free", action = "listing" } = body; 
+    const { place_id, address, property_name, city, user_tier = "free", action = "listing" } = body;
+    userTier = user_tier;
 
     if (!["free", "pro"].includes(user_tier)) { 
+      functionStatus = "error";
+      functionError = "Invalid user_tier";
+      functionErrorCode = "INVALID_TIER";
+      
+      await logToDatabase(
+        supabase,
+        "fetch-place-cache",
+        "validate",
+        functionStatus,
+        Date.now() - startTime,
+        user_tier as any,
+        body,
+        {},
+        functionError,
+        functionErrorCode
+      );
+
       return new Response( 
         JSON.stringify({ 
           success: false, 
@@ -92,6 +171,23 @@ Deno.serve(async (req: Request) => {
     } 
 
     if (!["browse", "listing"].includes(action)) { 
+      functionStatus = "error";
+      functionError = "Invalid action";
+      functionErrorCode = "INVALID_ACTION";
+
+      await logToDatabase(
+        supabase,
+        "fetch-place-cache",
+        "validate",
+        functionStatus,
+        Date.now() - startTime,
+        user_tier,
+        body,
+        {},
+        functionError,
+        functionErrorCode
+      );
+
       return new Response( 
         JSON.stringify({ 
           success: false, 
@@ -111,19 +207,34 @@ Deno.serve(async (req: Request) => {
       .from("place_cache") 
       .select("*", { count: "exact", head: true }); 
 
-    let resolvedPlaceId = place_id; 
+    let resolvedPlaceIdTemp = place_id; 
 
-    if (!resolvedPlaceId && (address || property_name)) { 
+    if (!resolvedPlaceIdTemp && (address || property_name)) { 
       const searchQuery = [property_name, address, city].filter(Boolean).join(", "); 
       const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=place_id&key=${googleApiKey}`; 
 
       console.log("Searching for place:", searchQuery); 
+      
       const searchResp = await fetch(searchUrl); 
-      const searchData = await searchResp.json(); 
+      const searchData = await searchResp.json();
+
+      // Log search operation
+      await logToDatabase(
+        supabase,
+        "fetch-place-cache",
+        "search-place",
+        searchData.candidates && searchData.candidates.length > 0 ? "success" : "error",
+        Date.now() - startTime,
+        user_tier,
+        { query: searchQuery },
+        { found: !!(searchData.candidates && searchData.candidates.length > 0) },
+        !searchData.candidates || searchData.candidates.length === 0 ? `No place found for: ${searchQuery}` : undefined
+      );
 
       if (searchData.candidates && searchData.candidates.length > 0) { 
-        resolvedPlaceId = searchData.candidates[0].place_id; 
-        console.log("Found place_id:", resolvedPlaceId); 
+        resolvedPlaceIdTemp = searchData.candidates[0].place_id; 
+        resolvedPlaceId = resolvedPlaceIdTemp;
+        console.log("Found place_id:", resolvedPlaceIdTemp); 
       } else { 
         console.log("No place found for query:", searchQuery); 
         return new Response( 
@@ -141,7 +252,24 @@ Deno.serve(async (req: Request) => {
       } 
     } 
 
-    if (!resolvedPlaceId) { 
+    if (!resolvedPlaceIdTemp) { 
+      functionStatus = "error";
+      functionError = "No place_id or address provided";
+      functionErrorCode = "NO_PLACE_ID";
+
+      await logToDatabase(
+        supabase,
+        "fetch-place-cache",
+        "resolve-place",
+        functionStatus,
+        Date.now() - startTime,
+        user_tier,
+        body,
+        {},
+        functionError,
+        functionErrorCode
+      );
+
       return new Response( 
         JSON.stringify({ 
           success: false, 
@@ -153,7 +281,9 @@ Deno.serve(async (req: Request) => {
         }), 
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } } 
       ); 
-    } 
+    }
+
+    resolvedPlaceId = resolvedPlaceIdTemp;
 
     const { data: cacheData } = await supabase.rpc("get_cached_place", { 
       p_place_id: resolvedPlaceId, 
@@ -197,6 +327,18 @@ Deno.serve(async (req: Request) => {
       cacheHit = true; 
       console.log("Using cached data:", { photos: photos.length, reviews: reviews.length, tier: cachedTier }); 
 
+      // Log cache hit
+      await logToDatabase(
+        supabase,
+        "fetch-place-cache",
+        "retrieve-from-cache",
+        "success",
+        Date.now() - startTime,
+        user_tier,
+        { place_id: resolvedPlaceId, cached_tier: cachedTier },
+        { photos: photos.length, reviews: reviews.length }
+      );
+
       await supabase.rpc("increment_cache_analytics", { p_is_hit: true }); 
     } else { 
       console.log("Fetching from Google Places API...");
@@ -228,12 +370,30 @@ Deno.serve(async (req: Request) => {
 
       if (detailsData.status !== "OK") { 
         console.error("Google Places API error:", detailsData.status, detailsData.error_message); 
+        functionStatus = "error";
+        functionError = `Google API error: ${detailsData.status}`;
+        functionErrorCode = detailsData.status;
+
+        // Log API error
+        await logToDatabase(
+          supabase,
+          "fetch-place-cache",
+          "fetch-from-google",
+          functionStatus,
+          Date.now() - startTime,
+          user_tier,
+          { place_id: resolvedPlaceId },
+          {},
+          functionError,
+          functionErrorCode
+        );
 
         if (cachedPlace) { 
           console.log("Using stale cache as fallback"); 
           photos = cachedPlace.photo_uris || []; 
           reviews = cachedPlace.reviews || []; 
           attributions = cachedPlace.attributions; 
+          functionStatus = "success"; // Recovery successful
         } 
       } else { 
         const result = detailsData.result; 
@@ -279,6 +439,18 @@ Deno.serve(async (req: Request) => {
           availableReviewsFromGoogle: result.reviews?.length || 0 
         }); 
 
+        // Log successful fetch
+        await logToDatabase(
+          supabase,
+          "fetch-place-cache",
+          "fetch-from-google",
+          "success",
+          Date.now() - startTime,
+          user_tier,
+          { place_id: resolvedPlaceId, tier_to_save: tierToSave },
+          { photos: photos.length, reviews: reviews.length }
+        );
+
         if (photos.length > 0 || reviews.length > 0) { 
           const { error: cacheError } = await supabase.rpc("upsert_place_cache", { 
             p_place_id: resolvedPlaceId, 
@@ -290,8 +462,34 @@ Deno.serve(async (req: Request) => {
 
           if (cacheError) { 
             console.error("Failed to cache place data:", cacheError.message ?? cacheError, cacheError.details ?? ""); 
+            
+            // Log caching failure (but don't fail the whole request)
+            await logToDatabase(
+              supabase,
+              "fetch-place-cache",
+              "cache-place",
+              "error",
+              Date.now() - startTime,
+              user_tier,
+              { place_id: resolvedPlaceId },
+              {},
+              `Failed to cache: ${cacheError.message ?? String(cacheError)}`,
+              "CACHE_WRITE_ERROR"
+            );
           } else { 
             console.log("Successfully cached place data:", { tier: tierToSave, photos: photos.length, reviews: reviews.length }); 
+            
+            // Log successful cache
+            await logToDatabase(
+              supabase,
+              "fetch-place-cache",
+              "cache-place",
+              "success",
+              Date.now() - startTime,
+              user_tier,
+              { place_id: resolvedPlaceId, tier_to_save: tierToSave },
+              { photos: photos.length, reviews: reviews.length }
+            );
           } 
 
           await supabase.rpc("increment_cache_analytics", { p_is_hit: false }); 
@@ -341,6 +539,24 @@ Deno.serve(async (req: Request) => {
     }); 
   } catch (error) { 
     console.error("Place cache error:", error); 
+    functionStatus = "error";
+    functionError = error instanceof Error ? error.message : "Unknown error";
+    functionErrorCode = "UNHANDLED_ERROR";
+
+    // Log the error
+    await logToDatabase(
+      supabase,
+      "fetch-place-cache",
+      "process-request",
+      functionStatus,
+      Date.now() - startTime,
+      userTier,
+      { place_id: resolvedPlaceId },
+      {},
+      functionError,
+      functionErrorCode
+    );
+
     const errorMessage = error instanceof Error ? error.message : "Unknown error"; 
     return new Response( 
       JSON.stringify({ 
