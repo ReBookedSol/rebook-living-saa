@@ -185,15 +185,15 @@ const SearchBar = ({ compact = false }) => {
           />
         </div>
 
-        <div className={`flex flex-col sm:flex-row items-stretch sm:items-end md:items-center gap-2 md:gap-4 md:col-span-2 transition-all duration-500 ${showAdvanced ? 'md:justify-end' : 'md:justify-center'}`}>
-          <Button onClick={() => setShowAdvanced((v) => !v)} variant="outline" className="w-full sm:w-auto text-sm sm:text-base px-3 py-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2 sm:gap-3 md:col-span-2 md:justify-end">
+          <Button onClick={() => setShowAdvanced((v) => !v)} variant="outline" className="w-full sm:w-auto text-sm px-4 h-10">
             {showAdvanced ? 'Hide Filters' : 'Show Filters'}
           </Button>
 
           <Button
             onClick={handleClearFilters}
             variant={hasActiveFilters ? "default" : "ghost"}
-            className={`w-full sm:w-auto text-sm sm:text-base px-3 py-2 ${
+            className={`w-full sm:w-auto text-sm px-4 h-10 ${
               hasActiveFilters
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'text-muted-foreground hover:text-foreground'
@@ -202,7 +202,7 @@ const SearchBar = ({ compact = false }) => {
             Clear All
           </Button>
 
-          <Button onClick={handleSearch} className="w-full sm:flex-1 bg-primary hover:bg-primary-hover text-sm sm:text-base">
+          <Button onClick={handleSearch} className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-sm px-6 h-10">
             <Search className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Search Accommodation</span>
             <span className="sm:hidden">Search</span>
