@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import { Info, Sparkles, ChevronDown, ChevronUp, Lock } from "lucide-react";
 import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
@@ -21,9 +21,22 @@ import { getUniversitiesWithTrainAccess } from "@/lib/gautrain";
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
   const { accessLevel, isLoading: accessLoading } = useAccessControl();
   const isPaidUser = accessLevel === "paid";
+
+  // Persist page in URL so back-navigation preserves it
+  const currentPage = parseInt(searchParams.get("page") || "1", 10) || 1;
+  const setCurrentPage = useCallback((page: number) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (page <= 1) {
+        next.delete("page");
+      } else {
+        next.set("page", String(page));
+      }
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   const location = searchParams.get("location") || "";
   const university = searchParams.get("university") || "";
@@ -44,9 +57,9 @@ const Browse = () => {
   });
 
   // Default sort: newest first so newly added accommodations appear on page 1
-  const [sortBy, setSortBy] = useState("newest");
-  const [selectedGender, setSelectedGender] = useState<string>("all");
-  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+  const [sortBy, setSortBy] = React.useState("newest");
+  const [selectedGender, setSelectedGender] = React.useState<string>("all");
+  const [isLargeScreen, setIsLargeScreen] = React.useState(window.innerWidth >= 1024);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -62,7 +75,7 @@ const Browse = () => {
   const handlePageChange = useCallback((newPage: number) => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [setCurrentPage]);
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
@@ -180,8 +193,8 @@ const Browse = () => {
     return items;
   };
 
-  const [showFilters, setShowFilters] = useState(true);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showFilters, setShowFilters] = React.useState(true);
+  const [showAIAssistant, setShowAIAssistant] = React.useState(false);
 
   return (
     <Layout>

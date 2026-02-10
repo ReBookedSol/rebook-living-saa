@@ -340,6 +340,9 @@ export default function Travel() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [routeResult, setRouteResult] = useState<any>(null);
+  const plannerMapRef = useRef<HTMLDivElement>(null);
+  const plannerMapInstanceRef = useRef<any>(null);
+  const plannerDirectionsRendererRef = useRef<any>(null);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -462,20 +465,43 @@ export default function Travel() {
 
     // Add MyCiTi Western Cape stations with route lines
     if (transportSystem === "myciti") {
-      // Draw route polylines first (so they appear behind stations)
+      // Only draw trunk and direct route polylines (these have meaningful paths)
+      // Skip area routes to reduce clutter - they're short local loops
       mycitiRoutes.forEach((route) => {
-        // Draw routes that have path data defined
-        if (route.path && route.path.length >= 2) {
-          const polyline = new google.maps.Polyline({
-            path: route.path,
-            geodesic: true,
-            strokeColor: route.color,
-            strokeOpacity: 0.75,
-            strokeWeight: 4,
-            map: mapInstanceRef.current,
+        if (!route.path || route.path.length < 2) return;
+        // When viewing all, only show trunk routes for cleaner overview
+        if (showAllRoutes && route.type !== 'trunk' && route.type !== 'direct') return;
+        // When a region is selected, show routes that pass through stations in that region
+        if (!showAllRoutes && selectedRegion !== "all") {
+          const regionData = MYCITI_WESTERN_CAPE[selectedRegion as keyof typeof MYCITI_WESTERN_CAPE];
+          if (!regionData) return;
+          const regionStationNames = regionData.stations.map((s: any) => s.name.toLowerCase());
+          const routeStations = route.stations.map(sid => {
+            const st = mycitiStations.find(s => s.id === sid);
+            return st?.name?.toLowerCase() || '';
           });
-          polylinesRef.current.push(polyline);
+          const hasOverlap = routeStations.some(rs => regionStationNames.some((rn: string) => rs.includes(rn) || rn.includes(rs)));
+          if (!hasOverlap) return;
         }
+
+        const strokeWeight = route.type === 'trunk' ? 5 : route.type === 'direct' ? 4 : 3;
+        const strokeOpacity = route.type === 'trunk' ? 0.9 : 0.7;
+        const dashPattern = route.type === 'area' ? [10, 5] : undefined;
+
+        const polyline = new google.maps.Polyline({
+          path: route.path,
+          geodesic: false,
+          strokeColor: route.color,
+          strokeOpacity: dashPattern ? 0 : strokeOpacity,
+          strokeWeight: strokeWeight,
+          map: mapInstanceRef.current,
+          icons: dashPattern ? [{
+            icon: { path: 'M 0,-1 0,1', strokeOpacity: strokeOpacity, scale: strokeWeight / 2 },
+            offset: '0',
+            repeat: '15px',
+          }] : undefined,
+        });
+        polylinesRef.current.push(polyline);
       });
 
       // Show all regions or just the selected region
@@ -520,21 +546,49 @@ export default function Travel() {
         });
       });
     } else {
-      // Add PUTCO stations with route lines
-      // Draw PUTCO route polylines first
-      putcoRoutes.forEach((route) => {
-        // Draw routes that have path data defined
-        if (route.path && route.path.length >= 2) {
-          const polyline = new google.maps.Polyline({
-            path: route.path,
-            geodesic: true,
-            strokeColor: route.color,
-            strokeOpacity: 0.75,
-            strokeWeight: 4,
-            map: mapInstanceRef.current,
-          });
-          polylinesRef.current.push(polyline);
-        }
+      // PUTCO: Only show major corridor polylines, not every individual route
+      // Group routes by corridor: Soshanguve→Pretoria, Ekangala→Pretoria, etc.
+      const majorPutcoCorridors = [
+        // Soshanguve main corridor: F4 → Transfer → Orchards → Centurion → Midrand
+        { color: '#FB8C00', weight: 5, path: [
+          { lat: -25.4780, lng: 28.0920 }, // F4
+          { lat: -25.5120, lng: 28.1050 }, // Transfer
+          { lat: -25.5280, lng: 28.1180 }, // XX Entrance
+          { lat: -25.6000, lng: 28.1500 }, // via N1
+          { lat: -25.7050, lng: 28.2420 }, // Sinoville
+          { lat: -25.7380, lng: 28.2050 }, // Orchards
+          { lat: -25.7440, lng: 28.1780 }, // Marabastad
+          { lat: -25.8550, lng: 28.1890 }, // Centurion
+          { lat: -25.9930, lng: 28.1264 }, // Midrand
+        ]},
+        // Ekangala corridor: Ekangala → Zithobeni → Rayton → Pretoria area
+        { color: '#E65100', weight: 4, path: [
+          { lat: -25.6920, lng: 28.7580 }, // Ekangala
+          { lat: -25.6780, lng: 28.7420 }, // Zithobeni
+          { lat: -25.7420, lng: 28.6580 }, // Rayton
+          { lat: -25.7520, lng: 28.2780 }, // CSIR
+          { lat: -25.7650, lng: 28.2180 }, // Balebogeng
+        ]},
+        // Dennilton corridor
+        { color: '#BF360C', weight: 4, path: [
+          { lat: -25.3150, lng: 29.2250 }, // Dennilton
+          { lat: -25.4280, lng: 28.9850 }, // Kwa-Mhlanga
+          { lat: -25.5180, lng: 28.5280 }, // Pebblerock
+          { lat: -25.7380, lng: 28.2050 }, // Orchards
+          { lat: -25.9930, lng: 28.1264 }, // Midrand
+        ]},
+      ];
+
+      majorPutcoCorridors.forEach((corridor) => {
+        const polyline = new google.maps.Polyline({
+          path: corridor.path,
+          geodesic: false,
+          strokeColor: corridor.color,
+          strokeOpacity: 0.85,
+          strokeWeight: corridor.weight,
+          map: mapInstanceRef.current,
+        });
+        polylinesRef.current.push(polyline);
       });
 
       // Add PUTCO stations - show all regions or just the selected region
@@ -585,8 +639,10 @@ export default function Travel() {
     }
   }, [selectedRegion, mapLoaded, showGautrain, transportSystem, showAllRoutes]);
 
+  // Route planner logic - map is lazily initialized inside calculateRoute
+
   // Route planner logic
-  const calculateRoute = () => {
+  const calculateRoute = async () => {
     if (!origin || !destination) return;
 
     const originData = ORIGINS.find((o) => o.id === origin);
@@ -594,14 +650,12 @@ export default function Travel() {
 
     if (!originData || !destData) return;
 
-    // Generate route recommendations
+    // Generate route recommendations first (so UI updates immediately)
     const recommendations = [];
 
-    // Check if both origin and destination are in Western Cape (MyCiTi areas)
     const isWesternCapeRoute = originData.region in MYCITI_WESTERN_CAPE && destData.transport === "MyCiTi";
 
     if (isWesternCapeRoute) {
-      // MyCiTi option
       const originRegion = MYCITI_WESTERN_CAPE[originData.region as keyof typeof MYCITI_WESTERN_CAPE];
       recommendations.push({
         type: "MyCiTi Bus",
@@ -616,7 +670,6 @@ export default function Travel() {
         pros: ["Most affordable", "Regular service"],
       });
     } else if (originData.region !== "gautrain" && originData.region in PUTCO_ROUTES) {
-      // PUTCO option
       const region = PUTCO_ROUTES[originData.region as keyof typeof PUTCO_ROUTES];
       if (region) {
         recommendations.push({
@@ -633,7 +686,6 @@ export default function Travel() {
       }
     }
 
-    // Gautrain option (if applicable)
     if (destData.transport === "Gautrain" || destData.nearestGautrain) {
       recommendations.push({
         type: "Gautrain",
@@ -651,7 +703,6 @@ export default function Travel() {
       });
     }
 
-    // Uber option
     recommendations.push({
       type: "Uber/Bolt",
       icon: Car,
@@ -666,6 +717,42 @@ export default function Travel() {
       destination: destData.name,
       recommendations,
     });
+
+    // After state update, initialize map and show directions (next tick)
+    setTimeout(async () => {
+      const success = await loadGoogleMapsScript();
+      const google = (window as any).google;
+      if (!success || !google?.maps || !plannerMapRef.current) return;
+
+      if (!plannerMapInstanceRef.current) {
+        const map = new google.maps.Map(plannerMapRef.current, {
+          center: { lat: -28.4793, lng: 24.6727 },
+          zoom: 6,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+        });
+        plannerMapInstanceRef.current = map;
+        plannerDirectionsRendererRef.current = new google.maps.DirectionsRenderer({
+          map,
+          suppressMarkers: false,
+          polylineOptions: { strokeColor: '#4F46E5', strokeWeight: 5, strokeOpacity: 0.8 },
+        });
+      }
+
+      if (plannerDirectionsRendererRef.current) {
+        const directionsService = new google.maps.DirectionsService();
+        directionsService.route({
+          origin: `${originData.name}, South Africa`,
+          destination: destData.name,
+          travelMode: google.maps.TravelMode.DRIVING,
+        }, (result: any, status: any) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            plannerDirectionsRendererRef.current.setDirections(result);
+          }
+        });
+      }
+    }, 100);
   };
 
   return (
@@ -901,10 +988,13 @@ export default function Travel() {
                     </div>
                   </div>
 
-                  <Button onClick={calculateRoute} className="w-full sm:w-auto">
+                  <Button onClick={calculateRoute} className="w-full sm:w-auto" disabled={!origin || !destination}>
                     <ArrowRight className="w-4 h-4 mr-2" />
                     Get Route Options
                   </Button>
+
+                  {/* Route Map */}
+                  <div ref={plannerMapRef} className="w-full h-[350px] rounded-lg bg-muted/50 border" style={{ display: routeResult ? 'block' : 'none' }} />
 
                   {/* Results */}
                   {routeResult && (
