@@ -303,6 +303,36 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_emails: {
+        Row: {
+          blocked_at: string
+          blocked_by: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          is_permanent: boolean
+          reason: string | null
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          is_permanent?: boolean
+          reason?: string | null
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          is_permanent?: boolean
+          reason?: string | null
+        }
+        Relationships: []
+      }
       bursaries: {
         Row: {
           amount: string | null
