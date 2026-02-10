@@ -365,6 +365,10 @@ export default function Travel() {
         ],
       });
 
+      // Enable the transit layer to show real rail/bus lines
+      const transitLayer = new google.maps.TransitLayer();
+      transitLayer.setMap(map);
+
       mapInstanceRef.current = map;
       setMapLoaded(true);
     };
@@ -387,31 +391,51 @@ export default function Travel() {
 
     const bounds = new google.maps.LatLngBounds();
 
+    // Helper to create a labeled marker with clean SVG pin
+    const createLabeledMarker = (
+      position: { lat: number; lng: number },
+      label: string,
+      color: string,
+      emoji: string,
+      map: any,
+    ) => {
+      const marker = new google.maps.Marker({
+        position,
+        map,
+        title: label,
+        label: {
+          text: emoji,
+          fontSize: "14px",
+        },
+        icon: {
+          path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+          fillColor: color,
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 2,
+          scale: 6,
+          labelOrigin: new google.maps.Point(0, -3),
+        },
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<div style="padding:6px 10px;font-family:system-ui;"><strong>${label}</strong></div>`,
+      });
+      marker.addListener("click", () => infoWindow.open(map, marker));
+
+      return marker;
+    };
+
     // Add Gautrain stations if enabled
     if (showGautrain) {
       GAUTRAIN_STATIONS.forEach((station) => {
-        const marker = new google.maps.Marker({
-          position: { lat: station.lat, lng: station.lng },
-          map: mapInstanceRef.current,
-          title: station.name,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            fillColor: "#059669",
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 2,
-            scale: 10,
-          },
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: `<div class="p-2"><strong>🚆 ${station.name}</strong><br/><span class="text-xs">Gautrain Station</span></div>`,
-        });
-
-        marker.addListener("click", () => {
-          infoWindow.open(mapInstanceRef.current, marker);
-        });
-
+        const marker = createLabeledMarker(
+          { lat: station.lat, lng: station.lng },
+          station.name,
+          "#DBA514",
+          "🚆",
+          mapInstanceRef.current,
+        );
         markersRef.current.push(marker);
         bounds.extend({ lat: station.lat, lng: station.lng });
       });
@@ -519,28 +543,13 @@ export default function Travel() {
         const scale = isHighlighted ? 10 : 7;
 
         (region.stations as { name: string; lat: number; lng: number }[]).forEach((station) => {
-          const marker = new google.maps.Marker({
-            position: { lat: station.lat, lng: station.lng },
-            map: mapInstanceRef.current,
-            title: station.name,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: fillColor,
-              fillOpacity: 1,
-              strokeColor: "#FFFFFF",
-              strokeWeight: 3,
-              scale: scale,
-            },
-          });
-
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">MyCiTi Station</span></div>`,
-          });
-
-          marker.addListener("click", () => {
-            infoWindow.open(mapInstanceRef.current, marker);
-          });
-
+          const marker = createLabeledMarker(
+            { lat: station.lat, lng: station.lng },
+            station.name,
+            isHighlighted ? "#1E88E5" : "#90A4AE",
+            "🚌",
+            mapInstanceRef.current,
+          );
           markersRef.current.push(marker);
           bounds.extend({ lat: station.lat, lng: station.lng });
         });
@@ -606,28 +615,13 @@ export default function Travel() {
         const scale = isHighlighted ? 10 : 7;
 
         (region.stations as { name: string; lat: number; lng: number }[]).forEach((station) => {
-          const marker = new google.maps.Marker({
-            position: { lat: station.lat, lng: station.lng },
-            map: mapInstanceRef.current,
-            title: station.name,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: fillColor,
-              fillOpacity: 1,
-              strokeColor: "#FFFFFF",
-              strokeWeight: 3,
-              scale: scale,
-            },
-          });
-
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<div class="p-2"><strong>🚌 ${station.name}</strong><br/><span class="text-xs">PUTCO Bus Station</span></div>`,
-          });
-
-          marker.addListener("click", () => {
-            infoWindow.open(mapInstanceRef.current, marker);
-          });
-
+          const marker = createLabeledMarker(
+            { lat: station.lat, lng: station.lng },
+            station.name,
+            isHighlighted ? "#FB8C00" : "#90A4AE",
+            "🚏",
+            mapInstanceRef.current,
+          );
           markersRef.current.push(marker);
           bounds.extend({ lat: station.lat, lng: station.lng });
         });

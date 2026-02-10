@@ -172,8 +172,8 @@ const SearchBar = ({ compact = false }) => {
 
   return (
     <div className="bg-card p-6 rounded-xl shadow-lg border">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
-        <div className="space-y-2 col-span-1 md:col-span-2">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 mb-4">
+        <div className="space-y-2 flex-1 min-w-0">
           <label className="text-sm font-medium flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary" />
             Search
@@ -182,18 +182,19 @@ const SearchBar = ({ compact = false }) => {
             placeholder="Name, city, or area"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
+            className="h-10"
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2 sm:gap-3 md:col-span-2 md:justify-end">
-          <Button onClick={() => setShowAdvanced((v) => !v)} variant="outline" className="w-full sm:w-auto text-sm px-4 h-10">
+        <div className="flex items-end gap-2 flex-shrink-0">
+          <Button onClick={() => setShowAdvanced((v) => !v)} variant="outline" className="text-sm px-4 h-10">
             {showAdvanced ? 'Hide Filters' : 'Show Filters'}
           </Button>
 
           <Button
             onClick={handleClearFilters}
             variant={hasActiveFilters ? "default" : "ghost"}
-            className={`w-full sm:w-auto text-sm px-4 h-10 ${
+            className={`text-sm px-4 h-10 ${
               hasActiveFilters
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'text-muted-foreground hover:text-foreground'
@@ -202,7 +203,7 @@ const SearchBar = ({ compact = false }) => {
             Clear All
           </Button>
 
-          <Button onClick={handleSearch} className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-sm px-6 h-10">
+          <Button onClick={handleSearch} className="bg-primary hover:bg-primary-hover text-sm px-6 h-10">
             <Search className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Search Accommodation</span>
             <span className="sm:hidden">Search</span>
