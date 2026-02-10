@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import AccommodationCard from "@/components/AccommodationCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { Info, Sparkles, ChevronDown, ChevronUp, Lock } from "lucide-react";
 import Ad from "@/components/Ad";
 import { useSEO } from "@/hooks/useSEO";
@@ -77,8 +77,13 @@ const Browse = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [setCurrentPage]);
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters change, but skip the initial mount
+  const isInitialMount = useRef(true);
   React.useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     setCurrentPage(1);
   }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, nearTrainParam, selectedGender, sortBy]);
 
