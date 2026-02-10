@@ -4,6 +4,11 @@ import type { PlaceCacheData, PlaceCacheRequest } from "@/types/place-cache";
 const SUPABASE_URL = (import.meta.env as any).VITE_SUPABASE_URL || "https://gzihagvdpdjcoyjpvyvs.supabase.co";
 const SUPABASE_API_KEY = (import.meta.env as any).VITE_SUPABASE_PUBLISHABLE_KEY || (import.meta.env as any).VITE_SUPABASE_ANON_KEY;
 
+// Log configuration (remove in production if needed)
+if (!SUPABASE_API_KEY) {
+  console.warn("⚠️ SUPABASE_API_KEY is not set! Place cache requests will fail with 401.");
+}
+
 /**
  * Fetch place data from cache or Google Places API
  */
@@ -18,13 +23,19 @@ export async function getPlaceData(
   try {
     const { data: { session } } = await supabase.auth.getSession();
     
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_API_KEY,
+    };
+
+    // Only include Authorization header if session exists
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+
     const response = await fetch(`${SUPABASE_URL}/functions/v1/place-cache`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: session ? `Bearer ${session.access_token}` : "",
-        apikey: SUPABASE_API_KEY,
-      },
+      headers,
       body: JSON.stringify({
         place_id,
         address,
@@ -36,7 +47,18 @@ export async function getPlaceData(
     });
 
     if (!response.ok) {
-      console.error("Place cache API error:", response.status);
+      let errorDetail = `API error: ${response.status}`;
+      try {
+        const errorBody = await response.json();
+        errorDetail = `${response.status} - ${errorBody.error || response.statusText}`;
+      } catch (_) {
+        // If response isn't JSON, just use status
+      }
+      console.error("Place cache API error:", errorDetail, {
+        status: response.status,
+        apiKeyExists: !!SUPABASE_API_KEY,
+        hasSession: !!session,
+      });
       return {
         success: false,
         cached: false,
@@ -44,7 +66,7 @@ export async function getPlaceData(
         reviews: [],
         photo_count: 0,
         review_count: 0,
-        error: `API error: ${response.status}`,
+        error: errorDetail,
       };
     }
 
