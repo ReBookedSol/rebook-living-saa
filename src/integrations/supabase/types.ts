@@ -307,6 +307,7 @@ export type Database = {
         Row: {
           blocked_at: string
           blocked_by: string | null
+          blocked_ip: string | null
           email: string
           expires_at: string | null
           id: string
@@ -316,6 +317,7 @@ export type Database = {
         Insert: {
           blocked_at?: string
           blocked_by?: string | null
+          blocked_ip?: string | null
           email: string
           expires_at?: string | null
           id?: string
@@ -325,9 +327,40 @@ export type Database = {
         Update: {
           blocked_at?: string
           blocked_by?: string | null
+          blocked_ip?: string | null
           email?: string
           expires_at?: string | null
           id?: string
+          is_permanent?: boolean
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      blocked_ips: {
+        Row: {
+          blocked_at: string
+          blocked_by: string | null
+          expires_at: string | null
+          id: string
+          ip_address: string
+          is_permanent: boolean
+          reason: string | null
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_address: string
+          is_permanent?: boolean
+          reason?: string | null
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: string
           is_permanent?: boolean
           reason?: string | null
         }
@@ -436,6 +469,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      edge_function_errors: {
+        Row: {
+          created_at: string
+          error_code: string | null
+          error_details: string | null
+          error_hint: string | null
+          error_message: string
+          first_seen_at: string
+          function_name: string
+          id: string
+          is_resolved: boolean
+          last_seen_at: string
+          occurrence_count: number
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+        }
+        Insert: {
+          created_at?: string
+          error_code?: string | null
+          error_details?: string | null
+          error_hint?: string | null
+          error_message: string
+          first_seen_at?: string
+          function_name: string
+          id?: string
+          is_resolved?: boolean
+          last_seen_at?: string
+          occurrence_count?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Update: {
+          created_at?: string
+          error_code?: string | null
+          error_details?: string | null
+          error_hint?: string | null
+          error_message?: string
+          first_seen_at?: string
+          function_name?: string
+          id?: string
+          is_resolved?: boolean
+          last_seen_at?: string
+          occurrence_count?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Relationships: []
       }
       favorites: {
         Row: {
