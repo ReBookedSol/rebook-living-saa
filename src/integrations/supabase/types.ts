@@ -521,6 +521,48 @@ export type Database = {
         }
         Relationships: []
       }
+      edge_function_logs: {
+        Row: {
+          created_at: string | null
+          duration_ms: number | null
+          error_code: string | null
+          error_message: string | null
+          function_name: string
+          id: string
+          operation: string
+          request_data: Json | null
+          response_data: Json | null
+          status: string
+          user_tier: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_ms?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          function_name: string
+          id?: string
+          operation: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status: string
+          user_tier?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_ms?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          function_name?: string
+          id?: string
+          operation?: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status?: string
+          user_tier?: string | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           accommodation_id: string

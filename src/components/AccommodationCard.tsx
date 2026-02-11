@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Users, CheckCircle, Heart, Share, Building2, Lock, Train } from "lucide-react";
+import { MapPin, Star, Users, CheckCircle, Heart, Share, Building2, Lock, Train, Bus } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -298,7 +298,7 @@ const AccommodationCard = ({
 
             {/* University and Rating Row */}
             <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 flex-1">
                 <div className="text-xs text-muted-foreground font-medium">
                   {university}
                 </div>
@@ -307,22 +307,22 @@ const AccommodationCard = ({
                     {isGautrainAccessible(university) && (
                       <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 flex items-center gap-1">
                         <Train className="w-3 h-3" />
-                        {getGautrainStation(university)}
+                        Gautrain
                       </Badge>
                     )}
                     {isMycitiAccessible(university) && (
                       <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 flex items-center gap-1">
-                        <Train className="w-3 h-3" />
-                        {getMycitiStation(university)}
+                        <Bus className="w-3 h-3" />
+                        MyCiTi
                       </Badge>
                     )}
                     {!isGautrainAccessible(university) && !isMycitiAccessible(university) && (
-                      <span className="text-xs text-muted-foreground">No transit network</span>
+                      <span className="text-xs text-muted-foreground italic">No transit</span>
                     )}
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 flex-shrink-0">
                 {[0,1,2,3,4].map((i) => {
                   const diff = (rating || 0) - i;
                   if (diff >= 1) {
