@@ -12,10 +12,13 @@ import {
   Lock,
   Building2,
   Maximize2,
+  Train,
+  Bus,
 } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
 
 interface AccommodationMapProps {
   accommodationAddress: string;
@@ -79,57 +82,94 @@ export const AccommodationMap = ({
       const geocoder = new google.maps.Geocoder();
       const fullAddress = [accommodationName, accommodationAddress, city].filter(Boolean).join(", ");
       
-      geocoder.geocode({ address: fullAddress }, (results: any, status: any) => {
-        if (status === google.maps.GeocoderStatus.OK && results[0]) {
-          const accommodationLocation = results[0].geometry.location;
-          map.setCenter(accommodationLocation);
-          
-          // Add accommodation marker
-          new google.maps.Marker({
-            map,
-            position: accommodationLocation,
-            title: accommodationName,
-            icon: {
-              url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-            },
-          });
+       geocoder.geocode({ address: fullAddress }, (results: any, status: any) => {
+         if (status === google.maps.GeocoderStatus.OK && results[0]) {
+           const accommodationLocation = results[0].geometry.location;
+           map.setCenter(accommodationLocation);
+           
+           // Add accommodation marker
+           new google.maps.Marker({
+             map,
+             position: accommodationLocation,
+             title: accommodationName,
+             icon: {
+               url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+             },
+           });
 
-          // If university provided, calculate distance
-          if (universityName) {
-            const universityAddress = `${universityName}, South Africa`;
-            
-            geocoder.geocode({ address: universityAddress }, (uniResults: any, uniStatus: any) => {
-              if (uniStatus === google.maps.GeocoderStatus.OK && uniResults[0]) {
-                const universityLocation = uniResults[0].geometry.location;
-                
-                // Add university marker
-                new google.maps.Marker({
-                  map,
-                  position: universityLocation,
-                  title: universityName,
-                  icon: {
-                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                  },
-                });
+           // Add train stations if available
+           if (universityName && isGautrainAccessible(universityName)) {
+             const trainStationName = getGautrainStation(universityName);
+             const trainQuery = `${trainStationName} station, South Africa`;
+             geocoder.geocode({ address: trainQuery }, (trainResults: any, trainStatus: any) => {
+               if (trainStatus === google.maps.GeocoderStatus.OK && trainResults[0]) {
+                 const trainLocation = trainResults[0].geometry.location;
+                 new google.maps.Marker({
+                   map,
+                   position: trainLocation,
+                   title: `${trainStationName} (Gautrain)`,
+                   icon: {
+                     url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+                   },
+                 });
+               }
+             });
+           }
 
-                // Fit bounds to show both markers
-                const bounds = new google.maps.LatLngBounds();
-                bounds.extend(accommodationLocation);
-                bounds.extend(universityLocation);
-                map.fitBounds(bounds);
+           if (universityName && isMycitiAccessible(universityName)) {
+             const busStationName = getMycitiStation(universityName);
+             const busQuery = `${busStationName}, South Africa`;
+             geocoder.geocode({ address: busQuery }, (busResults: any, busStatus: any) => {
+               if (busStatus === google.maps.GeocoderStatus.OK && busResults[0]) {
+                 const busLocation = busResults[0].geometry.location;
+                 new google.maps.Marker({
+                   map,
+                   position: busLocation,
+                   title: `${busStationName} (MyCiTi)`,
+                   icon: {
+                     url: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png",
+                   },
+                 });
+               }
+             });
+           }
 
-                // Calculate travel times
-                calculateTravelTime(accommodationLocation, universityLocation, google);
-              }
-            });
-          }
+           // If university provided, calculate distance
+           if (universityName) {
+             const universityAddress = `${universityName}, South Africa`;
+             
+             geocoder.geocode({ address: universityAddress }, (uniResults: any, uniStatus: any) => {
+               if (uniStatus === google.maps.GeocoderStatus.OK && uniResults[0]) {
+                 const universityLocation = uniResults[0].geometry.location;
+                 
+                 // Add university marker
+                 new google.maps.Marker({
+                   map,
+                   position: universityLocation,
+                   title: universityName,
+                   icon: {
+                     url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                   },
+                 });
 
-          setIsLoading(false);
-        } else {
-          console.warn("Geocoding failed:", status);
-          setIsLoading(false);
-        }
-      });
+                 // Fit bounds to show both markers
+                 const bounds = new google.maps.LatLngBounds();
+                 bounds.extend(accommodationLocation);
+                 bounds.extend(universityLocation);
+                 map.fitBounds(bounds);
+
+                 // Calculate travel times
+                 calculateTravelTime(accommodationLocation, universityLocation, google);
+               }
+             });
+           }
+
+           setIsLoading(false);
+         } else {
+           console.warn("Geocoding failed:", status);
+           setIsLoading(false);
+         }
+       });
     };
 
     const calculateTravelTime = (origin: any, destination: any, google: any) => {
