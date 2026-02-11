@@ -20,10 +20,15 @@ import {
   Info,
   ArrowRight,
   Lightbulb,
-  GraduationCap
+  GraduationCap,
+  MessageCircle,
+  Lock
 } from "lucide-react";
 import GautrainInfo from "@/components/GautrainInfo";
 import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import { useSEO } from "@/hooks/useSEO";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import {
   gautrainStations,
   mycitiStations,
@@ -325,6 +330,17 @@ const ORIGINS = [
 ];
 
 export default function Travel() {
+  // Enhanced SEO for travel/transit page
+  useSEO({
+    title: "Student Commute Planner - Gautrain, MyCiTi, PUTCO Routes South Africa",
+    description: "Plan your student commute easily. Compare Gautrain, MyCiTi, and PUTCO bus routes. Find transit options near your accommodation and university. Real-time transit info for Cape Town and Johannesburg.",
+    keywords: "Gautrain routes, MyCiTi bus Cape Town, PUTCO routes Pretoria, student commute, transit planner, university transport, student housing transit access",
+    canonical: "/travel",
+  });
+
+  const { accessLevel } = useAccessControl();
+  const isPaidUser = accessLevel === "paid";
+
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [transportSystem, setTransportSystem] = useState<"gautrain" | "putco" | "myciti">("myciti");
   const [activeTab, setActiveTab] = useState("map");
