@@ -164,10 +164,8 @@ const Browse = () => {
     const items = [];
     const showEllipsisStart = currentPage > 3;
     const showEllipsisEnd = currentPage < totalPages - 2;
-    const canAccessPage = isPaidUser || currentPage <= 5;
 
     for (let i = 1; i <= totalPages; i++) {
-      const pageAccessible = isPaidUser || i <= 5;
       if (
         i === 1 ||
         i === totalPages ||
@@ -176,9 +174,8 @@ const Browse = () => {
         items.push(
           <PaginationItem key={i}>
             <PaginationLink
-              onClick={() => pageAccessible && handlePageChange(i)}
+              onClick={() => handlePageChange(i)}
               isActive={currentPage === i}
-              className={!pageAccessible ? "opacity-50 cursor-not-allowed" : ""}
             >
               {i}
             </PaginationLink>
