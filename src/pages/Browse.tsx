@@ -309,45 +309,6 @@ const Browse = () => {
 
                 {totalPages > 1 && (
                    <div className="mt-8">
-                     {/* CTA for pages beyond 5 for non-logged-in users */}
-                     {!isPaidUser && currentPage > 5 && (
-                       <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-background mb-8">
-                         <CardHeader className="text-center">
-                           <CardTitle className="text-2xl flex items-center justify-center gap-2">
-                             <Lock className="w-6 h-6 text-primary" />
-                             Explore All 4,300+ Accommodations
-                           </CardTitle>
-                           <CardDescription className="text-base mt-2">
-                             Create your free account to browse unlimited listings
-                           </CardDescription>
-                         </CardHeader>
-                         <CardContent className="space-y-4">
-                           <div className="grid grid-cols-3 gap-4">
-                             <div className="text-center">
-                               <div className="text-3xl font-bold text-primary">50,000+</div>
-                               <p className="text-xs text-muted-foreground">Property Photos</p>
-                             </div>
-                             <div className="text-center">
-                               <div className="text-3xl font-bold text-primary">10,000+</div>
-                               <p className="text-xs text-muted-foreground">Student Reviews</p>
-                             </div>
-                             <div className="text-center">
-                               <div className="text-3xl font-bold text-primary">100%</div>
-                               <p className="text-xs text-muted-foreground">Completely Free</p>
-                             </div>
-                           </div>
-                           <Button 
-                             onClick={() => navigate('/auth')}
-                             className="w-full h-11 text-base"
-                           >
-                             Create Free Account
-                           </Button>
-                           <p className="text-xs text-center text-muted-foreground">
-                             No payment required. Join thousands of students.
-                           </p>
-                         </CardContent>
-                       </Card>
-                     )}
                      <Pagination>
                        <PaginationContent>
                          <PaginationItem>
