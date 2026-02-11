@@ -8,8 +8,17 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { UNIVERSITY_LOGOS } from "@/constants/universityLogos";
+import { useSEO } from "@/hooks/useSEO";
 
 const Index = () => {
+  // Enhanced SEO for homepage
+  useSEO({
+    title: "ReBooked Living - NSFAS Accredited Student Accommodation South Africa",
+    description: "Find affordable, NSFAS-accredited student accommodation near your university. 50,000+ verified photos, 10,000+ reviews. Free to browse, R19 to unlock all listings. Safe, verified housing for students across South Africa.",
+    keywords: "student accommodation South Africa, NSFAS accredited housing, university student rentals, affordable student rooms, verified student housing, Cape Town student accommodation, Johannesburg student housing",
+    canonical: "/",
+  });
+
   // Fetch total count of accommodations for display
   const { data: totalAccommodations } = useQuery({
     queryKey: ["total-accommodations-count"],

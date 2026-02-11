@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import Ad from "@/components/Ad";
 import { AdFreePrompt } from "@/components/AdFreePrompt";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,7 @@ import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 const ListingDetail = () => {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const returnPath = params.get('return') || '/browse';
   
@@ -645,14 +646,31 @@ const ListingDetail = () => {
                 </div>
 
                 {/* Bottom section - rating and actions */}
-                <div className="flex items-center justify-between pt-6 border-t">
-                  <div className="text-center bg-accent/10 px-3 py-2 rounded-lg">
+                <div className="flex items-center justify-between pt-6 border-t gap-4">
+                  <div className="text-center bg-accent/10 px-3 py-2 rounded-lg flex-1">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <Star className="h-4 w-4 text-accent fill-accent" />
                       <span className="text-xl md:text-2xl font-bold">{(listing.rating || 0).toFixed(1)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Rating</p>
                   </div>
+                  
+                  {/* CTA for non-logged-in users next to rating */}
+                  {!isPaidUser && (
+                    <Card className="flex-1 border-primary/20 bg-gradient-to-br from-primary/10 to-background">
+                      <CardContent className="p-3">
+                        <p className="text-xs text-primary font-semibold mb-1">Unlock everything</p>
+                        <Button 
+                          size="sm" 
+                          onClick={() => navigate('/auth')}
+                          className="w-full h-8 text-xs"
+                        >
+                          Create Account
+                        </Button>
+                        <p className="text-xs text-muted-foreground text-center mt-1">View all 4,300+ listings</p>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   <div className="flex gap-2">
                     <Button

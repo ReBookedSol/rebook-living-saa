@@ -204,9 +204,6 @@ const Browse = () => {
   const [showFilters, setShowFilters] = React.useState(true);
   const [showAIAssistant, setShowAIAssistant] = React.useState(false);
 
-  // Check if user is viewing blocked pages
-  const isPageBlocked = !isPaidUser && currentPage > 5;
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -255,53 +252,8 @@ const Browse = () => {
         </Alert>
         
         <div className="mt-8">
-          {/* Page Blocked Overlay for Free Users */}
-          {isPageBlocked && (
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-background mb-8">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl flex items-center justify-center gap-2">
-                  <Lock className="w-6 h-6 text-primary" />
-                  Unlock Full Access
-                </CardTitle>
-                <CardDescription className="text-base mt-2">
-                  You've reached the end of free previews. Create a free account to view all 4,300+ accommodations
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-primary">50,000+</div>
-                    <p className="text-xs text-muted-foreground">Property Photos</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-primary">10,000+</div>
-                    <p className="text-xs text-muted-foreground">Student Reviews</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-primary">100%</div>
-                    <p className="text-xs text-muted-foreground">Free to Join</p>
-                  </div>
-                </div>
-                <Button 
-                  onClick={() => navigate('/auth')}
-                  className="w-full h-11 text-base"
-                >
-                  Create Free Account to Continue Browsing
-                </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  No payment required. Join thousands of students finding their perfect accommodation.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
           <div data-listings-container>
-            {isPageBlocked ? (
-              <div className="text-center py-12">
-                <Info className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-gray-600 text-lg">Create an account to view more accommodations</p>
-              </div>
-            ) : isLoading ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="h-64 bg-gray-200 animate-pulse rounded-lg" />
@@ -359,25 +311,64 @@ const Browse = () => {
                 </div>
 
                 {totalPages > 1 && (
-                  <div className="mt-8">
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationPrevious
-                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                          />
-                        </PaginationItem>
-                        {renderPaginationItems()}
-                        <PaginationItem>
-                          <PaginationNext
-                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                  </div>
+                   <div className="mt-8">
+                     {/* CTA for pages beyond 5 for non-logged-in users */}
+                     {!isPaidUser && currentPage > 5 && (
+                       <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-background mb-8">
+                         <CardHeader className="text-center">
+                           <CardTitle className="text-2xl flex items-center justify-center gap-2">
+                             <Lock className="w-6 h-6 text-primary" />
+                             Explore All 4,300+ Accommodations
+                           </CardTitle>
+                           <CardDescription className="text-base mt-2">
+                             Create your free account to browse unlimited listings
+                           </CardDescription>
+                         </CardHeader>
+                         <CardContent className="space-y-4">
+                           <div className="grid grid-cols-3 gap-4">
+                             <div className="text-center">
+                               <div className="text-3xl font-bold text-primary">50,000+</div>
+                               <p className="text-xs text-muted-foreground">Property Photos</p>
+                             </div>
+                             <div className="text-center">
+                               <div className="text-3xl font-bold text-primary">10,000+</div>
+                               <p className="text-xs text-muted-foreground">Student Reviews</p>
+                             </div>
+                             <div className="text-center">
+                               <div className="text-3xl font-bold text-primary">100%</div>
+                               <p className="text-xs text-muted-foreground">Completely Free</p>
+                             </div>
+                           </div>
+                           <Button 
+                             onClick={() => navigate('/auth')}
+                             className="w-full h-11 text-base"
+                           >
+                             Create Free Account
+                           </Button>
+                           <p className="text-xs text-center text-muted-foreground">
+                             No payment required. Join thousands of students.
+                           </p>
+                         </CardContent>
+                       </Card>
+                     )}
+                     <Pagination>
+                       <PaginationContent>
+                         <PaginationItem>
+                           <PaginationPrevious
+                             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                             className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                           />
+                         </PaginationItem>
+                         {renderPaginationItems()}
+                         <PaginationItem>
+                           <PaginationNext
+                             onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                             className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                           />
+                         </PaginationItem>
+                       </PaginationContent>
+                     </Pagination>
+                   </div>
                 )}
               </>
             ) : (
