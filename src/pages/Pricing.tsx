@@ -12,6 +12,11 @@ const Pricing = () => {
     "Interactive map with satellite view",
     "Street view (360° imagery)",
     "Advanced search filters",
+    "AI Accommodation Assistant",
+    "AI-powered route planner",
+    "Ad-free browsing experience",
+    "Distance & travel time to campus",
+    "Transit station indicators on maps",
   ];
 
   const freeFeatures = [
@@ -74,8 +79,8 @@ const Pricing = () => {
 
             {/* Monthly Pass - Featured */}
             <Card className="relative overflow-hidden border-2 border-primary shadow-xl hover:shadow-2xl transition-all transform md:scale-105">
-              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-bold">Best Value</Badge>
+              <div className="absolute top-3 right-3">
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-bold text-xs px-2 py-1">Best Value</Badge>
               </div>
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
               <CardHeader>

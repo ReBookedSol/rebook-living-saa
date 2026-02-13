@@ -462,72 +462,13 @@ const ReBookedCampus = () => {
               </div>
 
               <Card className="border border-slate-200 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-primary" />
-                    Available Funding Options
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6 space-y-6">
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-amber-900 mb-2 text-lg">NSFAS (National Student Financial Aid Scheme)</h4>
-                    <p className="text-sm text-amber-800 mb-4">
-                      NSFAS provides financial aid to students from poor and working-class families. It's the primary funding mechanism for South African students in higher education.
-                    </p>
-                    <a
-                      href="https://www.nsfas.org.za"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-amber-700 font-medium hover:text-amber-900"
-                    >
-                      Visit NSFAS
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {[
-                      {
-                        icon: Building2,
-                        title: "University Bursaries",
-                        description: "Most universities offer their own bursaries and scholarships. Contact your chosen institution."
-                      },
-                      {
-                        icon: TrendingUp,
-                        title: "Merit-Based Scholarships",
-                        description: "Students with excellent academic records can apply for merit-based scholarships."
-                      },
-                      {
-                        icon: Award,
-                        title: "Corporate Bursaries",
-                        description: "Many companies offer bursaries to students in specific fields like engineering and IT."
-                      },
-                      {
-                        icon: Users,
-                        title: "SETA Programs",
-                        description: "Sector Education and Training Authority provides bursaries for specific industries."
-                      }
-                    ].map((item, idx) => {
-                      const Icon = item.icon;
-                      return (
-                        <div key={idx} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <div className="flex items-start gap-3">
-                            <Icon className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                            <div>
-                              <h5 className="font-semibold text-foreground mb-1">{item.title}</h5>
-                              <p className="text-sm text-muted-foreground">{item.description}</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-900">
-                      <strong>💡 Pro Tip:</strong> Apply early and explore multiple options. Contact your university's financial aid office for personalized guidance.
-                    </p>
-                  </div>
+                <CardContent className="py-16 text-center space-y-4">
+                  <div className="text-5xl">🚧</div>
+                  <h3 className="text-2xl font-bold text-foreground">Coming Soon</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    We're working hard to bring you a comprehensive bursary and funding directory. Stay tuned for updates!
+                  </p>
+                  <Badge variant="secondary" className="text-sm">Under Development</Badge>
                 </CardContent>
               </Card>
             </TabsContent>
