@@ -187,9 +187,14 @@ const UpgradeDialog = ({ isLoading, loadingProgress, onUpgrade, type, totalCount
   const features = [
     "All accommodation photos",
     "All Google reviews",
-    "Interactive map view",
-    "Satellite imagery",
-    "No advertisements",
+    "Interactive map & satellite view",
+    "Street view (360° imagery)",
+    "AI Accommodation Assistant",
+    "AI-powered route planner",
+    "Ad-free browsing experience",
+    "Distance & travel time to campus",
+    "Transit station indicators on maps",
+    "Advanced search filters",
   ];
 
   return (
