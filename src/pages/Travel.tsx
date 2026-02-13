@@ -524,8 +524,8 @@ export default function Travel() {
           if (!hasOverlap) return;
         }
 
-        const strokeWeight = route.type === 'trunk' ? 5 : route.type === 'direct' ? 4 : 3;
-        const strokeOpacity = route.type === 'trunk' ? 0.9 : 0.7;
+        const strokeWeight = route.type === 'trunk' ? 6 : route.type === 'direct' ? 5 : 4;
+        const strokeOpacity = route.type === 'trunk' ? 1 : 0.9;
         const dashPattern = route.type === 'area' ? [10, 5] : undefined;
 
         const polyline = new google.maps.Polyline({
@@ -609,8 +609,8 @@ export default function Travel() {
           path: corridor.path,
           geodesic: false,
           strokeColor: corridor.color,
-          strokeOpacity: 0.85,
-          strokeWeight: corridor.weight,
+          strokeOpacity: 1,
+          strokeWeight: corridor.weight + 2,
           map: mapInstanceRef.current,
         });
         polylinesRef.current.push(polyline);

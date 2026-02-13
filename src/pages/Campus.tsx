@@ -383,37 +383,13 @@ const UniversityProfileModal = ({
             </TabsContent>
 
             <TabsContent value="funding" className="mt-4">
-              {bursaries && bursaries.length > 0 ? (
-                <div className="space-y-3">
-                  {bursaries.map((bursary: any) => (
-                    <Card key={bursary.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h4 className="font-medium">{bursary.name}</h4>
-                            <p className="text-sm text-muted-foreground">{bursary.provider}</p>
-                            {bursary.amount && (
-                              <Badge className="mt-2">{bursary.amount}</Badge>
-                            )}
-                          </div>
-                          {bursary.closing_date && (
-                            <div className="text-right">
-                              <p className="text-xs text-muted-foreground">Closes</p>
-                              <p className="text-sm font-medium">
-                                {new Date(bursary.closing_date).toLocaleDateString()}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">
-                  No bursaries found. Check back later.
+              <div className="text-center py-12 space-y-4">
+                <div className="text-4xl">🚧</div>
+                <h3 className="text-xl font-bold text-foreground">Coming Soon</h3>
+                <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                  We're building a comprehensive bursary directory. Stay tuned!
                 </p>
-              )}
+              </div>
             </TabsContent>
           </Tabs>
         </ScrollArea>
