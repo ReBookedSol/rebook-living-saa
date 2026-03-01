@@ -189,6 +189,51 @@ export type Database = {
           },
         ]
       }
+      admin_site_visits: {
+        Row: {
+          connection_type: string | null
+          id: string
+          ip_address: string | null
+          language: string | null
+          page_url: string | null
+          platform: string | null
+          referrer: string | null
+          screen_resolution: string | null
+          session_fingerprint: string | null
+          timezone: string | null
+          user_agent: string | null
+          visited_at: string
+        }
+        Insert: {
+          connection_type?: string | null
+          id?: string
+          ip_address?: string | null
+          language?: string | null
+          page_url?: string | null
+          platform?: string | null
+          referrer?: string | null
+          screen_resolution?: string | null
+          session_fingerprint?: string | null
+          timezone?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Update: {
+          connection_type?: string | null
+          id?: string
+          ip_address?: string | null
+          language?: string | null
+          page_url?: string | null
+          platform?: string | null
+          referrer?: string | null
+          screen_resolution?: string | null
+          session_fingerprint?: string | null
+          timezone?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Relationships: []
+      }
       ai_pack_cache: {
         Row: {
           cache_key: string

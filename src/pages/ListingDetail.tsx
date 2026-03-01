@@ -22,7 +22,7 @@ import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getPlaceData, getUserTier } from "@/lib/placeCache";
 import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
-import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import L from "leaflet";
 import type { GoogleReview } from "@/types/place-cache";
 import { useActivityTracking } from "@/hooks/useActivityTracking";
 import { ShareListingPopup } from "@/components/ShareListingPopup";
@@ -290,8 +290,7 @@ const ListingDetail = () => {
   });
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const passedImages = (location.state as any)?.images as string[] | undefined;
 
@@ -322,20 +321,14 @@ const ListingDetail = () => {
       });
     },
     enabled: !!listing,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
-  // Use cached photos/reviews if available, otherwise fall back to Google Maps API
   const allPhotos = placeCache?.photos?.length ? placeCache.photos :
                     (passedImages && passedImages.length > 0 ? passedImages : googlePhotos);
-
-  // Use server-side tiered photos if available, otherwise use cached/fetched images
   const photos = (tieredPhotos && tieredPhotos.length > 0) ? tieredPhotos : allPhotos;
   const allReviews = placeCache?.reviews?.length ? placeCache.reviews : googleReviews;
   const reviews = isPaidUser ? allReviews : allReviews?.slice(0, FREE_TIER_LIMITS.MAX_REVIEWS);
-
-  // Calculate total photos: prioritize placeCache count, then fall back to totalGooglePhotos or allPhotos length
-  // This ensures we show unlock prompt for fetched photos even if only 3 are displayed
   const totalPhotos = placeCache?.photo_count || totalGooglePhotos || allPhotos?.length || 0;
   const totalReviews = placeCache?.review_count || allReviews?.length || 0;
   const hasMorePhotos = !isPaidUser && totalPhotos > FREE_TIER_LIMITS.MAX_PHOTOS;
@@ -343,163 +336,113 @@ const ListingDetail = () => {
   const cacheHit = placeCache?.cached || false;
   const cacheAttributions = placeCache?.attributions;
 
+  // Leaflet map initialization
   useEffect(() => {
-    const loadAndInit = async () => {
-      const success = await loadGoogleMapsScript();
-      if (success) {
-        initMap();
-      } else {
-        console.warn('Failed to load Google Maps');
+    if (!mapRef.current || !listing) return;
+
+    // Cleanup previous map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+
+    const map = L.map(mapRef.current, {
+      center: [-33.9249, 18.4241],
+      zoom: 15,
+      zoomControl: true,
+    });
+
+    const tileUrl = mapType === 'satellite' && isPaidUser
+      ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+    L.tileLayer(tileUrl, {
+      attribution: mapType === 'satellite' && isPaidUser
+        ? '&copy; Esri'
+        : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    const blueIcon = new L.Icon({
+      iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+      shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
+    });
+    const redIcon = new L.Icon({
+      iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+      shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
+    });
+
+    // Geocode and place markers
+    const addressQuery = [listing.property_name, listing.address, listing.city, listing.province].filter(Boolean).join(', ');
+
+    (async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressQuery + ", South Africa")}&limit=1`,
+          { headers: { "User-Agent": "ReBookLiving/1.0" } }
+        );
+        const data = await res.json();
+        if (data && data[0]) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          map.setView([lat, lng], 17);
+          L.marker([lat, lng], { icon: blueIcon })
+            .addTo(map)
+            .bindPopup(`<strong>${listing.property_name}</strong>`);
+
+          // University distance calculation
+          if (isPaidUser && listing.university) {
+            const uniRes = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(listing.university + ", South Africa")}&limit=1`,
+              { headers: { "User-Agent": "ReBookLiving/1.0" } }
+            );
+            const uniData = await uniRes.json();
+            if (uniData && uniData[0]) {
+              const uniLat = parseFloat(uniData[0].lat);
+              const uniLng = parseFloat(uniData[0].lon);
+              L.marker([uniLat, uniLng], { icon: redIcon })
+                .addTo(map)
+                .bindPopup(`<strong>${listing.university}</strong>`);
+
+              const bounds = L.latLngBounds([lat, lng], [uniLat, uniLng]);
+              map.fitBounds(bounds, { padding: [50, 50] });
+
+              // Calculate approximate distance
+              const R = 6371;
+              const dLat = ((uniLat - lat) * Math.PI) / 180;
+              const dLon = ((uniLng - lng) * Math.PI) / 180;
+              const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat * Math.PI) / 180) * Math.cos((uniLat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+              const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+              const drivingMin = Math.round((distKm / 40) * 60);
+              const walkingMin = Math.round((distKm / 5) * 60);
+
+              setTravelInfo({
+                driving: { distance: `${distKm.toFixed(1)} km`, duration: `${drivingMin} min` },
+                walking: distKm < 15 ? { distance: `${distKm.toFixed(1)} km`, duration: `${walkingMin} min` } : null,
+              });
+
+              L.polyline([[lat, lng], [uniLat, uniLng]], {
+                color: "hsl(160, 84%, 34%)", weight: 3, dashArray: "8, 8", opacity: 0.7,
+              }).addTo(map);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Leaflet map init error", err);
+      }
+    })();
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
     };
-
-    loadAndInit();
-
-    function initMap() {
-      try {
-        const google = (window as any).google;
-        if (!google || !mapRef.current) return;
-
-        const map = new google.maps.Map(mapRef.current, {
-          center: { lat: -33.9249, lng: 18.4241 },
-          zoom: 15,
-          mapTypeId: 'roadmap',
-          mapTypeControl: isPaidUser,
-          mapTypeControlOptions: isPaidUser ? {
-            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-            mapTypeIds: ['roadmap', 'satellite'],
-          } : undefined,
-          streetViewControl: isPaidUser,
-        });
-
-        mapInstanceRef.current = map;
-
-        const service = new google.maps.places.PlacesService(map);
-        const addressQuery = [listing?.property_name, listing?.address, listing?.city, listing?.province].filter(Boolean).join(', ');
-
-        service.findPlaceFromQuery({
-          query: addressQuery || listing?.property_name || listing?.address || listing?.city,
-          fields: ['place_id', 'geometry', 'name', 'formatted_address'],
-        }, (results: any, status: any) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-            const place = results[0];
-            if (place.geometry && place.geometry.location) {
-              map.setCenter(place.geometry.location);
-              map.setZoom(17);
-              markerRef.current = new google.maps.Marker({ map, position: place.geometry.location, title: place.name });
-
-              // Calculate distance to university if available
-              if (isPaidUser && listing?.university) {
-                const universityQuery = `${listing.university}, South Africa`;
-                const geocoder = new google.maps.Geocoder();
-                
-                geocoder.geocode({ address: universityQuery }, (uniResults: any, uniStatus: any) => {
-                  if (uniStatus === google.maps.GeocoderStatus.OK && uniResults[0]) {
-                    const universityLocation = uniResults[0].geometry.location;
-                    
-                    // Add university marker
-                    new google.maps.Marker({
-                      map,
-                      position: universityLocation,
-                      title: listing.university,
-                      icon: { url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" },
-                    });
-
-                    // Fit bounds to show both markers
-                    const bounds = new google.maps.LatLngBounds();
-                    bounds.extend(place.geometry.location);
-                    bounds.extend(universityLocation);
-                    map.fitBounds(bounds);
-
-                    // Calculate travel times
-                    const directionsService = new google.maps.DirectionsService();
-                    
-                    // Driving
-                    directionsService.route({
-                      origin: place.geometry.location,
-                      destination: universityLocation,
-                      travelMode: google.maps.TravelMode.DRIVING,
-                    }, (result: any, dStatus: any) => {
-                      if (dStatus === google.maps.DirectionsStatus.OK) {
-                        const route = result.routes[0].legs[0];
-                        setTravelInfo(prev => ({
-                          ...prev,
-                          driving: { distance: route.distance.text, duration: route.duration.text },
-                        }));
-                      }
-                    });
-
-                    // Walking
-                    directionsService.route({
-                      origin: place.geometry.location,
-                      destination: universityLocation,
-                      travelMode: google.maps.TravelMode.WALKING,
-                    }, (result: any, wStatus: any) => {
-                      if (wStatus === google.maps.DirectionsStatus.OK) {
-                        const route = result.routes[0].legs[0];
-                        setTravelInfo(prev => ({
-                          ...prev,
-                          walking: { distance: route.distance.text, duration: route.duration.text },
-                        }));
-                      }
-                    });
-                  }
-                });
-              }
-            }
-
-            service.getDetails({ placeId: place.place_id, fields: ['reviews', 'rating', 'name', 'photos', 'url'] }, (detail: any, dStatus: any) => {
-              if (dStatus === google.maps.places.PlacesServiceStatus.OK && detail) {
-                // Only set Google reviews/photos as fallback if cache didn't have data
-                // Limit reviews based on tier (paid users get up to 10, free users get up to 1)
-                const maxGoogleReviews = isPaidUser ? 10 : 1;
-                if (detail.reviews) {
-                  const formattedReviews = detail.reviews.slice(0, maxGoogleReviews).map((r: any) => ({
-                    author_name: r.author_name,
-                    author_url: r.author_url,
-                    profile_photo_url: r.profile_photo_url,
-                    rating: r.rating,
-                    relative_time_description: r.relative_time_description,
-                    text: r.text,
-                    time: r.time,
-                  }));
-                  setGoogleReviews(formattedReviews);
-                }
-                // Optimization: For free users, only set Google photos if we don't already have photos from DB or cache
-                // This prevents wasting API quota by fetching photos we won't display
-                const hasPhotosFromSource = (tieredPhotos && tieredPhotos.length > 0) || (placeCache?.photos?.length);
-                const shouldFetchGooglePhotos = isPaidUser || !hasPhotosFromSource;
-
-                if (shouldFetchGooglePhotos && detail.photos && detail.photos.length > 0) {
-                  try {
-                    const maxGooglePhotos = isPaidUser ? 10 : 3;
-                    const photoUrls = detail.photos.slice(0, maxGooglePhotos).map((p: any) => p.getUrl({ maxWidth: 800 }));
-                    setGooglePhotos(photoUrls);
-                    // Track total available photos from Google for unlock prompt logic
-                    setTotalGooglePhotos(detail.photos.length);
-                  } catch (err) {
-                    console.warn('Failed to extract photo urls', err);
-                  }
-                }
-              }
-            });
-          }
-        });
-      } catch (err) {
-        console.warn('Google Maps init error', err);
-      }
-    }
-
-    return () => {};
-  }, [listing, isPaidUser]);
-
-  useEffect(() => {
-    if (mapInstanceRef.current) {
-      // Only allow satellite for paid users
-      const allowedMapType = !isPaidUser && mapType === 'satellite' ? 'roadmap' : mapType;
-      mapInstanceRef.current.setMapTypeId(allowedMapType);
-    }
-  }, [mapType, isPaidUser]);
+  }, [listing, isPaidUser, mapType]);
 
   const toggleReviewExpand = (reviewId: string) => {
     const newExpanded = new Set(expandedReviews);
@@ -512,36 +455,7 @@ const ListingDetail = () => {
   };
 
   const enterStreetView = () => {
-    if (!isPaidUser) {
-      toast.error('Street View is available with a premium pass');
-      return;
-    }
-    try {
-      const google = (window as any).google;
-      if (!google || !mapInstanceRef.current) return;
-
-      const svService = new google.maps.StreetViewService();
-      const svPanorama = mapInstanceRef.current.getStreetView();
-      const position = markerRef.current && markerRef.current.getPosition ? markerRef.current.getPosition() : mapInstanceRef.current.getCenter();
-
-      if (!position) {
-        toast.error('No location available for Street View');
-        return;
-      }
-
-      svService.getPanorama({ location: position, radius: 50 }, (data: any, status: any) => {
-        if (status === google.maps.StreetViewStatus.OK && data && svPanorama) {
-          svPanorama.setPano(data.location.pano);
-          svPanorama.setPov({ heading: 270, pitch: 0 });
-          svPanorama.setVisible(true);
-        } else {
-          toast.error('Street View not available at this location');
-        }
-      });
-    } catch (e) {
-      console.warn('enterStreetView error', e);
-      toast.error('Failed to enter Street View');
-    }
+    toast.error('Street View is not available with Leaflet maps');
   };
 
   const handleReportSubmit = (e: React.FormEvent) => {
@@ -936,12 +850,9 @@ const ListingDetail = () => {
                       >
                         {mapType === 'roadmap' ? '🛰️ Satellite' : '🗺️ Map'}
                       </Button>
-                      <Button size="sm" onClick={() => enterStreetView()} className="text-xs">
-                        Street View
-                      </Button>
                     </div>
                   )}
-                  <div ref={mapRef} id="gmaps" className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
+                  <div ref={mapRef} className="h-60 md:h-80 w-full rounded-lg overflow-hidden bg-muted" />
                   
                   {/* Travel Times - Pro users only */}
                   {isPaidUser && listing.university && (travelInfo.driving || travelInfo.walking) && (

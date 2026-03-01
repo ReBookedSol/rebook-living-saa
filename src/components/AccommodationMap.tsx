@@ -5,20 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin,
-  Navigation,
   Car,
   Footprints,
-  Clock,
   Lock,
   Building2,
-  Maximize2,
   Train,
   Bus,
 } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
 import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
+import L from "leaflet";
 
 interface AccommodationMapProps {
   accommodationAddress: string;
@@ -33,6 +30,81 @@ interface TravelInfo {
   walking: { distance: string; duration: string } | null;
 }
 
+// Simple geocode using Nominatim (free, no API key)
+async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+      { headers: { "User-Agent": "ReBookLiving/1.0" } }
+    );
+    const data = await res.json();
+    if (data && data[0]) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Calculate approximate distance between two points (Haversine)
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function estimateTravelTimes(distKm: number): TravelInfo {
+  const drivingMin = Math.round((distKm / 40) * 60); // ~40km/h avg city
+  const walkingMin = Math.round((distKm / 5) * 60); // ~5km/h walking
+  return {
+    driving: { distance: `${distKm.toFixed(1)} km`, duration: `${drivingMin} min` },
+    walking: distKm < 15 ? { distance: `${distKm.toFixed(1)} km`, duration: `${walkingMin} min` } : null,
+  };
+}
+
+// Custom marker icons
+const blueIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const redIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const yellowIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const orangeIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
 export const AccommodationMap = ({
   accommodationAddress,
   accommodationName,
@@ -41,16 +113,13 @@ export const AccommodationMap = ({
   onDistanceCalculated,
 }: AccommodationMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const directionsRendererRef = useRef<any>(null);
-  
+  const mapInstanceRef = useRef<L.Map | null>(null);
+
   const { accessLevel, isLoading: accessLoading } = useAccessControl();
   const isPaidUser = accessLevel === "paid";
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [travelInfo, setTravelInfo] = useState<TravelInfo>({ driving: null, walking: null });
-  const [showDirections, setShowDirections] = useState(false);
-  const [travelMode, setTravelMode] = useState<"driving" | "walking">("driving");
 
   useEffect(() => {
     if (!isPaidUser) {
@@ -58,210 +127,101 @@ export const AccommodationMap = ({
       return;
     }
 
-    const loadMap = () => {
-      const google = (window as any).google;
-      if (!google || !mapRef.current) return;
+    if (!mapRef.current) return;
 
-      // Initialize map
-      const map = new google.maps.Map(mapRef.current, {
-        center: { lat: -26.2041, lng: 28.0473 }, // Johannesburg default
-        zoom: 14,
-        mapTypeControl: true,
-        mapTypeControlOptions: {
-          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-          mapTypeIds: ["roadmap", "satellite"],
-        },
-        streetViewControl: true,
-        fullscreenControl: true,
-      });
+    // Cleanup previous map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
 
-      mapInstanceRef.current = map;
-      directionsRendererRef.current = new google.maps.DirectionsRenderer({ map });
+    const map = L.map(mapRef.current, {
+      center: [-26.2041, 28.0473],
+      zoom: 14,
+      zoomControl: true,
+    });
 
-      // Geocode accommodation address
-      const geocoder = new google.maps.Geocoder();
-      const fullAddress = [accommodationName, accommodationAddress, city].filter(Boolean).join(", ");
-      
-       geocoder.geocode({ address: fullAddress }, (results: any, status: any) => {
-         if (status === google.maps.GeocoderStatus.OK && results[0]) {
-           const accommodationLocation = results[0].geometry.location;
-           map.setCenter(accommodationLocation);
-           
-           // Add accommodation marker
-           new google.maps.Marker({
-             map,
-             position: accommodationLocation,
-             title: accommodationName,
-             icon: {
-               url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-             },
-           });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
 
-           // Add train stations if available
-           if (universityName && isGautrainAccessible(universityName)) {
-             const trainStationName = getGautrainStation(universityName);
-             const trainQuery = `${trainStationName} station, South Africa`;
-             geocoder.geocode({ address: trainQuery }, (trainResults: any, trainStatus: any) => {
-               if (trainStatus === google.maps.GeocoderStatus.OK && trainResults[0]) {
-                 const trainLocation = trainResults[0].geometry.location;
-                 new google.maps.Marker({
-                   map,
-                   position: trainLocation,
-                   title: `${trainStationName} (Gautrain)`,
-                   icon: {
-                     url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
-                   },
-                 });
-               }
-             });
-           }
+    mapInstanceRef.current = map;
 
-           if (universityName && isMycitiAccessible(universityName)) {
-             const busStationName = getMycitiStation(universityName);
-             const busQuery = `${busStationName}, South Africa`;
-             geocoder.geocode({ address: busQuery }, (busResults: any, busStatus: any) => {
-               if (busStatus === google.maps.GeocoderStatus.OK && busResults[0]) {
-                 const busLocation = busResults[0].geometry.location;
-                 new google.maps.Marker({
-                   map,
-                   position: busLocation,
-                   title: `${busStationName} (MyCiTi)`,
-                   icon: {
-                     url: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png",
-                   },
-                 });
-               }
-             });
-           }
-
-           // If university provided, calculate distance
-           if (universityName) {
-             const universityAddress = `${universityName}, South Africa`;
-             
-             geocoder.geocode({ address: universityAddress }, (uniResults: any, uniStatus: any) => {
-               if (uniStatus === google.maps.GeocoderStatus.OK && uniResults[0]) {
-                 const universityLocation = uniResults[0].geometry.location;
-                 
-                 // Add university marker
-                 new google.maps.Marker({
-                   map,
-                   position: universityLocation,
-                   title: universityName,
-                   icon: {
-                     url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                   },
-                 });
-
-                 // Fit bounds to show both markers
-                 const bounds = new google.maps.LatLngBounds();
-                 bounds.extend(accommodationLocation);
-                 bounds.extend(universityLocation);
-                 map.fitBounds(bounds);
-
-                 // Calculate travel times
-                 calculateTravelTime(accommodationLocation, universityLocation, google);
-               }
-             });
-           }
-
-           setIsLoading(false);
-         } else {
-           console.warn("Geocoding failed:", status);
-           setIsLoading(false);
-         }
-       });
-    };
-
-    const calculateTravelTime = (origin: any, destination: any, google: any) => {
-      const directionsService = new google.maps.DirectionsService();
-
-      // Driving
-      directionsService.route(
-        {
-          origin,
-          destination,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result: any, status: any) => {
-          if (status === google.maps.DirectionsStatus.OK) {
-            const route = result.routes[0].legs[0];
-            setTravelInfo((prev) => ({
-              ...prev,
-              driving: {
-                distance: route.distance.text,
-                duration: route.duration.text,
-              },
-            }));
-            
-            if (onDistanceCalculated) {
-              onDistanceCalculated(route.distance.text, route.duration.text);
-            }
-          }
-        }
-      );
-
-      // Walking
-      directionsService.route(
-        {
-          origin,
-          destination,
-          travelMode: google.maps.TravelMode.WALKING,
-        },
-        (result: any, status: any) => {
-          if (status === google.maps.DirectionsStatus.OK) {
-            const route = result.routes[0].legs[0];
-            setTravelInfo((prev) => ({
-              ...prev,
-              walking: {
-                distance: route.distance.text,
-                duration: route.duration.text,
-              },
-            }));
-          }
-        }
-      );
-    };
-
-    // Load Google Maps script
-    const loadAndInit = async () => {
-      const success = await loadGoogleMapsScript();
-      if (success) {
-        loadMap();
-      } else {
-        console.warn("Failed to load Google Maps script");
-        setIsLoading(false);
-      }
-    };
-
-    loadAndInit();
-  }, [isPaidUser, accommodationAddress, accommodationName, universityName, city]);
-
-  const showRoute = (mode: "driving" | "walking") => {
-    const google = (window as any).google;
-    if (!google || !mapInstanceRef.current || !directionsRendererRef.current) return;
-
-    setTravelMode(mode);
-    setShowDirections(true);
-
-    const directionsService = new google.maps.DirectionsService();
     const fullAddress = [accommodationName, accommodationAddress, city].filter(Boolean).join(", ");
-    const universityAddress = `${universityName}, South Africa`;
 
-    directionsService.route(
-      {
-        origin: fullAddress,
-        destination: universityAddress,
-        travelMode: mode === "driving" 
-          ? google.maps.TravelMode.DRIVING 
-          : google.maps.TravelMode.WALKING,
-      },
-      (result: any, status: any) => {
-        if (status === google.maps.DirectionsStatus.OK) {
-          directionsRendererRef.current.setDirections(result);
+    (async () => {
+      const accomLocation = await geocode(fullAddress + ", South Africa");
+      if (!accomLocation) {
+        setIsLoading(false);
+        return;
+      }
+
+      map.setView([accomLocation.lat, accomLocation.lng], 14);
+      L.marker([accomLocation.lat, accomLocation.lng], { icon: blueIcon })
+        .addTo(map)
+        .bindPopup(`<strong>${accommodationName}</strong><br/>${accommodationAddress}`);
+
+      // Train station markers
+      if (universityName && isGautrainAccessible(universityName)) {
+        const stationName = getGautrainStation(universityName);
+        const stationLoc = await geocode(`${stationName} Gautrain Station, South Africa`);
+        if (stationLoc) {
+          L.marker([stationLoc.lat, stationLoc.lng], { icon: yellowIcon })
+            .addTo(map)
+            .bindPopup(`<strong>${stationName}</strong> (Gautrain)`);
         }
       }
-    );
-  };
+
+      if (universityName && isMycitiAccessible(universityName)) {
+        const stationName = getMycitiStation(universityName);
+        const stationLoc = await geocode(`${stationName}, Cape Town, South Africa`);
+        if (stationLoc) {
+          L.marker([stationLoc.lat, stationLoc.lng], { icon: orangeIcon })
+            .addTo(map)
+            .bindPopup(`<strong>${stationName}</strong> (MyCiTi)`);
+        }
+      }
+
+      // University marker + distance
+      if (universityName) {
+        const uniLoc = await geocode(`${universityName}, South Africa`);
+        if (uniLoc) {
+          L.marker([uniLoc.lat, uniLoc.lng], { icon: redIcon })
+            .addTo(map)
+            .bindPopup(`<strong>${universityName}</strong>`);
+
+          const bounds = L.latLngBounds(
+            [accomLocation.lat, accomLocation.lng],
+            [uniLoc.lat, uniLoc.lng]
+          );
+          map.fitBounds(bounds, { padding: [50, 50] });
+
+          const distKm = haversineDistance(accomLocation.lat, accomLocation.lng, uniLoc.lat, uniLoc.lng);
+          const times = estimateTravelTimes(distKm);
+          setTravelInfo(times);
+
+          if (onDistanceCalculated && times.driving) {
+            onDistanceCalculated(times.driving.distance, times.driving.duration);
+          }
+
+          // Draw a line between accommodation and university
+          L.polyline(
+            [[accomLocation.lat, accomLocation.lng], [uniLoc.lat, uniLoc.lng]],
+            { color: "hsl(160, 84%, 34%)", weight: 3, dashArray: "8, 8", opacity: 0.7 }
+          ).addTo(map);
+        }
+      }
+
+      setIsLoading(false);
+    })();
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [isPaidUser, accommodationAddress, accommodationName, universityName, city]);
 
   if (accessLoading) {
     return (
@@ -284,7 +244,6 @@ export const AccommodationMap = ({
         </CardHeader>
         <CardContent>
           <div className="relative">
-            {/* Blurred placeholder map */}
             <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-green-100 rounded-lg blur-sm" />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center p-4 bg-white/90 rounded-lg shadow-lg">
@@ -293,10 +252,7 @@ export const AccommodationMap = ({
                 <p className="text-xs text-muted-foreground mb-3">
                   View distance to university, walking & driving times
                 </p>
-                <UpgradePrompt 
-                  type="map"
-                  compact
-                />
+                <UpgradePrompt type="map" compact />
               </div>
             </div>
           </div>
@@ -322,58 +278,39 @@ export const AccommodationMap = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Map Container */}
         <div className="relative">
-          {isLoading && (
-            <Skeleton className="w-full h-64 rounded-lg" />
-          )}
-          <div 
-            ref={mapRef} 
-            className={`w-full h-64 rounded-lg ${isLoading ? 'hidden' : ''}`}
+          {isLoading && <Skeleton className="w-full h-64 rounded-lg" />}
+          <div
+            ref={mapRef}
+            className={`w-full h-64 rounded-lg ${isLoading ? "hidden" : ""}`}
           />
         </div>
 
-        {/* Travel Info */}
         {universityName && (travelInfo.driving || travelInfo.walking) && (
           <div className="grid grid-cols-2 gap-3">
             {travelInfo.driving && (
-              <button
-                onClick={() => showRoute("driving")}
-                className={`p-3 rounded-lg border text-left transition-colors ${
-                  showDirections && travelMode === "driving"
-                    ? "border-primary bg-primary/5"
-                    : "hover:bg-muted/50"
-                }`}
-              >
+              <div className="p-3 rounded-lg border text-left">
                 <div className="flex items-center gap-2 mb-1">
                   <Car className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs font-medium">Driving</span>
                 </div>
                 <p className="text-sm font-semibold">{travelInfo.driving.duration}</p>
                 <p className="text-xs text-muted-foreground">{travelInfo.driving.distance}</p>
-              </button>
+              </div>
             )}
             {travelInfo.walking && (
-              <button
-                onClick={() => showRoute("walking")}
-                className={`p-3 rounded-lg border text-left transition-colors ${
-                  showDirections && travelMode === "walking"
-                    ? "border-primary bg-primary/5"
-                    : "hover:bg-muted/50"
-                }`}
-              >
+              <div className="p-3 rounded-lg border text-left">
                 <div className="flex items-center gap-2 mb-1">
                   <Footprints className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs font-medium">Walking</span>
                 </div>
                 <p className="text-sm font-semibold">{travelInfo.walking.duration}</p>
                 <p className="text-xs text-muted-foreground">{travelInfo.walking.distance}</p>
-              </button>
+              </div>
             )}
           </div>
         )}
 
-        {/* Address */}
         <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
           <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
           <div>
