@@ -25,7 +25,7 @@ import {
   Lock
 } from "lucide-react";
 import GautrainInfo from "@/components/GautrainInfo";
-import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import L from "leaflet";
 import { useSEO } from "@/hooks/useSEO";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
@@ -348,96 +348,79 @@ export default function Travel() {
   const [showGautrain, setShowGautrain] = useState(false);
   const [showAllRoutes, setShowAllRoutes] = useState(true);
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
-  const polylinesRef = useRef<any[]>([]);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+  const polylinesRef = useRef<L.Polyline[]>([]);
 
   // Route Planner State
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [routeResult, setRouteResult] = useState<any>(null);
   const plannerMapRef = useRef<HTMLDivElement>(null);
-  const plannerMapInstanceRef = useRef<any>(null);
-  const plannerDirectionsRendererRef = useRef<any>(null);
+  const plannerMapInstanceRef = useRef<L.Map | null>(null);
 
-  // Initialize Google Maps
+  // Initialize Leaflet map
   useEffect(() => {
-    const initMap = async () => {
-      const success = await loadGoogleMapsScript();
-      if (!success || !mapRef.current) return;
+    if (!mapRef.current) return;
 
-      const google = (window as any).google;
-      if (!google?.maps) return;
+    // Cleanup previous map
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
 
-      const map = new google.maps.Map(mapRef.current, {
-        center: { lat: -33.9249, lng: 18.4241 },
-        zoom: 11,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true,
-        styles: [
-          { featureType: "transit.station.bus", elementType: "all", stylers: [{ visibility: "on" }] },
-          { featureType: "transit.station.rail", elementType: "all", stylers: [{ visibility: "on" }] },
-        ],
-      });
+    const map = L.map(mapRef.current, {
+      center: [-33.9249, 18.4241],
+      zoom: 11,
+      zoomControl: true,
+    });
 
-      // Enable the transit layer to show real rail/bus lines
-      const transitLayer = new google.maps.TransitLayer();
-      transitLayer.setMap(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
 
-      mapInstanceRef.current = map;
-      setMapLoaded(true);
+    mapInstanceRef.current = map;
+    setMapLoaded(true);
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
     };
-
-    initMap();
   }, []);
 
-  // Update map markers
+  // Update map markers and polylines
   useEffect(() => {
     if (!mapLoaded || !mapInstanceRef.current) return;
-
-    const google = (window as any).google;
-    if (!google?.maps) return;
+    const map = mapInstanceRef.current;
 
     // Clear existing markers and polylines
-    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
-    polylinesRef.current.forEach((p) => p.setMap(null));
+    polylinesRef.current.forEach((p) => p.remove());
     polylinesRef.current = [];
 
-    const bounds = new google.maps.LatLngBounds();
+    const allPoints: L.LatLngExpression[] = [];
 
-    // Helper to create a labeled marker with clean SVG pin
-    const createLabeledMarker = (
+    // Helper to create a marker
+    const createMarker = (
       position: { lat: number; lng: number },
       label: string,
       color: string,
       emoji: string,
-      map: any,
     ) => {
-      const marker = new google.maps.Marker({
-        position,
-        map,
-        title: label,
-        label: {
-          text: emoji,
-          fontSize: "14px",
-        },
-        icon: {
-          path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-          fillColor: color,
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 2,
-          scale: 6,
-          labelOrigin: new google.maps.Point(0, -3),
-        },
+      const icon = L.divIcon({
+        className: "custom-div-icon",
+        html: `<div style="background-color:${color};color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${emoji}</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14],
       });
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `<div style="padding:6px 10px;font-family:system-ui;"><strong>${label}</strong></div>`,
-      });
-      marker.addListener("click", () => infoWindow.open(map, marker));
+      const marker = L.marker([position.lat, position.lng], { icon })
+        .addTo(map)
+        .bindPopup(`<strong>${label}</strong>`);
 
       return marker;
     };
@@ -445,73 +428,47 @@ export default function Travel() {
     // Add Gautrain stations if enabled
     if (showGautrain) {
       GAUTRAIN_STATIONS.forEach((station) => {
-        const marker = createLabeledMarker(
+        const marker = createMarker(
           { lat: station.lat, lng: station.lng },
           station.name,
           "#DBA514",
           "🚆",
-          mapInstanceRef.current,
         );
         markersRef.current.push(marker);
-        bounds.extend({ lat: station.lat, lng: station.lng });
+        allPoints.push([station.lat, station.lng]);
       });
 
-      // Draw Gautrain lines with proper branching
-      // North-South Main Line: Hatfield → Park Station
-      const mainLineStations = GAUTRAIN_STATIONS.filter(s => 
+      // Gautrain main line
+      const mainLineStations = GAUTRAIN_STATIONS.filter(s =>
         ['HAT', 'PRE', 'CEN', 'MID', 'MAR', 'SAN', 'ROS', 'PAR'].includes(s.code)
       );
-      const mainLinePath = mainLineStations.map((s) => ({ lat: s.lat, lng: s.lng }));
-      
-      const mainLine = new google.maps.Polyline({
-        path: mainLinePath,
-        geodesic: true,
-        strokeColor: "#DBA514", // Gautrain gold
-        strokeOpacity: 1,
-        strokeWeight: 6,
-        map: mapInstanceRef.current,
-        zIndex: 10,
-      });
+      const mainLinePath: L.LatLngExpression[] = mainLineStations.map((s) => [s.lat, s.lng]);
+      const mainLine = L.polyline(mainLinePath, {
+        color: "#DBA514",
+        weight: 6,
+        opacity: 1,
+      }).addTo(map);
       polylinesRef.current.push(mainLine);
 
-      // Airport Branch Line: Marlboro → Rhodesfield → OR Tambo
-      const airportBranchStations = GAUTRAIN_STATIONS.filter(s => 
-        ['MAR', 'RHO', 'ORT'].includes(s.code) || s.name.includes('Rhodesfield') || s.name.includes('Tambo')
-      );
-      // Find the actual stations
+      // Airport branch
       const marlboro = GAUTRAIN_STATIONS.find(s => s.name === 'Marlboro');
       const rhodesfield = GAUTRAIN_STATIONS.find(s => s.name === 'Rhodesfield');
       const ortambo = GAUTRAIN_STATIONS.find(s => s.name === 'OR Tambo International');
-      
+
       if (marlboro && rhodesfield && ortambo) {
-        const airportPath = [
-          { lat: marlboro.lat, lng: marlboro.lng },
-          { lat: rhodesfield.lat, lng: rhodesfield.lng },
-          { lat: ortambo.lat, lng: ortambo.lng },
-        ];
-        
-        const airportLine = new google.maps.Polyline({
-          path: airportPath,
-          geodesic: true,
-          strokeColor: "#DBA514", // Gautrain gold
-          strokeOpacity: 1,
-          strokeWeight: 6,
-          map: mapInstanceRef.current,
-          zIndex: 10,
-        });
+        const airportLine = L.polyline(
+          [[marlboro.lat, marlboro.lng], [rhodesfield.lat, rhodesfield.lng], [ortambo.lat, ortambo.lng]],
+          { color: "#DBA514", weight: 6, opacity: 1 }
+        ).addTo(map);
         polylinesRef.current.push(airportLine);
       }
     }
 
-    // Add MyCiTi Western Cape stations with route lines
+    // MyCiTi routes and stations
     if (transportSystem === "myciti") {
-      // Only draw trunk and direct route polylines (these have meaningful paths)
-      // Skip area routes to reduce clutter - they're short local loops
       mycitiRoutes.forEach((route) => {
         if (!route.path || route.path.length < 2) return;
-        // When viewing all, only show trunk routes for cleaner overview
         if (showAllRoutes && route.type !== 'trunk' && route.type !== 'direct') return;
-        // When a region is selected, show routes that pass through stations in that region
         if (!showAllRoutes && selectedRegion !== "all") {
           const regionData = MYCITI_WESTERN_CAPE[selectedRegion as keyof typeof MYCITI_WESTERN_CAPE];
           if (!regionData) return;
@@ -526,25 +483,18 @@ export default function Travel() {
 
         const strokeWeight = route.type === 'trunk' ? 6 : route.type === 'direct' ? 5 : 4;
         const strokeOpacity = route.type === 'trunk' ? 1 : 0.9;
-        const dashPattern = route.type === 'area' ? [10, 5] : undefined;
+        const dashPattern = route.type === 'area' ? '10, 5' : undefined;
 
-        const polyline = new google.maps.Polyline({
-          path: route.path,
-          geodesic: false,
-          strokeColor: route.color,
-          strokeOpacity: dashPattern ? 0 : strokeOpacity,
-          strokeWeight: strokeWeight,
-          map: mapInstanceRef.current,
-          icons: dashPattern ? [{
-            icon: { path: 'M 0,-1 0,1', strokeOpacity: strokeOpacity, scale: strokeWeight / 2 },
-            offset: '0',
-            repeat: '15px',
-          }] : undefined,
-        });
+        const path: L.LatLngExpression[] = route.path.map((p: any) => [p.lat, p.lng]);
+        const polyline = L.polyline(path, {
+          color: route.color,
+          weight: strokeWeight,
+          opacity: strokeOpacity,
+          dashArray: dashPattern,
+        }).addTo(map);
         polylinesRef.current.push(polyline);
       });
 
-      // Show all regions or just the selected region
       const regionsToShow = showAllRoutes
         ? Object.entries(MYCITI_WESTERN_CAPE)
         : selectedRegion === "all"
@@ -553,70 +503,51 @@ export default function Travel() {
 
       regionsToShow.forEach(([regionKey, region]) => {
         if (typeof region === 'string' || !region?.stations) return;
-
         const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
-        const fillColor = isHighlighted ? "#1E88E5" : "#B0BEC5";
-        const scale = isHighlighted ? 10 : 7;
 
         (region.stations as { name: string; lat: number; lng: number }[]).forEach((station) => {
-          const marker = createLabeledMarker(
+          const marker = createMarker(
             { lat: station.lat, lng: station.lng },
             station.name,
             isHighlighted ? "#1E88E5" : "#90A4AE",
             "🚌",
-            mapInstanceRef.current,
           );
           markersRef.current.push(marker);
-          bounds.extend({ lat: station.lat, lng: station.lng });
+          allPoints.push([station.lat, station.lng]);
         });
       });
     } else {
-      // PUTCO: Only show major corridor polylines, not every individual route
-      // Group routes by corridor: Soshanguve→Pretoria, Ekangala→Pretoria, etc.
+      // PUTCO corridors
       const majorPutcoCorridors = [
-        // Soshanguve main corridor: F4 → Transfer → Orchards → Centurion → Midrand
-        { color: '#FB8C00', weight: 5, path: [
-          { lat: -25.4780, lng: 28.0920 }, // F4
-          { lat: -25.5120, lng: 28.1050 }, // Transfer
-          { lat: -25.5280, lng: 28.1180 }, // XX Entrance
-          { lat: -25.6000, lng: 28.1500 }, // via N1
-          { lat: -25.7050, lng: 28.2420 }, // Sinoville
-          { lat: -25.7380, lng: 28.2050 }, // Orchards
-          { lat: -25.7440, lng: 28.1780 }, // Marabastad
-          { lat: -25.8550, lng: 28.1890 }, // Centurion
-          { lat: -25.9930, lng: 28.1264 }, // Midrand
+        { color: '#FB8C00', weight: 7, path: [
+          { lat: -25.4780, lng: 28.0920 }, { lat: -25.5120, lng: 28.1050 },
+          { lat: -25.5280, lng: 28.1180 }, { lat: -25.6000, lng: 28.1500 },
+          { lat: -25.7050, lng: 28.2420 }, { lat: -25.7380, lng: 28.2050 },
+          { lat: -25.7440, lng: 28.1780 }, { lat: -25.8550, lng: 28.1890 },
+          { lat: -25.9930, lng: 28.1264 },
         ]},
-        // Ekangala corridor: Ekangala → Zithobeni → Rayton → Pretoria area
-        { color: '#E65100', weight: 4, path: [
-          { lat: -25.6920, lng: 28.7580 }, // Ekangala
-          { lat: -25.6780, lng: 28.7420 }, // Zithobeni
-          { lat: -25.7420, lng: 28.6580 }, // Rayton
-          { lat: -25.7520, lng: 28.2780 }, // CSIR
-          { lat: -25.7650, lng: 28.2180 }, // Balebogeng
+        { color: '#E65100', weight: 6, path: [
+          { lat: -25.6920, lng: 28.7580 }, { lat: -25.6780, lng: 28.7420 },
+          { lat: -25.7420, lng: 28.6580 }, { lat: -25.7520, lng: 28.2780 },
+          { lat: -25.7650, lng: 28.2180 },
         ]},
-        // Dennilton corridor
-        { color: '#BF360C', weight: 4, path: [
-          { lat: -25.3150, lng: 29.2250 }, // Dennilton
-          { lat: -25.4280, lng: 28.9850 }, // Kwa-Mhlanga
-          { lat: -25.5180, lng: 28.5280 }, // Pebblerock
-          { lat: -25.7380, lng: 28.2050 }, // Orchards
-          { lat: -25.9930, lng: 28.1264 }, // Midrand
+        { color: '#BF360C', weight: 6, path: [
+          { lat: -25.3150, lng: 29.2250 }, { lat: -25.4280, lng: 28.9850 },
+          { lat: -25.5180, lng: 28.5280 }, { lat: -25.7380, lng: 28.2050 },
+          { lat: -25.9930, lng: 28.1264 },
         ]},
       ];
 
       majorPutcoCorridors.forEach((corridor) => {
-        const polyline = new google.maps.Polyline({
-          path: corridor.path,
-          geodesic: false,
-          strokeColor: corridor.color,
-          strokeOpacity: 1,
-          strokeWeight: corridor.weight + 2,
-          map: mapInstanceRef.current,
-        });
+        const path: L.LatLngExpression[] = corridor.path.map(p => [p.lat, p.lng]);
+        const polyline = L.polyline(path, {
+          color: corridor.color,
+          weight: corridor.weight,
+          opacity: 1,
+        }).addTo(map);
         polylinesRef.current.push(polyline);
       });
 
-      // Add PUTCO stations - show all regions or just the selected region
       const regionsToShow = showAllRoutes
         ? Object.entries(PUTCO_ROUTES)
         : selectedRegion === "all"
@@ -625,27 +556,23 @@ export default function Travel() {
 
       regionsToShow.forEach(([regionKey, region]) => {
         if (typeof region === 'string' || !region?.stations) return;
-
         const isHighlighted = selectedRegion === regionKey || selectedRegion === "all";
-        const fillColor = isHighlighted ? "#FB8C00" : "#B0BEC5";
-        const scale = isHighlighted ? 10 : 7;
 
         (region.stations as { name: string; lat: number; lng: number }[]).forEach((station) => {
-          const marker = createLabeledMarker(
+          const marker = createMarker(
             { lat: station.lat, lng: station.lng },
             station.name,
             isHighlighted ? "#FB8C00" : "#90A4AE",
             "🚏",
-            mapInstanceRef.current,
           );
           markersRef.current.push(marker);
-          bounds.extend({ lat: station.lat, lng: station.lng });
+          allPoints.push([station.lat, station.lng]);
         });
       });
     }
 
-    if (markersRef.current.length > 0) {
-      mapInstanceRef.current.fitBounds(bounds);
+    if (allPoints.length > 0) {
+      map.fitBounds(L.latLngBounds(allPoints), { padding: [30, 30] });
     }
   }, [selectedRegion, mapLoaded, showGautrain, transportSystem, showAllRoutes]);
 
@@ -728,40 +655,61 @@ export default function Travel() {
       recommendations,
     });
 
-    // After state update, initialize map and show directions (next tick)
-    setTimeout(async () => {
-      const success = await loadGoogleMapsScript();
-      const google = (window as any).google;
-      if (!success || !google?.maps || !plannerMapRef.current) return;
+    // After state update, initialize planner map with Leaflet
+    setTimeout(() => {
+      if (!plannerMapRef.current) return;
 
-      if (!plannerMapInstanceRef.current) {
-        const map = new google.maps.Map(plannerMapRef.current, {
-          center: { lat: -28.4793, lng: 24.6727 },
-          zoom: 6,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-        });
-        plannerMapInstanceRef.current = map;
-        plannerDirectionsRendererRef.current = new google.maps.DirectionsRenderer({
-          map,
-          suppressMarkers: false,
-          polylineOptions: { strokeColor: '#4F46E5', strokeWeight: 5, strokeOpacity: 0.8 },
-        });
+      if (plannerMapInstanceRef.current) {
+        plannerMapInstanceRef.current.remove();
+        plannerMapInstanceRef.current = null;
       }
 
-      if (plannerDirectionsRendererRef.current) {
-        const directionsService = new google.maps.DirectionsService();
-        directionsService.route({
-          origin: `${originData.name}, South Africa`,
-          destination: destData.name,
-          travelMode: google.maps.TravelMode.DRIVING,
-        }, (result: any, status: any) => {
-          if (status === google.maps.DirectionsStatus.OK) {
-            plannerDirectionsRendererRef.current.setDirections(result);
+      const map = L.map(plannerMapRef.current, {
+        center: [-28.4793, 24.6727],
+        zoom: 6,
+        zoomControl: true,
+      });
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      plannerMapInstanceRef.current = map;
+
+      // Add origin and destination markers with a line between them
+      const originIcon = L.divIcon({
+        className: "custom-div-icon",
+        html: `<div style="background-color:#4F46E5;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">A</div>`,
+        iconSize: [28, 28], iconAnchor: [14, 14],
+      });
+      const destIcon = L.divIcon({
+        className: "custom-div-icon",
+        html: `<div style="background-color:#DC2626;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">B</div>`,
+        iconSize: [28, 28], iconAnchor: [14, 14],
+      });
+
+      // Geocode origin and destination
+      (async () => {
+        try {
+          const [originRes, destRes] = await Promise.all([
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(originData.name + ", South Africa")}&limit=1`, { headers: { "User-Agent": "ReBookLiving/1.0" } }),
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destData.name)}&limit=1`, { headers: { "User-Agent": "ReBookLiving/1.0" } }),
+          ]);
+          const [originGeo, destGeo] = await Promise.all([originRes.json(), destRes.json()]);
+
+          if (originGeo[0] && destGeo[0]) {
+            const oLat = parseFloat(originGeo[0].lat), oLng = parseFloat(originGeo[0].lon);
+            const dLat = parseFloat(destGeo[0].lat), dLng = parseFloat(destGeo[0].lon);
+
+            L.marker([oLat, oLng], { icon: originIcon }).addTo(map).bindPopup(`<strong>${originData.name}</strong>`);
+            L.marker([dLat, dLng], { icon: destIcon }).addTo(map).bindPopup(`<strong>${destData.name}</strong>`);
+            L.polyline([[oLat, oLng], [dLat, dLng]], { color: '#4F46E5', weight: 5, opacity: 0.8, dashArray: '10, 6' }).addTo(map);
+            map.fitBounds(L.latLngBounds([oLat, oLng], [dLat, dLng]), { padding: [50, 50] });
           }
-        });
-      }
+        } catch (err) {
+          console.warn("Planner map geocode error", err);
+        }
+      })();
     }, 100);
   };
 

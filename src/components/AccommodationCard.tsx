@@ -10,8 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCachedPhoto, setCachedPhoto } from "@/lib/addressPhotoCache";
 import { useAccessControl, FREE_TIER_LIMITS } from "@/hooks/useAccessControl";
 import { getPlaceData } from "@/lib/placeCache";
-import { getGautrainStation, isGautrainAccessible, getMycitiStation, isMycitiAccessible } from "@/lib/gautrain";
-import { loadGoogleMapsScript } from "@/lib/googleMapsConfig";
+import { isGautrainAccessible, isMycitiAccessible } from "@/lib/gautrain";
 import { ShareListingPopup } from "@/components/ShareListingPopup";
 
 interface AccommodationCardProps {
@@ -57,12 +56,10 @@ const AccommodationCard = ({
   const [animating, setAnimating] = useState(false);
   const [showPremiumBorderAnimation, setShowPremiumBorderAnimation] = useState(false);
 
-
   // Check for premium animation flag and clear it after animation
   useEffect(() => {
     if (isPaidUser && sessionStorage.getItem("justPaid") === "true") {
       setShowPremiumBorderAnimation(true);
-      // Clear the flag and animation after 2.5 seconds (duration of animation)
       const timer = setTimeout(() => {
         setShowPremiumBorderAnimation(false);
         sessionStorage.removeItem("justPaid");
@@ -93,7 +90,6 @@ const AccommodationCard = ({
       return;
     }
 
-    // optimistic UI + animation
     setAnimating(true);
     const prev = isSaved;
     setIsSaved(!prev);
@@ -109,12 +105,10 @@ const AccommodationCard = ({
         toast({ title: 'Removed', description: 'Removed from your saved properties' });
       }
     } catch (err: any) {
-      // revert optimistic change
       setIsSaved(prev);
       toast({ title: 'Error', description: err.message || 'Something went wrong', variant: 'destructive' });
     } finally {
       setLoading(false);
-      // small pop animation
       setTimeout(() => setAnimating(false), 350);
     }
   };
@@ -129,7 +123,7 @@ const AccommodationCard = ({
     }
   };
 
-  // Use place cache for browse page photos - always fetch with "free" tier for browse
+  // Use place cache for browse page photos
   const { data: placeCache } = useQuery({
     queryKey: ["place-cache-browse", address, propertyName],
     queryFn: async () => {
@@ -137,93 +131,36 @@ const AccommodationCard = ({
         property_name: propertyName,
         address: address,
         city: city,
-        user_tier: "free", // Browse always uses free tier display limits
+        user_tier: "free",
         action: "browse",
       });
     },
-    enabled: !(localImages && localImages.length > 0), // Only fetch if no local images
-    staleTime: 1000 * 60 * 30, // 30 minutes - browse cards don't need frequent updates
+    enabled: !(localImages && localImages.length > 0),
+    staleTime: 1000 * 60 * 30,
   });
 
   // Set photos from cache if available
   useEffect(() => {
     if (placeCache?.photos && placeCache.photos.length > 0 && !(localImages && localImages.length > 0)) {
       setLocalImages(placeCache.photos);
-      // Also update the local address cache
       if (placeCache.photos[0]) {
         setCachedPhoto(address, placeCache.photos[0]);
       }
     }
   }, [placeCache, address, localImages]);
 
-  // Fallback: Fetch Google Places photo if cache fails and no local images
-  // Only for paid users as a backup
+  // Fallback for paid users: check local address cache
   useEffect(() => {
-    if (!isPaidUser) return; // Skip for free users
-    if (localImages && localImages.length > 0) return; // Already have images
-    if (placeCache?.photos && placeCache.photos.length > 0) return; // Cache has photos
+    if (!isPaidUser) return;
+    if (localImages && localImages.length > 0) return;
+    if (placeCache?.photos && placeCache.photos.length > 0) return;
 
-    // Check local cache first
     const cachedPhoto = getCachedPhoto(address);
     if (cachedPhoto) {
       setLocalImages([cachedPhoto]);
-      return;
     }
-
-    const loadGoogleMapsAndFetchPhoto = async () => {
-      try {
-        // Load Google Maps script with the API key from Supabase secrets
-        const scriptLoaded = await loadGoogleMapsScript();
-        if (!scriptLoaded) {
-          console.warn('Failed to load Google Maps script');
-          return;
-        }
-
-        const ggl = (window as any).google;
-        if (!ggl?.maps?.places) {
-          console.warn('Google Maps Places API not available');
-          return;
-        }
-
-        const map = new ggl.maps.Map(document.createElement('div'), { zoom: 15 });
-        const service = new ggl.maps.places.PlacesService(map);
-        const addressQuery = [propertyName, address, city, university].filter(Boolean).join(', ');
-
-        service.findPlaceFromQuery(
-          {
-            query: addressQuery || propertyName || address || city,
-            fields: ['place_id', 'geometry', 'name'],
-          },
-          (results: any, status: any) => {
-            if (status === ggl.maps.places.PlacesServiceStatus.OK && results?.[0]) {
-              const placeId = results[0].place_id;
-              service.getDetails(
-                { placeId, fields: ['photos'] },
-                (detail: any, dStatus: any) => {
-                  if (dStatus === ggl.maps.places.PlacesServiceStatus.OK && detail?.photos?.[0]) {
-                    try {
-                      const photoUrl = detail.photos[0].getUrl({ maxWidth: 400 });
-                      setLocalImages([photoUrl]);
-                      setCachedPhoto(address, photoUrl);
-                    } catch (err) {
-                      console.warn('Failed to extract photo url', err);
-                    }
-                  }
-                }
-              );
-            }
-          }
-        );
-      } catch (err) {
-        console.warn('Failed to fetch Google Places photo', err);
-      }
-    };
-
-    loadGoogleMapsAndFetchPhoto();
   }, [id, address, isPaidUser, placeCache]);
 
-
-  // Apply image limit for free users
   const displayImages = !isPaidUser && imageUrls ? imageUrls.slice(0, FREE_TIER_LIMITS.MAX_PHOTOS) : imageUrls;
 
   return (
@@ -249,7 +186,6 @@ const AccommodationCard = ({
       >
         {/* Image Section with Overlay */}
         <div className="relative w-full h-56 overflow-hidden bg-muted group-hover:brightness-95 transition-all duration-300">
-          {/* Always show images on cards - no paywall on browse cards */}
           {localImages && localImages.length > 0 ? (
             <img
               loading="lazy"
@@ -264,7 +200,6 @@ const AccommodationCard = ({
             <img loading="lazy" decoding="async" referrerPolicy="no-referrer" src={thumb} alt={propertyName} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" onError={handleImgError()} />
           )}
 
-          {/* Badges Overlay */}
           <div className="absolute top-3 right-3 flex items-center gap-2">
             {isLandlordListing && (
               <Badge className="bg-green-500 text-white hover:bg-green-600 shadow-lg">
@@ -281,22 +216,18 @@ const AccommodationCard = ({
           </div>
         </div>
 
-        {/* Header with Title and Price */}
         <div className="p-4 pb-2 flex-shrink-0">
           <h3 className="font-bold text-lg leading-snug text-foreground line-clamp-2 mb-1">{propertyName}</h3>
           <p className="text-xs text-muted-foreground font-medium">{type} • {city}</p>
         </div>
 
-        {/* Content Section */}
         <CardContent className="p-4 py-3 flex-1">
           <div className="space-y-3">
-            {/* Location */}
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <div className="text-sm text-foreground">{address || city}</div>
             </div>
 
-            {/* University and Rating Row */}
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1 flex-1">
                 <div className="text-xs text-muted-foreground font-medium">
@@ -342,7 +273,6 @@ const AccommodationCard = ({
               </div>
             </div>
 
-            {/* Gender Policy and NSFAS Badge */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs">
                 <Users className="w-3.5 h-3.5 text-primary" />
@@ -355,7 +285,6 @@ const AccommodationCard = ({
               )}
             </div>
 
-            {/* Amenities */}
             {amenities.length > 0 && (
               <div className="text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">Amenities:</span> {amenities.slice(0,2).join(", ")}{amenities.length > 2 ? '...' : ''}
@@ -364,13 +293,11 @@ const AccommodationCard = ({
           </div>
         </CardContent>
 
-        {/* Price Section */}
         <div className="px-4 py-2 bg-gradient-to-r from-primary/5 to-accent/5 border-t">
           <p className="text-lg font-bold text-primary">{typeof monthlyCost === 'number' ? `R${monthlyCost.toLocaleString()}` : 'Contact'}</p>
           <p className="text-xs text-muted-foreground">per month</p>
         </div>
 
-        {/* Action Buttons */}
         <CardFooter className="p-4 pt-3 flex items-center justify-between gap-2 flex-shrink-0">
           <div onClick={(e) => e.preventDefault()}>
             <ShareListingPopup
