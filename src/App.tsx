@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import Maintenance from "./pages/Maintenance";
+import Contact from "./pages/Contact";
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import ListingDetail from "./pages/ListingDetail";
@@ -66,6 +67,7 @@ const App = () => {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/campus" element={<Campus />} />
