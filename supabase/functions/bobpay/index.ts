@@ -249,15 +249,12 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
   console.log("BobPay webhook received:", JSON.stringify(payload, null, 2));
 
   // Signature verification - LOG failures but DO NOT reject
-  // BobPay's signature algorithm can vary and rejecting valid payments is catastrophic
   const passphrase = Deno.env.get("BOBPAY_PASSPHRASE");
   if (passphrase && !BOBPAY_SANDBOX) {
     const isValid = verifySignature(payload, passphrase);
     if (!isValid) {
       console.warn("⚠️ Webhook signature mismatch - PROCESSING ANYWAY to avoid losing payments");
       console.warn("Payload signature:", payload.signature);
-      // Do NOT return 400 - process the payment anyway
-      // The payment will be verified by checking custom_payment_id format and status
     } else {
       console.log("Webhook signature verified successfully");
     }
@@ -265,6 +262,30 @@ async function handleWebhook(req: Request, supabase: SupabaseClientType) {
     console.log("Sandbox mode: skipping signature verification");
   } else {
     console.warn("BOBPAY_PASSPHRASE not configured - skipping signature verification");
+  }
+
+  // Validate the webhook with BobPay's validate endpoint
+  const bobpayToken = Deno.env.get("BOBPAY_API_TOKEN");
+  if (bobpayToken) {
+    try {
+      const validateResponse = await fetch(`${BOBPAY_API_URL}/payments/intents/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${bobpayToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (validateResponse.ok) {
+        console.log("✅ BobPay validate endpoint confirmed webhook is legitimate");
+      } else {
+        const validateText = await validateResponse.text();
+        console.warn("⚠️ BobPay validate returned non-200:", validateResponse.status, validateText.substring(0, 200));
+        // Still process - don't lose payments
+      }
+    } catch (validateError) {
+      console.warn("⚠️ BobPay validate call failed:", validateError);
+    }
   }
 
   // Only process paid status
@@ -293,7 +314,16 @@ async function processPayment(payload: WebhookPayload, supabase: SupabaseClientT
   console.log("Extracted user_id from payment:", user_id);
   
   // Determine payment type from item_name
-  const payment_type = payload.item_name?.toLowerCase().includes("5-day") || payload.item_name?.toLowerCase().includes("weekly") ? "weekly" : "monthly";
+  let payment_type: "weekly" | "monthly";
+  if (payload.item_name?.toLowerCase().includes("5-day") || payload.item_name?.toLowerCase().includes("weekly")) {
+    payment_type = "weekly";
+  } else if (payload.item_name?.toLowerCase().includes("monthly") || payload.item_name?.toLowerCase().includes("25-day")) {
+    payment_type = "monthly";
+  } else {
+    // Fallback: determine from amount
+    console.warn("Could not determine payment type from item_name:", payload.item_name, "- falling back to amount check");
+    payment_type = payload.amount <= 30 ? "weekly" : "monthly";
+  }
   const duration_days = payment_type === "weekly" ? 5 : 25;
   
   // Check if payment already exists to avoid duplicates
@@ -329,12 +359,16 @@ async function processPayment(payload: WebhookPayload, supabase: SupabaseClientT
   }
   access_expires_at.setDate(access_expires_at.getDate() + duration_days);
 
+  // FIX: Convert BobPay amount (in Rands) to cents for DB storage
+  // BobPay sends amount as e.g. 19 (R19), DB stores in cents (1900)
+  const amountInCents = Math.round(payload.amount * 100);
+
   // Create the payment record with status 'active'
   const { error: insertError } = await supabase
     .from("user_payments")
     .insert({
       user_id,
-      amount: Math.round(payload.amount),
+      amount: amountInCents,
       payment_type,
       payment_provider: "bobpay",
       status: "active",
@@ -348,6 +382,7 @@ async function processPayment(payload: WebhookPayload, supabase: SupabaseClientT
         item_name: payload.item_name,
         item_description: payload.item_description,
         duration_days,
+        original_amount_rands: payload.amount,
         webhook_payload: payload,
         is_sandbox: payload.is_test,
       },
@@ -358,7 +393,7 @@ async function processPayment(payload: WebhookPayload, supabase: SupabaseClientT
     return { status: 500, message: "Error creating payment" };
   }
 
-  console.log("✅ Payment created successfully:", payload.custom_payment_id, "for user:", user_id);
+  console.log("✅ Payment created successfully:", payload.custom_payment_id, "for user:", user_id, "amount_cents:", amountInCents);
 
   // Create a notification for the user about their pro upgrade
   const { error: notificationError } = await supabase
@@ -392,51 +427,31 @@ async function processPayment(payload: WebhookPayload, supabase: SupabaseClientT
           sender: { email: "info@rebookedsolutions.co.za", name: "ReBooked" },
           to: [{ email: payload.email }],
           subject: "🎉 Your ReBooked Pro Access is Now Active!",
-          htmlContent: `
-<!DOCTYPE html>
+          htmlContent: `<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
-    <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <tr>
-            <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #7c3aed, #a855f7); border-radius: 16px 16px 0 0;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🎉 Welcome to Pro!</h1>
-              <p style="color: #e9d5ff; margin: 10px 0 0; font-size: 16px;">Your premium access is now active</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 30px;">
-              <p style="margin: 0 0 15px; color: #374151; font-size: 16px;">Hi there!</p>
-              <p style="margin: 0 0 20px; color: #374151; font-size: 16px;">Your <strong>${payment_type === "weekly" ? "5-Day" : "Monthly"} Access Pass</strong> has been activated. Here's what you now have access to:</p>
-              <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <tr><td style="padding: 8px 0; color: #374151;">✅ All photos & Google reviews</td></tr>
-                <tr><td style="padding: 8px 0; color: #374151;">✅ Interactive maps & satellite views</td></tr>
-                <tr><td style="padding: 8px 0; color: #374151;">✅ AI Accommodation Assistant</td></tr>
-                <tr><td style="padding: 8px 0; color: #374151;">✅ Ad-free browsing</td></tr>
-                <tr><td style="padding: 8px 0; color: #374151;">✅ Distance & travel time to campus</td></tr>
-              </table>
-              <div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <p style="margin: 0; color: #6b7280; font-size: 14px;">Pass expires: <strong style="color: #374151;">${access_expires_at.toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</strong></p>
-                <p style="margin: 5px 0 0; color: #6b7280; font-size: 14px;">Amount paid: <strong style="color: #374151;">R${payload.amount}</strong></p>
-              </div>
-              <a href="https://rebook-living-sa.lovable.app/browse" style="display: inline-block; background: #7c3aed; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin-top: 10px;">Start Browsing</a>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">© ReBooked Solutions | support@rebookedsolutions.co.za</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0;">🎉 Welcome to Pro!</h1>
+    <p style="color: rgba(255,255,255,0.9); margin-top: 8px;">Your premium access is now active</p>
+  </div>
+  <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px;">
+    <p>Hi there!</p>
+    <p>Your ${payment_type === "weekly" ? "5-Day" : "Monthly"} Access Pass has been activated. Here's what you now have access to:</p>
+    <ul>
+      <li>✅ All photos & Google reviews</li>
+      <li>✅ Interactive maps & satellite views</li>
+      <li>✅ AI Accommodation Assistant</li>
+      <li>✅ Ad-free browsing</li>
+      <li>✅ Distance & travel time to campus</li>
+    </ul>
+    <div style="background: white; padding: 16px; border-radius: 8px; margin: 16px 0;">
+      <p style="margin: 4px 0;"><strong>Pass expires:</strong> ${access_expires_at.toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <p style="margin: 4px 0;"><strong>Amount paid:</strong> R${payload.amount}</p>
+    </div>
+    <a href="https://living.rebookedsolutions.co.za" style="display: inline-block; background: #667eea; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 12px;">Start Browsing</a>
+  </div>
+  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 20px;">© ReBooked Solutions | support@rebookedsolutions.co.za</p>
 </body>
 </html>`,
         }),
@@ -495,8 +510,12 @@ async function handlePoll(req: Request, supabase: SupabaseClientType) {
   }
 
   try {
-    // Try to look up the payment via BobPay API
-    const lookupResponse = await fetch(`${BOBPAY_API_URL}/payments/intents?custom_payment_id=${encodeURIComponent(custom_payment_id)}`, {
+    // FIX: Use the correct BobPay API endpoint with 'search' parameter
+    // The /v2/payments/intents endpoint supports 'search' for partial matching on references
+    const lookupUrl = `${BOBPAY_API_URL}/payments/intents?search=${encodeURIComponent(custom_payment_id)}&limit=1&order=DESC`;
+    console.log("BobPay API lookup URL:", lookupUrl);
+    
+    const lookupResponse = await fetch(lookupUrl, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${bobpayToken}`,
@@ -508,66 +527,90 @@ async function handlePoll(req: Request, supabase: SupabaseClientType) {
       const lookupData = await lookupResponse.json();
       console.log("BobPay API lookup response:", JSON.stringify(lookupData, null, 2));
 
-      // Check if the API returned payment data
-      // BobPay can return a single object or an array
-      const paymentInfo = Array.isArray(lookupData) ? lookupData[0] : lookupData;
+      // BobPay returns { payment_intents: [...], count: N } or similar structure
+      // Or it could be an array directly - handle both
+      let paymentInfo = null;
+      if (lookupData?.payment_intents && Array.isArray(lookupData.payment_intents)) {
+        paymentInfo = lookupData.payment_intents.find(
+          (p: any) => p.custom_payment_id === custom_payment_id
+        ) || lookupData.payment_intents[0];
+      } else if (Array.isArray(lookupData)) {
+        paymentInfo = lookupData.find(
+          (p: any) => p.custom_payment_id === custom_payment_id
+        ) || lookupData[0];
+      } else if (lookupData?.id) {
+        // Single object response
+        paymentInfo = lookupData;
+      }
       
-      if (paymentInfo && (paymentInfo.status === "paid" || paymentInfo.status === "success" || paymentInfo.status === "complete")) {
-        console.log("✅ BobPay API confirms payment is PAID - recording now");
+      if (paymentInfo) {
+        console.log("Found payment intent, status:", paymentInfo.status, "custom_payment_id:", paymentInfo.custom_payment_id);
         
-        // Build a webhook-like payload from the API response
-        const syntheticPayload: WebhookPayload = {
-          id: paymentInfo.id || 0,
-          uuid: paymentInfo.uuid || "",
-          short_reference: paymentInfo.short_reference || "",
-          custom_payment_id: custom_payment_id,
-          amount: paymentInfo.amount || paymentInfo.paid_amount || 0,
-          paid_amount: paymentInfo.paid_amount || paymentInfo.amount || 0,
-          total_paid_amount: paymentInfo.total_paid_amount || paymentInfo.amount || 0,
-          status: "paid",
-          payment_method: paymentInfo.payment_method || paymentInfo.payment?.payment_method || "unknown",
-          original_requested_payment_method: paymentInfo.original_requested_payment_method || "",
-          payment_id: paymentInfo.payment_id || paymentInfo.payment?.id || 0,
-          payment: paymentInfo.payment || { id: 0, payment_method_id: 0, payment_method: "unknown", amount: 0, status: "success" },
-          item_name: paymentInfo.item_name || "",
-          item_description: paymentInfo.item_description || "",
-          recipient_account_code: paymentInfo.recipient_account_code || "",
-          recipient_account_id: paymentInfo.recipient_account_id || 0,
-          email: paymentInfo.email || "",
-          mobile_number: paymentInfo.mobile_number || "",
-          from_bank: paymentInfo.from_bank || "",
-          time_created: paymentInfo.time_created || new Date().toISOString(),
-          is_test: paymentInfo.is_test || false,
-          signature: "",
-          notify_url: paymentInfo.notify_url || "",
-          success_url: paymentInfo.success_url || "",
-          pending_url: paymentInfo.pending_url || "",
-          cancel_url: paymentInfo.cancel_url || "",
-        };
+        if (paymentInfo.status === "paid" || paymentInfo.status === "success" || paymentInfo.status === "complete") {
+          console.log("✅ BobPay API confirms payment is PAID - recording now");
+          
+          // Build a webhook-like payload from the API response
+          const syntheticPayload: WebhookPayload = {
+            id: paymentInfo.id || 0,
+            uuid: paymentInfo.uuid || "",
+            short_reference: paymentInfo.short_reference || "",
+            custom_payment_id: paymentInfo.custom_payment_id || custom_payment_id,
+            amount: paymentInfo.amount || paymentInfo.paid_amount || 0,
+            paid_amount: paymentInfo.paid_amount || paymentInfo.amount || 0,
+            total_paid_amount: paymentInfo.total_paid_amount || paymentInfo.amount || 0,
+            status: "paid",
+            payment_method: paymentInfo.payment_method || paymentInfo.payment?.payment_method || "unknown",
+            original_requested_payment_method: paymentInfo.original_requested_payment_method || "",
+            payment_id: paymentInfo.payment_id || paymentInfo.payment?.id || 0,
+            payment: paymentInfo.payment || { id: 0, payment_method_id: 0, payment_method: "unknown", amount: 0, status: "success" },
+            item_name: paymentInfo.item_name || "",
+            item_description: paymentInfo.item_description || "",
+            recipient_account_code: paymentInfo.recipient_account_code || "",
+            recipient_account_id: paymentInfo.recipient_account_id || 0,
+            email: paymentInfo.email || "",
+            mobile_number: paymentInfo.mobile_number || "",
+            from_bank: paymentInfo.from_bank || "",
+            time_created: paymentInfo.time_created || new Date().toISOString(),
+            is_test: paymentInfo.is_test || false,
+            signature: "",
+            notify_url: paymentInfo.notify_url || "",
+            success_url: paymentInfo.success_url || "",
+            pending_url: paymentInfo.pending_url || "",
+            cancel_url: paymentInfo.cancel_url || "",
+          };
 
-        const result = await processPayment(syntheticPayload, supabase);
-        
-        if (result.status === 200) {
-          // Fetch the newly created payment
-          const { data: newPayment } = await supabase
-            .from("user_payments")
-            .select("id, status, access_expires_at, payment_type")
-            .eq("custom_payment_id", custom_payment_id)
-            .single();
+          const result = await processPayment(syntheticPayload, supabase);
+          
+          if (result.status === 200) {
+            // Fetch the newly created payment
+            const { data: newPayment } = await supabase
+              .from("user_payments")
+              .select("id, status, access_expires_at, payment_type")
+              .eq("custom_payment_id", custom_payment_id)
+              .single();
 
-          return new Response(
-            JSON.stringify({
-              found: true,
-              status: "successful",
-              access_expires_at: newPayment?.access_expires_at,
-              payment_type: newPayment?.payment_type,
-              recovered: true, // Flag that this was recovered via polling
-            }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+            return new Response(
+              JSON.stringify({
+                found: true,
+                status: "successful",
+                access_expires_at: newPayment?.access_expires_at,
+                payment_type: newPayment?.payment_type,
+                recovered: true,
+              }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          } else {
+            console.error("Failed to process payment after BobPay API confirmation:", result.message);
+            return new Response(
+              JSON.stringify({ found: false, status: "failed", message: "Payment processing error" }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } else {
+          console.log("BobPay API says payment status:", paymentInfo.status);
         }
       } else {
-        console.log("BobPay API says payment status:", paymentInfo?.status || "unknown");
+        console.log("No matching payment intent found in BobPay API response");
       }
     } else {
       const errorText = await lookupResponse.text();
@@ -679,30 +722,8 @@ async function handleStatus(req: Request, supabase: SupabaseClientType) {
 
 function verifySignature(payload: WebhookPayload, passphrase: string): boolean {
   try {
-    // Try multiple signature algorithms since BobPay's exact format may vary
-    
-    // Method 1: Standard PayFast-style signature (key=value pairs + passphrase)
+    // Per BobPay docs: URL-encode values, append passphrase (NOT encoded), MD5 hash
     const keyValuePairs = [
-      `recipient_account_code=${payload.recipient_account_code || ""}`,
-      `custom_payment_id=${payload.custom_payment_id || ""}`,
-      `email=${payload.email || ""}`,
-      `mobile_number=${payload.mobile_number || ""}`,
-      `amount=${payload.amount?.toFixed(2) || "0.00"}`,
-      `item_name=${payload.item_name || ""}`,
-      `item_description=${payload.item_description || ""}`,
-      `notify_url=${payload.notify_url || ""}`,
-      `success_url=${payload.success_url || ""}`,
-      `pending_url=${payload.pending_url || ""}`,
-      `cancel_url=${payload.cancel_url || ""}`,
-    ];
-
-    // Try without URL encoding first (common BobPay format)
-    const sig1String = keyValuePairs.join("&") + `&passphrase=${passphrase}`;
-    const sig1 = createHash("md5").update(sig1String).digest("hex");
-    if (sig1 === payload.signature) return true;
-
-    // Method 2: With URL encoding
-    const encodedPairs = [
       `recipient_account_code=${encodeURIComponent(payload.recipient_account_code || "")}`,
       `custom_payment_id=${encodeURIComponent(payload.custom_payment_id || "")}`,
       `email=${encodeURIComponent(payload.email || "")}`,
@@ -715,24 +736,23 @@ function verifySignature(payload: WebhookPayload, passphrase: string): boolean {
       `pending_url=${encodeURIComponent(payload.pending_url || "")}`,
       `cancel_url=${encodeURIComponent(payload.cancel_url || "")}`,
     ];
-    const sig2String = encodedPairs.join("&") + `&passphrase=${encodeURIComponent(passphrase)}`;
+
+    // BobPay docs show passphrase appended as-is (accountPassphrase, not URL encoded)
+    const signatureString = keyValuePairs.join("&") + `&passphrase=${passphrase}`;
+    const calculatedSignature = createHash("md5").update(signatureString).digest("hex");
+    
+    console.log("Signature check - calculated:", calculatedSignature, "received:", payload.signature);
+    
+    if (calculatedSignature === payload.signature) return true;
+
+    // Fallback: try with passphrase also URL-encoded (some implementations differ)
+    const sig2String = keyValuePairs.join("&") + `&passphrase=${encodeURIComponent(passphrase)}`;
     const sig2 = createHash("md5").update(sig2String).digest("hex");
     if (sig2 === payload.signature) return true;
 
-    // Method 3: Fewer fields (some gateways use subset)
-    const minimalPairs = [
-      `custom_payment_id=${payload.custom_payment_id || ""}`,
-      `amount=${payload.amount?.toFixed(2) || "0.00"}`,
-      `status=${payload.status || ""}`,
-    ];
-    const sig3String = minimalPairs.join("&") + `&passphrase=${passphrase}`;
-    const sig3 = createHash("md5").update(sig3String).digest("hex");
-    if (sig3 === payload.signature) return true;
-
     console.warn("All signature methods failed. Expected:", payload.signature);
-    console.warn("Method 1 produced:", sig1);
-    console.warn("Method 2 produced:", sig2);
-    console.warn("Method 3 produced:", sig3);
+    console.warn("Method 1 (docs standard) produced:", calculatedSignature);
+    console.warn("Method 2 (encoded passphrase) produced:", sig2);
     
     return false;
   } catch (error) {
