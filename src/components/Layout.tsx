@@ -246,6 +246,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <ul className="space-y-3 text-sm">
                 <li><Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
                 <li><Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link></li>
+                <li><Link to="/contact" onClick={(e) => handleFooterNav(e, '/contact')} className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
               </ul>
             </div>
 
