@@ -3,8 +3,9 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { useSEO } from "@/hooks/useSEO";
+import { getUniversitiesWithTrainAccess, getGautrainStation, getMycitiStation } from "@/lib/gautrain";
 
-type FilterType = "city" | "university" | "province" | null;
+type FilterType = "property_name" | "city" | "university" | "province" | "train_access" | null;
 
 interface FilterResult {
   type: FilterType;
@@ -24,16 +25,20 @@ const AccommodationFilter = () => {
   const getSEOData = () => {
     if (filter) {
       const titles: Record<FilterType, string> = {
+        property_name: `${filter.value} - Student Accommodation`,
         city: `Student Accommodation in ${filter.value}`,
         university: `Student Accommodation near ${filter.value}`,
         province: `Student Accommodation in ${filter.value}`,
+        train_access: "Student Accommodation near Gautrain & Train Stations",
         null: "Student Accommodation",
       };
 
       const descriptions: Record<FilterType, string> = {
+        property_name: `${filter.count} listing(s) for ${filter.value}. NSFAS-accredited, verified student accommodation on ReBooked Living. Safe, affordable housing for students.`,
         city: `Browse ${filter.count} verified student accommodation in ${filter.value}. Safe, affordable housing from R1500/month. Find your perfect room on ReBooked Living.`,
         university: `Discover ${filter.count} student rooms near ${filter.value}. NSFAS-accredited, verified accommodation with safe housing options. Compare prices and amenities.`,
         province: `Find ${filter.count} student accommodation across ${filter.value}. Browse verified rooms in universities and cities. NSFAS-accredited, affordable student housing.`,
+        train_access: `${filter.count} verified student accommodations near Gautrain and train stations. Easy commute to campus. NSFAS-accredited housing in South Africa.`,
         null: "Browse student accommodation in South Africa",
       };
 
@@ -68,7 +73,60 @@ const AccommodationFilter = () => {
         // Normalize the slug for searching (replace hyphens with spaces)
         const normalizedSlug = slug.replace(/-/g, " ");
 
-        // Query for city match
+        // Check for special keywords first
+        if (normalizedSlug.toLowerCase().includes("gautrain") ||
+            normalizedSlug.toLowerCase().includes("near-train") ||
+            normalizedSlug.toLowerCase().includes("train") ||
+            normalizedSlug.toLowerCase().includes("station")) {
+
+          const trainAccessUniversities = getUniversitiesWithTrainAccess();
+          const { count } = await supabase
+            .from("accommodations")
+            .select("id", { count: "exact" })
+            .in("university", trainAccessUniversities);
+
+          setFilter({
+            type: "train_access",
+            value: "Gautrain/Train Stations",
+            count: count || 0,
+          });
+
+          const params = new URLSearchParams(searchParams);
+          params.set("nearTrain", "true");
+          navigate(`/browse?${params.toString()}`);
+          return;
+        }
+
+        // Query for property name match (accommodation name) - PRIORITY 1
+        const { data: propertyData, error: propertyError } = await supabase
+          .from("accommodations")
+          .select("property_name", { count: "exact" })
+          .ilike("property_name", `%${normalizedSlug}%`)
+          .limit(1);
+
+        if (propertyError) throw propertyError;
+
+        if (propertyData && propertyData.length > 0) {
+          const propertyName = propertyData[0].property_name;
+
+          const { count } = await supabase
+            .from("accommodations")
+            .select("id", { count: "exact" })
+            .ilike("property_name", `%${propertyName}%`);
+
+          setFilter({
+            type: "property_name",
+            value: propertyName,
+            count: count || 0,
+          });
+
+          const params = new URLSearchParams(searchParams);
+          params.set("search", propertyName);
+          navigate(`/browse?${params.toString()}`);
+          return;
+        }
+
+        // Query for city match - PRIORITY 2
         const { data: cityData, error: cityError } = await supabase
           .from("accommodations")
           .select("city", { count: "exact" })
@@ -91,14 +149,13 @@ const AccommodationFilter = () => {
             count: count || 0,
           });
 
-          // Redirect to browse with location filter
           const params = new URLSearchParams(searchParams);
           params.set("location", cityName);
           navigate(`/browse?${params.toString()}`);
           return;
         }
 
-        // Query for university match
+        // Query for university match - PRIORITY 3
         const { data: universityData, error: universityError } = await supabase
           .from("accommodations")
           .select("university", { count: "exact" })
@@ -121,14 +178,13 @@ const AccommodationFilter = () => {
             count: count || 0,
           });
 
-          // Redirect to browse with university filter
           const params = new URLSearchParams(searchParams);
           params.set("university", universityName);
           navigate(`/browse?${params.toString()}`);
           return;
         }
 
-        // Query for province match
+        // Query for province match - PRIORITY 4
         const { data: provinceData, error: provinceError } = await supabase
           .from("accommodations")
           .select("province", { count: "exact" })
@@ -151,7 +207,6 @@ const AccommodationFilter = () => {
             count: count || 0,
           });
 
-          // Redirect to browse with province filter
           const params = new URLSearchParams(searchParams);
           params.set("province", provinceName);
           navigate(`/browse?${params.toString()}`);
