@@ -23,6 +23,7 @@ import AddListing from "./pages/landlord/AddListing";
 import LandlordPayment from "./pages/landlord/Payment";
 import PaymentResult from "./pages/PaymentResult";
 import Notifications from "./pages/Notifications";
+import AccommodationFilter from "./pages/AccommodationFilter";
 
 import NotFound from "./pages/NotFound";
 import ProtectedLandlordRoute from "./components/ProtectedLandlordRoute";
@@ -59,6 +60,7 @@ const App = () => {
           <AuthRedirector />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/accommodation/:slug" element={<AccommodationFilter />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/listing/:id" element={<ListingDetail />} />
             <Route path="/ad" element={<Ad />} />

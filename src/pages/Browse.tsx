@@ -48,12 +48,32 @@ const Browse = () => {
   const nsfasParam = searchParams.get("nsfas") === "true";
   const nearTrainParam = searchParams.get("nearTrain") === "true";
 
+  // Generate canonical URL based on filters
+  const getCanonicalUrl = () => {
+    // Prefer single filter URLs for cleaner canonical
+    if (location && !university && !province && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam) {
+      // Convert location to slug format (lowercase, replace spaces with hyphens)
+      const slug = location.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    if (university && !location && !province && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam) {
+      const slug = university.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    if (province && !location && !university && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam) {
+      const slug = province.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    // For complex filters, use browse
+    return "/browse";
+  };
+
   // SEO
   useSEO({
     title: university ? `${university} Student Accommodation 2025` : "Browse NSFAS Accredited Student Accommodation South Africa",
     description: `Find verified NSFAS-accredited student accommodation in South Africa 2025/2026. ${university ? `Browse student housing near ${university}.` : "Compare prices, amenities, and reviews from R1500/month."} University accredited, safe, affordable housing for students.`,
     keywords: `NSFAS accommodation 2025, student accommodation South Africa, ${university || "university"} student housing, student rooms ${province || "Johannesburg Pretoria Cape Town"}, university accredited accommodation, student housing near campus`,
-    canonical: "/browse",
+    canonical: getCanonicalUrl(),
   });
 
   // Default sort: newest first so newly added accommodations appear on page 1
