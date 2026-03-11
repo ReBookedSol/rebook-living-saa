@@ -47,13 +47,41 @@ const Browse = () => {
   const amenities = amenitiesParam ? amenitiesParam.split(",").map(s => s.trim()).filter(Boolean) : [];
   const nsfasParam = searchParams.get("nsfas") === "true";
   const nearTrainParam = searchParams.get("nearTrain") === "true";
+  const searchParam = searchParams.get("search") || ""; // For property name searches
+
+  // Generate canonical URL based on filters
+  const getCanonicalUrl = () => {
+    // Prefer single filter URLs for cleaner canonical
+    if (location && !university && !province && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam && !searchParam) {
+      // Convert location to slug format (lowercase, replace spaces with hyphens)
+      const slug = location.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    if (university && !location && !province && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam && !searchParam) {
+      const slug = university.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    if (province && !location && !university && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam && !searchParam) {
+      const slug = province.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    if (searchParam && !location && !university && !province && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !nearTrainParam) {
+      const slug = searchParam.toLowerCase().replace(/\s+/g, "-");
+      return `/accommodation/${slug}`;
+    }
+    if (nearTrainParam && !location && !university && !province && !maxCost && !minRating && amenities.length === 0 && !nsfasParam && !searchParam) {
+      return "/accommodation/gautrain";
+    }
+    // For complex filters, use browse
+    return "/browse";
+  };
 
   // SEO
   useSEO({
     title: university ? `${university} Student Accommodation 2025` : "Browse NSFAS Accredited Student Accommodation South Africa",
     description: `Find verified NSFAS-accredited student accommodation in South Africa 2025/2026. ${university ? `Browse student housing near ${university}.` : "Compare prices, amenities, and reviews from R1500/month."} University accredited, safe, affordable housing for students.`,
     keywords: `NSFAS accommodation 2025, student accommodation South Africa, ${university || "university"} student housing, student rooms ${province || "Johannesburg Pretoria Cape Town"}, university accredited accommodation, student housing near campus`,
-    canonical: "/browse",
+    canonical: getCanonicalUrl(),
   });
 
   // Default sort: newest first so newly added accommodations appear on page 1
@@ -85,10 +113,10 @@ const Browse = () => {
       return;
     }
     setCurrentPage(1);
-  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, nearTrainParam, selectedGender, sortBy]);
+  }, [location, university, province, maxCost, minRating, amenitiesParam, nsfasParam, nearTrainParam, searchParam, selectedGender, sortBy]);
 
   const { data: pageResult, isLoading } = useQuery({
-    queryKey: ["accommodations", location, university, maxCost, nsfasParam, nearTrainParam, sortBy, minRating, amenitiesParam, selectedGender, currentPage, isLargeScreen],
+    queryKey: ["accommodations", location, university, maxCost, nsfasParam, nearTrainParam, sortBy, minRating, amenitiesParam, searchParam, selectedGender, currentPage, isLargeScreen],
     queryFn: async () => {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = currentPage * ITEMS_PER_PAGE - 1;
@@ -97,6 +125,11 @@ const Browse = () => {
       let query: any = supabase
         .from("accommodations")
         .select("*", { count: 'exact' });
+
+      // Handle search parameter (property name search)
+      if (searchParam) {
+        query = query.ilike("property_name", `%${searchParam}%`);
+      }
 
       if (location) {
         query = query.or(`property_name.ilike.%${location}%,city.ilike.%${location}%,province.ilike.%${location}%,address.ilike.%${location}%`);
